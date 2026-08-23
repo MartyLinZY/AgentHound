@@ -1,0 +1,15 @@
+schema_version: "0.1.0"
+semantic:
+  query_task_weight: 0.4
+graph:
+  alpha: 0.85
+  tolerance: 0.000001
+  max_iterations: 1000
+fusion:
+  semantic: 0.12
+  clue: 1.0
+  path: 1.0
+  denominator: 2.12
+specificity:
+  mode: "singleton"
+  normalize: true

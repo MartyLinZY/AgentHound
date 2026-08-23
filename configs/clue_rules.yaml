@@ -1,0 +1,36 @@
+version: "0.1.0"
+rules:
+  - name: terminal_failure
+    category: terminal_failure
+    weight: 1.0
+    fields: [observation_text]
+    patterns:
+      - "\\bTraceback\\b"
+      - "\\bAssertionError\\b"
+      - "\\bNameError\\b"
+      - "\\bIndentationError\\b"
+      - "\\bunittest\\b.*\\bFAILED\\b"
+      - "\\bFAILED\\s*\\(errors="
+      - "AssertionError:\\s*Lists differ"
+  - name: tool_environment_failure
+    category: tool_env_failure
+    weight: 0.6
+    fields: [observation_text]
+    patterns:
+      - "command not found"
+      - "No such file"
+      - "Permission denied"
+      - "ModuleNotFoundError"
+  - name: negative_confession
+    category: negative_confession
+    weight: 0.4
+    fields: [decision_text]
+    patterns:
+      - "previous attempt.{0,120}\\bfailed\\b"
+      - "failed due to (a )?(syntax|indentation|compile|runtime) error"
+      - "test cases?\\s+.*\\bfailed\\b"
+  - name: weak_termination
+    category: weak_termination
+    weight: 0.3
+    fields: [observation_text]
+    patterns: []

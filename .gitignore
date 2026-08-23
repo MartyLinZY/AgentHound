@@ -1,0 +1,58 @@
+# Operating-system files
+.DS_Store
+.AppleDouble
+.LSOverride
+
+# Python bytecode and caches
+__pycache__/
+*.py[cod]
+*$py.class
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.hypothesis/
+
+# Virtual environments
+.venv/
+venv/
+env/
+ENV/
+
+# Packaging and build artifacts
+build/
+dist/
+*.egg-info/
+.eggs/
+
+# Coverage and test reports
+.coverage
+.coverage.*
+coverage.xml
+htmlcov/
+*.cover
+
+# Generated experiment outputs and intermediate datasets
+outputs/
+data/interim/*
+data/processed/*
+data/splits/*
+
+# Locally downloaded source datasets (large and subject to their own licenses)
+data/raw/*
+
+# Keep directory placeholders versionable when they are added later.
+!data/interim/.gitkeep
+!data/processed/.gitkeep
+!data/splits/.gitkeep
+!data/raw/.gitkeep
+
+# Local editor and tooling settings
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# Local environment/configuration files
+.env
+.env.*
+!.env.example

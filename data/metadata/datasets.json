@@ -1,0 +1,47 @@
+{
+  "schema_version": "0.1.0",
+  "audited_at": "2026-08-22",
+  "datasets": [
+    {
+      "name": "agentracer-code-test",
+      "status": "available_and_audited",
+      "path": "data/raw/agentracer/tracertraj-code-test.parquet",
+      "workspace_source": "project/AgenTracer/data/tracertraj-code-test.parquet",
+      "sha256": "55c41855a8f5e6a9047d821150c88cd6908f51a2501a39cab8225fd520186b76",
+      "trajectory_count": 127,
+      "domain": "coding",
+      "split_declared_by_filename": "test",
+      "step_level_failure_observations": false,
+      "eligible_protocol": "trace_only_until_augmented"
+    },
+    {
+      "name": "swe-bench-pro-task-benchmark-scaleai",
+      "status": "available_downloaded_not_audited_in_depth",
+      "path": "data/raw/swebench_pro/SWE-bench_Pro-test.parquet",
+      "download": {
+        "url": "https://huggingface.co/datasets/ScaleAI/SWE-bench_Pro/resolve/main/data/test-00000-of-00001.parquet",
+        "date": "2026-08-22",
+        "hf_repo": "ScaleAI/SWE-bench_Pro",
+        "hf_repo_sha": "7ab5114912baf22bb098818e604c02fe7ad2c11f",
+        "license": "not_declared_in_card",
+        "size_bytes": 7816820
+      },
+      "sha256": "c8cd7115496ad4e9a8b21d088cef576a65bf821bb542b24336f13f714cef13f8",
+      "instance_count": 731,
+      "field_count": 16,
+      "fields": ["repo", "instance_id", "base_commit", "patch", "test_patch", "problem_statement", "requirements", "interface", "repo_language", "fail_to_pass", "pass_to_pass", "issue_specificity", "issue_categories", "before_repo_set_cmd", "selected_test_files_to_run", "dockerhub_tag"],
+      "repos": 11,
+      "languages": {"go": 280, "python": 266, "js": 165, "ts": 20},
+      "split_declared_by_filename": "test",
+      "intended_role": "final_external_coding_agent_evaluation",
+      "caveat": "ScaleAI 企业版（731 条，instance_id 匿名化），非 Princeton 原版 SWE-bench Pro（50 条，取自 SWE-bench Verified）；原版在本环境 HF 上已不可访问（401）。静态任务基准，无 agent 轨迹与根因标签，需自行跑 agent 生成轨迹并标注。"
+    },
+    {
+      "name": "swe-bench-pro-agent-trajectories",
+      "status": "deferred_until_feasibility_gate",
+      "path": "data/raw/swebench_pro/",
+      "note": "raw 任务基准已就绪（见 swe-bench-pro-task-benchmark-scaleai）；agent 轨迹需自行生成并人工标注根因，仍待可行性门槛通过后启动",
+      "intended_role": "final_external_coding_agent_evaluation"
+    }
+  ]
+}
