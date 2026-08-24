@@ -11,6 +11,7 @@ from loghound_agent_debug.schema import TrajectoryInput
 
 @dataclass(frozen=True)
 class Edge:
+    """A directed influence relation from one ordinal step to another."""
     source: int
     target: int
     weight: float
@@ -19,11 +20,13 @@ class Edge:
 
 @dataclass(frozen=True)
 class Graph:
+    """Compact trajectory graph represented by its node count and edges."""
     nodes: int
     edges: list[Edge]
 
 
 def _add(edges: dict[tuple[int, int], Edge], source: int, target: int, weight: float, relation: str) -> None:
+    """Add one edge, keeping only the strongest relation for a node pair."""
     if source == target:
         return
     key = (source, target)
@@ -33,11 +36,15 @@ def _add(edges: dict[tuple[int, int], Edge], source: int, target: int, weight: f
 
 
 def build_graph(input_item: TrajectoryInput) -> Graph:
+    """Build conservative temporal, agent, artifact, and message dependencies."""
     edges: dict[tuple[int, int], Edge] = {}
     by_artifact: dict[str, list[int]] = {}
+    # Index writers first so later reads/writes can connect to prior producers.
     for step in input_item.steps:
         for artifact in step.artifacts_written:
             by_artifact.setdefault(artifact.lower(), []).append(step.ordinal)
+    # Temporal edges ensure even otherwise unlinked steps retain sequence
+    # context; stronger semantic relations can replace them for a pair.
     for index in range(len(input_item.steps) - 1):
         _add(edges, index, index + 1, 0.2, "temporal")
     for index, step in enumerate(input_item.steps):
@@ -62,7 +69,7 @@ def build_graph(input_item: TrajectoryInput) -> Graph:
 
 
 def reverse_pagerank(graph: Graph, seeds: list[dict], alpha: float = 0.85, tolerance: float = 1e-6, max_iterations: int = 1000) -> tuple[list[float], bool, int]:
-    """Run reverse PPR when callers already have ordinal seed ids."""
+    """Run reverse PPR when callers already have ordinal seed IDs."""
     if graph.nodes == 0 or not seeds:
         return [0.0] * graph.nodes, False, 0
     seed_vector = [0.0] * graph.nodes
@@ -73,10 +80,12 @@ def reverse_pagerank(graph: Graph, seeds: list[dict], alpha: float = 0.85, toler
     total = sum(seed_vector)
     if total == 0:
         return [0.0] * graph.nodes, False, 0
+    # Normalization makes seed strengths comparable across trajectories.
     seed_vector = [value / total for value in seed_vector]
     reverse: list[list[tuple[int, float]]] = [[] for _ in range(graph.nodes)]
     for edge in graph.edges:
         reverse[edge.target].append((edge.source, edge.weight))
+    # A dangling node gets a self-loop so probability mass is conserved.
     for node in range(graph.nodes):
         if not reverse[node]:
             reverse[node].append((node, 1.0))
@@ -94,11 +103,13 @@ def reverse_pagerank(graph: Graph, seeds: list[dict], alpha: float = 0.85, toler
 
 
 def ppr_from_source_ids(graph: Graph, source_step_ids: dict[str, int], seeds: list[dict], alpha: float = 0.85, tolerance: float = 1e-6, max_iterations: int = 1000) -> tuple[list[float], bool, int]:
-    """Run PPR on the reversed graph, returning scores by ordinal."""
+    """Map source IDs to ordinals and run PPR on the reversed graph."""
     if graph.nodes == 0 or not seeds:
         return [0.0] * graph.nodes, False, 0
     seed_vector = [0.0] * graph.nodes
     for seed in seeds:
+        # Seeds are persisted with source IDs so rankings remain auditable even
+        # when source IDs are not contiguous integers.
         ordinal = source_step_ids.get(str(seed["source_step_id"]))
         if ordinal is not None:
             seed_vector[ordinal] += float(seed["strength"])
@@ -120,6 +131,7 @@ def ppr_from_source_ids(graph: Graph, source_step_ids: dict[str, int], seeds: li
             normalizer = sum(weight for _, weight in outgoing)
             for predecessor, weight in outgoing:
                 next_ranks[predecessor] += alpha * ranks[node] * weight / normalizer
+        # L1 distance is the convergence criterion for the probability vector.
         distance = sum(abs(left - right) for left, right in zip(next_ranks, ranks))
         ranks = next_ranks
         if distance < tolerance:

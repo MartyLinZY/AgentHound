@@ -16,6 +16,7 @@ from loghound_agent_debug.schema import input_from_dict
 
 
 def read_jsonl(path: Path) -> list[dict]:
+    """Read non-empty JSONL records while preserving their original objects."""
     with path.open(encoding="utf-8") as handle:
         return [json.loads(line) for line in handle if line.strip()]
 
@@ -29,6 +30,8 @@ def main() -> None:
     args = parser.parse_args()
     input_rows = read_jsonl(Path(args.inputs))
     label_rows = read_jsonl(Path(args.labels))
+    # Inputs and labels are deliberately separate files; equal counts and
+    # ordered IDs are the first guard against accidental misalignment.
     if len(input_rows) != len(label_rows):
         raise SystemExit(f"input/label count mismatch: {len(input_rows)} != {len(label_rows)}")
     rules = load_clue_rules(args.rules)
@@ -41,9 +44,12 @@ def main() -> None:
         ids = [step.source_step_id for step in item.steps]
         if len(ids) != len(set(ids)):
             raise SystemExit(f"duplicate source step id: {item.trajectory_id}")
+        # The audit currently requires at least one annotated root step. The
+        # schema remains list-valued so future multi-root labels still fit.
         root = str(label["root_cause_steps"][0])
         if root not in ids:
             raise SystemExit(f"root step not present: {item.trajectory_id}:{root}")
+        # Evidence is derived only from the canonical input, never from labels.
         evidence = extract_evidence(item, rules)
         tiers[evidence.tier] += 1
         details.append({

@@ -16,6 +16,7 @@ from loghound_agent_debug.schema import label_from_dict
 
 
 def read_jsonl(path: Path) -> list[dict]:
+    """Load non-empty JSONL lines as Python mappings."""
     with path.open(encoding="utf-8") as handle:
         return [json.loads(line) for line in handle if line.strip()]
 
@@ -27,6 +28,7 @@ def main() -> None:
     parser.add_argument("--out-dir", default="outputs/metrics")
     args = parser.parse_args()
     rankings = read_jsonl(Path(args.rankings))
+    # Labels are joined only at evaluation time, after ranking is complete.
     labels = {row["trajectory_id"]: label_from_dict(row) for row in read_jsonl(Path(args.labels))}
     rows = rows_from_results(rankings, labels)
     output_dir = Path(args.out_dir)
@@ -36,6 +38,7 @@ def main() -> None:
         writer.writeheader()
         writer.writerows(rows)
     summaries = {"all": summarize_rows(rows)}
+    # Keep A/B/C summaries separate because the evidence quality differs.
     for tier in ("A", "B", "C"):
         summaries[tier] = summarize_rows([row for row in rows if row["evidence_tier"] == tier])
     (output_dir / "summary.json").write_text(json.dumps(summaries, ensure_ascii=False, indent=2, sort_keys=True) + "\n", encoding="utf-8")

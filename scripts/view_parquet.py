@@ -25,6 +25,8 @@ def fmt_value(v, width, truncate, parse):
     if isinstance(v, (str, bytes, bytearray)):
         s = v.decode("utf-8", "replace") if isinstance(v, (bytes, bytearray)) else v
         if parse:
+            # Some datasets store lists/dicts as strings; literal_eval avoids
+            # executing arbitrary code while making those values readable.
             stripped = s.strip()
             if stripped.startswith(("[", "{")) and stripped.endswith(("]", "}")):
                 try:
@@ -33,6 +35,8 @@ def fmt_value(v, width, truncate, parse):
                 except (ValueError, SyntaxError):
                     pass  # 解析失败就按普通字符串显示
     else:
+        # Pandas may return ndarray/list/dict values; stringify them uniformly
+        # before applying the same width limit as ordinary text.
         s = str(v)  # ndarray/list/dict 等复合类型统一转字符串，同样参与截断
     if truncate and len(s) > width:
         s = s[: width - 3] + "..."
@@ -40,8 +44,10 @@ def fmt_value(v, width, truncate, parse):
 
 
 def print_rows(df, n, width, truncate, parse):
+    """Print a compact, field-by-field preview without altering the DataFrame."""
     total = len(df)
     shown = min(n, total)
+    # Prefer a stable identifier so long rows can be recognized in the output.
     ident_col = next((c for c in ("instance_id", "trajectory_id", "question_ID", "question")
                       if c in df.columns), df.columns[0])
     for i in range(shown):
@@ -51,6 +57,7 @@ def print_rows(df, n, width, truncate, parse):
         print(f"[{i}] {ident_col} = {ident}   ({i}/{total})")
         print("=" * 70)
         for col in df.columns:
+            # Split multiline values so subsequent lines remain aligned.
             s = fmt_value(row[col], width, truncate, parse)
             lines = s.splitlines() or [""]
             print(f"  {col}: {lines[0]}")
@@ -61,6 +68,7 @@ def print_rows(df, n, width, truncate, parse):
 
 
 def main(argv=None):
+    """Parse CLI options, load one Parquet file, and print a preview."""
     ap = argparse.ArgumentParser(description="查看 parquet 数据集前 N 条记录")
     ap.add_argument("path", help="parquet 文件路径")
     ap.add_argument("--n", type=int, default=10, help="显示条数（默认 10）")

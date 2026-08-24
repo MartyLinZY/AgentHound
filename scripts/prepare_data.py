@@ -15,6 +15,7 @@ from loghound_agent_debug.schema import input_to_dict, label_to_dict
 
 
 def write_jsonl(path: Path, rows: list[dict]) -> None:
+    """Write one JSON object per line, creating the parent directory first."""
     path.parent.mkdir(parents=True, exist_ok=True)
     with path.open("w", encoding="utf-8") as handle:
         for row in rows:
@@ -28,6 +29,8 @@ def main() -> None:
     args = parser.parse_args()
     inputs, labels = load_agentracer(args.raw)
     out_dir = Path(args.out_dir)
+    # Keep inference inputs and ground-truth labels in separate artifacts so a
+    # ranker cannot accidentally consume annotation-only fields.
     write_jsonl(out_dir / "inputs.jsonl", [input_to_dict(item) for item in inputs])
     write_jsonl(out_dir / "labels.jsonl", [label_to_dict(label) for label in labels])
     print(json.dumps({"trajectories": len(inputs), "inputs": str(out_dir / "inputs.jsonl"), "labels": str(out_dir / "labels.jsonl")}, ensure_ascii=False))

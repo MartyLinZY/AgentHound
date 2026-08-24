@@ -10,12 +10,15 @@ from loghound_agent_debug.schema import Label, TrajectoryInput
 
 
 def nearest_seed_distance(item: TrajectoryInput, ranking: dict[str, Any], root_ids: list[str]) -> int | None:
+    """Return the shortest undirected graph distance from any root to any seed."""
     graph = build_graph(item)
     ordinal = {step.source_step_id: step.ordinal for step in item.steps}
     roots = [ordinal[root] for root in root_ids if root in ordinal]
     seeds = [ordinal[str(seed["source_step_id"])] for seed in ranking.get("symptom_seeds", []) if str(seed["source_step_id"]) in ordinal]
     if not roots or not seeds:
         return None
+    # Distance is used for diagnosis, not propagation, so treat influence
+    # edges as undirected to answer whether a root is structurally connected.
     adjacency = [[] for _ in item.steps]
     for edge in graph.edges:
         adjacency[edge.source].append(edge.target)
@@ -23,6 +26,7 @@ def nearest_seed_distance(item: TrajectoryInput, ranking: dict[str, Any], root_i
     best = None
     for root in roots:
         distances = {root: 0}
+        # BFS gives the shortest number of dependency hops from this root.
         queue = deque([root])
         while queue:
             current = queue.popleft()
@@ -37,9 +41,12 @@ def nearest_seed_distance(item: TrajectoryInput, ranking: dict[str, Any], root_i
 
 
 def make_case_cards(inputs: dict[str, TrajectoryInput], labels: dict[str, Label], rankings: list[dict[str, Any]]) -> list[dict[str, Any]]:
+    """Build explainable cards for hard-evidence rankings only."""
     cards = []
     for result in rankings:
         if result.get("evidence_tier") != "A":
+            # B/C cases are retained in aggregate metrics but excluded from
+            # the detailed case review protocol.
             continue
         label = labels[result["trajectory_id"]]
         root_ids = label.root_cause_steps
@@ -62,6 +69,7 @@ def make_case_cards(inputs: dict[str, TrajectoryInput], labels: dict[str, Label]
 
 
 def error_categories(cards: list[dict[str, Any]]) -> dict[str, int]:
+    """Count simple, auditable failure modes in the generated case cards."""
     counts = Counter()
     for card in cards:
         if not card["root_evidence"] or not any(evidence for group in card["root_evidence"] for evidence in group):
@@ -74,6 +82,7 @@ def error_categories(cards: list[dict[str, Any]]) -> dict[str, int]:
 
 
 def render_case_report(cards: list[dict[str, Any]], errors: dict[str, int]) -> str:
+    """Render case cards and error counts as a Markdown report."""
     lines = ["# AgenTracer A-tier case report", "", f"Cases: {len(cards)}", ""]
     for card in cards:
         lines.extend([

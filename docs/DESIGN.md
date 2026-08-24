@@ -372,17 +372,6 @@ $$
 - Hit@1、Hit@3、Hit@5；
 - MRR；
 - Mean Rank 与 Median Rank；
-- 归一化根因排名 NR（EXAM-style normalized rank）。
-
-对单根因轨迹，归一化排名定义为：
-
-$$
-NR = \frac{r-1}{T-1}
-$$
-
-其中 $r$ 是真实根因首次出现的 1-based 排名。$T=1$ 时记为 0。该指标越低越好，可抵消轨迹长度从 2 到 151 的差异。
-
-多根因数据额外报告 MAP，并以第一个命中根因计算 MRR。当前排序器只预测 step，因此仅报告 step-level 指标；module/type 标签保留在 schema 中，待未来增加分类头后再报告 Step+Module 和 All-Correct，不能把仅命中 step 等价成完整根因诊断。
 
 统计报告口径：
 

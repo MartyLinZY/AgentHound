@@ -37,6 +37,7 @@ _NEGATIVE_OBSERVATION_RE = re.compile(
 
 
 def _plain(value: Any) -> str:
+    """Convert scalar parquet values to text without exposing null literals."""
     if value is None:
         return ""
     if isinstance(value, bytes):
@@ -47,9 +48,12 @@ def _plain(value: Any) -> str:
 def _parse_history(value: Any) -> list[dict[str, Any]]:
     """Read ndarray/list history and common stringified representations."""
     if hasattr(value, "tolist"):
+        # Parquet exports may materialize a history column as a NumPy array.
         value = value.tolist()
     if isinstance(value, str):
         try:
+            # literal_eval handles Python-style stringified lists without code
+            # execution; JSON is the fallback for strict JSON exports.
             value = ast.literal_eval(value)
         except (ValueError, SyntaxError):
             try:
@@ -69,12 +73,14 @@ def _parse_history(value: Any) -> list[dict[str, Any]]:
 
 
 def _json_commands(content: str) -> list[dict[str, Any]]:
+    """Extract command arrays from fenced JSON/Python blocks in one history item."""
     blocks = re.findall(r"```(?:json)?\s*(\[.*?\])\s*```", content, re.S | re.I)
     commands: list[dict[str, Any]] = []
     for block in blocks:
         try:
             value = json.loads(block)
         except json.JSONDecodeError:
+            # Older exports may use single quotes, which literal_eval can read.
             try:
                 value = ast.literal_eval(block)
             except (ValueError, SyntaxError):
@@ -87,6 +93,7 @@ def _json_commands(content: str) -> list[dict[str, Any]]:
 
 
 def _command_text(commands: Iterable[dict[str, Any]]) -> str:
+    """Flatten structured commands into deterministic action text."""
     parts = []
     for command in commands:
         name = command.get("command_name") or command.get("name") or command.get("command")
@@ -94,12 +101,14 @@ def _command_text(commands: Iterable[dict[str, Any]]) -> str:
         if name is None:
             continue
         if isinstance(args, (dict, list)):
+            # Stable key ordering makes downstream hashes and tests reproducible.
             args = json.dumps(args, ensure_ascii=False, sort_keys=True)
         parts.append(f"{name} {_plain(args)}".strip())
     return " ; ".join(parts)
 
 
 def _observation_text(content: str) -> str:
+    """Extract only explicit Terminal output, excluding task/prompt text."""
     terminal = _TERMINAL_RE.search(content)
     if not terminal:
         return ""
@@ -113,6 +122,7 @@ def _observation_text(content: str) -> str:
 
 
 def _decision_text(content: str) -> str:
+    """Remove command/output scaffolding while retaining auditable reasoning text."""
     text = re.sub(r"```(?:json)?\s*\[.*?\]\s*```", " ", content, flags=re.S | re.I)
     text = _TERMINAL_RE.sub(" ", text)
     text = re.sub(r"^\s*(?:[^\n:]+\s+)?thinking:\s*", "", text, flags=re.I)
@@ -125,10 +135,12 @@ def _decision_text(content: str) -> str:
 
 
 def _normalise_solution_filename(text: str) -> str:
+    """Mask injected solution filenames that otherwise act as lexical shortcuts."""
     return _SOLUTION_FILE_RE.sub("<SOLUTION_FILE>", text)
 
 
 def _artifacts(text: str) -> list[str]:
+    """Extract unique file-like artifacts from parsed step text."""
     found: list[str] = []
     for match in _PATH_RE.finditer(text):
         path = match.group(1).rstrip(".,:;)]}")
@@ -139,6 +151,7 @@ def _artifacts(text: str) -> list[str]:
 
 
 def parse_history_entry(item: dict[str, Any], ordinal: int) -> Step:
+    """Convert one raw history entry into one canonical decision step."""
     content = _plain(item.get("content"))
     commands = _json_commands(content)
     action = _command_text(commands)
@@ -146,6 +159,7 @@ def parse_history_entry(item: dict[str, Any], ordinal: int) -> Step:
     decision = _normalise_solution_filename(_decision_text(content))
     action = _normalise_solution_filename(action)
     observation = _normalise_solution_filename(observation)
+    # Keep the source ID for audits; ordinal is only the internal graph index.
     raw_step_id = item.get("step", ordinal)
     source_step_id = _plain(raw_step_id)
     agent = _plain(item.get("name")) or "unknown"
@@ -155,6 +169,8 @@ def parse_history_entry(item: dict[str, Any], ordinal: int) -> Step:
     if commands:
         tool_name = _plain(commands[0].get("command_name") or commands[0].get("name") or commands[0].get("command")) or None
     action_lower = action.lower()
+    # Artifact edges are heuristic: only classify a file as read/written when
+    # the action text contains an explicit read/write verb.
     read_action = bool(re.search(r"\b(read|open|view|cat|grep|find|list|inspect)\b", action_lower))
     write_action = bool(re.search(r"\b(write|insert|edit|create|replace|append|save|overwrite)\b|[>]", action_lower))
     file_artifacts = [x for x in artifacts if x.endswith((".py", ".md", ".txt", ".json", ".yaml", ".yml"))]
@@ -175,14 +191,18 @@ def parse_history_entry(item: dict[str, Any], ordinal: int) -> Step:
 
 
 def _row_to_input(row: Any, dataset: str = "agentracer") -> tuple[TrajectoryInput, Label]:
+    """Convert a parquet row into label-free input plus a separate annotation."""
     history = _parse_history(row["history"])
     steps = [parse_history_entry(item, ordinal) for ordinal, item in enumerate(history)]
     observations: list[FailureObservation] = []
     for step in steps:
+        # Scan structured observation first; only use confession text when no
+        # explicit terminal failure was extracted from that same step.
+        confession = _CONFESSION_RE.search(step.decision_text)
         if step.observation_text and _NEGATIVE_OBSERVATION_RE.search(step.observation_text):
             observations.append(FailureObservation(step.source_step_id, "trace_failure", step.observation_text, "trace"))
-        elif _CONFESSION_RE.search(step.decision_text):
-            observations.append(FailureObservation(step.source_step_id, "agent_confession", _CONFESSION_RE.search(step.decision_text).group(0), "trace"))
+        elif confession:
+            observations.append(FailureObservation(step.source_step_id, "agent_confession", confession.group(0), "trace"))
     trajectory_id = _plain(row["question_ID"])
     input_item = TrajectoryInput(
         schema_version="0.1.0",
@@ -194,6 +214,8 @@ def _row_to_input(row: Any, dataset: str = "agentracer") -> tuple[TrajectoryInpu
         failure_observations=observations,
         steps=steps,
     )
+    # These fields are intentionally created here but written to labels.jsonl,
+    # never embedded in TrajectoryInput.
     label = Label(
         trajectory_id=trajectory_id,
         root_cause_steps=[_plain(row["mistake_step"])],
@@ -206,6 +228,7 @@ def _row_to_input(row: Any, dataset: str = "agentracer") -> tuple[TrajectoryInpu
 
 
 def load_agentracer(path: str | Path, dataset: str = "agentracer") -> tuple[list[TrajectoryInput], list[Label]]:
+    """Load and validate the local AgenTracer Parquet export."""
     frame = pd.read_parquet(path)
     required = {"question_ID", "question", "history", "mistake_agent", "mistake_step", "mistake_reason"}
     missing = required - set(frame.columns)
@@ -213,6 +236,7 @@ def load_agentracer(path: str | Path, dataset: str = "agentracer") -> tuple[list
         raise ValueError(f"missing AgenTracer columns: {sorted(missing)}")
     inputs, labels = [], []
     for _, row in frame.iterrows():
+        # Preserve row order so input and label JSONL files remain aligned.
         item, label = _row_to_input(row, dataset=dataset)
         inputs.append(item)
         labels.append(label)

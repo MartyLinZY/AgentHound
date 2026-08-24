@@ -15,6 +15,7 @@ from loghound_agent_debug.schema import input_from_dict, label_from_dict
 
 
 def read_jsonl(path: Path) -> list[dict]:
+    """Load JSONL records and ignore blank lines produced by hand edits."""
     with path.open(encoding="utf-8") as handle:
         return [json.loads(line) for line in handle if line.strip()]
 
@@ -26,9 +27,11 @@ def main() -> None:
     parser.add_argument("--rankings", default="outputs/rankings/rankings.jsonl")
     parser.add_argument("--out-dir", default="outputs/cases")
     args = parser.parse_args()
+    # Dictionaries make the join explicit and avoid depending on file order.
     inputs = {row["trajectory_id"]: input_from_dict(row) for row in read_jsonl(Path(args.inputs))}
     labels = {row["trajectory_id"]: label_from_dict(row) for row in read_jsonl(Path(args.labels))}
     rankings = read_jsonl(Path(args.rankings))
+    # Case reports are intentionally limited to hard-evidence A-tier cases.
     cards = make_case_cards(inputs, labels, rankings)
     errors = error_categories(cards)
     output = Path(args.out_dir)

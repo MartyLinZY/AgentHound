@@ -17,20 +17,24 @@ from loghound_agent_debug.schema import TrajectoryInput, input_to_dict
 
 
 def _hash(value: Any) -> str:
+    """Hash canonical JSON so an output records exactly which config it used."""
     payload = json.dumps(value, ensure_ascii=False, sort_keys=True, separators=(",", ":")).encode("utf-8")
     return hashlib.sha256(payload).hexdigest()
 
 
 def load_config(path: str | Path) -> dict[str, Any]:
+    """Load YAML ranking configuration, treating an empty file as empty config."""
     with open(path, encoding="utf-8") as handle:
         return yaml.safe_load(handle) or {}
 
 
 def _failure_text(input_item: TrajectoryInput) -> str:
+    """Flatten structured failure observations into the semantic query text."""
     return " ".join(observation.content for observation in input_item.failure_observations)
 
 
 def _evidence_for_step(ordinal: int, evidence: EvidenceResult, graph_edges: list) -> list[str]:
+    """Explain which local or graph-derived signals contributed to a step."""
     result = []
     hits = [hit for hit in evidence.hits if hit.step_ordinal == ordinal]
     if any(hit.category == "terminal_failure" for hit in hits):
@@ -47,6 +51,7 @@ def _evidence_for_step(ordinal: int, evidence: EvidenceResult, graph_edges: list
 
 
 def rank_trajectory(input_item: TrajectoryInput, config: dict[str, Any], clue_rules: dict[str, Any], specificity: list[float] | None = None) -> dict[str, Any]:
+    """Rank every step using semantic, clue, and upstream graph channels."""
     evidence = extract_evidence(input_item, clue_rules)
     semantic = semantic_scores(
         input_item,
@@ -65,6 +70,8 @@ def rank_trajectory(input_item: TrajectoryInput, config: dict[str, Any], clue_ru
     )
     if specificity is None:
         specificity = [1.0] * len(input_item.steps)
+    # Specificity is multiplicative with graph propagation; the default value
+    # of one leaves the main protocol purely trajectory-local.
     path = [upstream * spec for upstream, spec in zip(ppr, specificity)]
     semantic_norm = minmax(semantic)
     path_norm = minmax(path)
@@ -75,6 +82,8 @@ def rank_trajectory(input_item: TrajectoryInput, config: dict[str, Any], clue_ru
     denominator = float(fusion.get("denominator", semantic_weight + clue_weight + path_weight))
     ranking = []
     for ordinal, step in enumerate(input_item.steps):
+        # Clue scores stay on their fixed rule scale; semantic and path have
+        # already been normalized within this trajectory.
         raw = semantic_weight * semantic_norm[ordinal] + clue_weight * evidence.clue_scores[ordinal] + path_weight * path_norm[ordinal]
         ranking.append({
             "rank": 0,
@@ -89,6 +98,7 @@ def rank_trajectory(input_item: TrajectoryInput, config: dict[str, Any], clue_ru
             },
             "evidence": _evidence_for_step(ordinal, evidence, graph.edges),
         })
+    # Earliest ordinal wins exact score ties, making repeated runs stable.
     ranking.sort(key=lambda item: (-item["score_raw"], int(ordinal_by_source[item["source_step_id"]])))
     for rank, item in enumerate(ranking, 1):
         item["rank"] = rank
@@ -114,12 +124,15 @@ def rank_trajectory(input_item: TrajectoryInput, config: dict[str, Any], clue_ru
 
 
 def rank_file(input_path: str | Path, config_path: str | Path, rules_path: str | Path, output_path: str | Path) -> list[dict[str, Any]]:
+    """Rank a JSONL input file and write one JSON result per trajectory."""
     config = load_config(config_path)
     rules = load_clue_rules(rules_path)
     results = []
     with open(input_path, encoding="utf-8") as handle:
         for line in handle:
             if line.strip():
+                # Import lazily so importing the ranker does not impose the
+                # JSON adapter on callers that use rank_trajectory directly.
                 from loghound_agent_debug.schema import input_from_dict
                 results.append(rank_trajectory(input_from_dict(json.loads(line)), config, rules))
     output = Path(output_path)

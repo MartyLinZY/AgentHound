@@ -20,6 +20,7 @@ from loghound_agent_debug.schema import input_to_dict, label_to_dict
 
 
 def write_jsonl(path: Path, rows: list[dict]) -> None:
+    """Write deterministic, UTF-8 JSONL output and create parent folders."""
     path.parent.mkdir(parents=True, exist_ok=True)
     with path.open("w", encoding="utf-8") as handle:
         for row in rows:
@@ -35,6 +36,7 @@ def main() -> None:
     parser.add_argument("--rules", default="configs/clue_rules.yaml")
     args = parser.parse_args()
 
+    # Prepare both views of the data once; only inputs are passed to ranking.
     inputs, labels = load_agentracer(args.raw)
     processed = Path(args.processed)
     write_jsonl(processed / "inputs.jsonl", [input_to_dict(item) for item in inputs])
@@ -44,6 +46,8 @@ def main() -> None:
     rankings = [rank_trajectory(item, config, rules) for item in inputs]
     ranking_path = Path(args.rankings)
     write_jsonl(ranking_path, rankings)
+    # Audit evidence independently so the split records what was observable
+    # from the trace, while retaining labels only for later analysis.
     split_rows = []
     for item, label in zip(inputs, labels):
         evidence = extract_evidence(item, rules)
@@ -61,6 +65,7 @@ def main() -> None:
     split_path.parent.mkdir(parents=True, exist_ok=True)
     split_path.write_text(json.dumps({"schema_version": "0.1.0", "counts": {tier: sum(row["evidence_tier"] == tier for row in split_rows) for tier in ("A", "B", "C")}, "trajectories": split_rows}, ensure_ascii=False, indent=2, sort_keys=True) + "\n", encoding="utf-8")
     labels_by_id = {label.trajectory_id: label for label in labels}
+    # Metrics are computed after ranking and therefore cannot influence it.
     metric_rows = rows_from_results(rankings, labels_by_id)
     metric_dir = Path("outputs/metrics")
     metric_dir.mkdir(parents=True, exist_ok=True)
@@ -69,6 +74,7 @@ def main() -> None:
         summaries[tier] = summarize_rows([row for row in metric_rows if row["evidence_tier"] == tier])
     (metric_dir / "summary.json").write_text(json.dumps(summaries, ensure_ascii=False, indent=2, sort_keys=True) + "\n", encoding="utf-8")
     input_by_id = {item.trajectory_id: item for item in inputs}
+    # Case cards use labels to explain results, and are limited to A-tier.
     cards = make_case_cards(input_by_id, labels_by_id, rankings)
     case_dir = Path("outputs/cases")
     case_dir.mkdir(parents=True, exist_ok=True)

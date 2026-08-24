@@ -1,3 +1,5 @@
+"""Protocol tests ensuring the ranker cannot consume ground-truth labels."""
+
 import inspect
 
 from loghound_agent_debug.rankers.loghound_static import rank_trajectory
@@ -5,6 +7,8 @@ from loghound_agent_debug.schema import FailureObservation, Step, TrajectoryInpu
 
 
 def test_ranker_accepts_only_canonical_input_and_does_not_reference_labels():
+    # Inspect both the public signature and source text because leakage can
+    # occur through either an explicit parameter or an implementation shortcut.
     signature = inspect.signature(rank_trajectory)
     assert "label" not in signature.parameters
     source = inspect.getsource(rank_trajectory)

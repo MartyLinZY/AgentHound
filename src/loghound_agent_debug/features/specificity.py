@@ -10,6 +10,7 @@ from loghound_agent_debug.schema import TrajectoryInput, Step
 
 
 def template(step: Step) -> str:
+    """Create a stable step template by masking identifiers and paths."""
     raw = " ".join(filter(None, [step.role, step.agent, step.tool_name or "", step.action_text]))
     raw = raw.lower()
     raw = re.sub(r"https?://\S+|/[^\s]+", "<path>", raw)
@@ -21,9 +22,11 @@ def template(step: Step) -> str:
 
 
 def corpus_statistics(inputs: list[TrajectoryInput]) -> dict:
+    """Return diagnostics for the optional cross-trajectory specificity channel."""
     document_frequency = Counter()
     all_templates = []
     for item in inputs:
+        # Count a template once per trajectory, matching document frequency.
         current = {template(step) for step in item.steps}
         document_frequency.update(current)
         all_templates.extend(current)
@@ -45,7 +48,10 @@ def corpus_statistics(inputs: list[TrajectoryInput]) -> dict:
 
 
 def scores_for(item: TrajectoryInput, inputs: list[TrajectoryInput] | None = None, mode: str = "singleton") -> list[float]:
+    """Return per-step specificity, defaulting to the protocol's neutral value."""
     if mode == "singleton" or not inputs:
+        # The main protocol avoids transductive statistics and keeps path
+        # scores driven only by the trajectory graph.
         return [1.0] * len(item.steps)
     stats = corpus_statistics(inputs)
     del stats
