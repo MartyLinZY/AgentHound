@@ -2,8 +2,9 @@
 
 > 本文档对 `src/` 下每个模块/单文件的职责、核心数据结构与实现逻辑逐一说明。
 > 项目概览：LogHound-Agent-Debug 是一个**基于静态证据的 agent 调试根因排序系统**——
-> 输入一条 agent（如 coding agent）失败轨迹，自动识别失败症状，沿"依赖图"反向传播，
-> 融合语义相似度，最终对轨迹中每一步"是根因的疑似程度"做排序（Hit@K / MRR 评估）。
+> 输入一条 agent（如 coding agent）失败轨迹，抽取可审计的局部失败线索，
+> 在反向依赖投票图上运行不依赖失败种子的全图 PageRank，融合语义相似度，
+> 最终对轨迹中每一步"是根因的疑似程度"做排序（Hit@K / MRR 评估）。
 
 ---
 
@@ -17,7 +18,7 @@ inputs.jsonl (无标签)          labels.jsonl (仅标注, 物理分离)
    │  cli.py / rankers/loghound_static.py
    ▼
 evidence.py  ──> 特征features/ ──> graph.py ──> ranker 融合排序
-   │               (semantic)      (PPR)
+   │               (semantic)      (PageRank)
    ▼
 outputs/rankings/rankings.jsonl
    │  evaluate.py (scripts/) / reporting.py (case 报告)
@@ -79,13 +80,13 @@ Hit@K、MRR、A/B/C 分档汇总、A档 case 卡片
 
 ## 3. `evidence.py` — 证据感知的失败/线索提取
 
-**职责**：从轨迹中识别"失败证据"并按证据强弱给轨迹打 **A/B/C 档**；产出 ranker 用的线索分数、以及用于图传播的去重"症状种子"。
+**职责**：从轨迹中识别"失败证据"并按证据强弱给轨迹打 **A/B/C 档**；产出 ranker 用的局部线索分数和失败聚类诊断统计。线索不作为图 PageRank 的种子。
 
 （已在对话中详细讲解，此处为完整版摘要）
 
 ### 数据结构
 - `ClueHit`：`step_ordinal`、`rule_names`、`category`、`strength`、`signature`（聚类签名）。
-- `EvidenceResult`：`tier`、`status`、`clue_scores`（每步线索强度向量）、`hits`（明细）、`symptom_seeds`、`failed_occurrences` / `failed_clusters`。
+- `EvidenceResult`：`tier`、`status`、`clue_scores`（每步线索强度向量）、`hits`（明细）、`failed_occurrences` / `failed_clusters`。
 
 ### 实现逻辑
 1. **`load_clue_rules`**：YAML 声明式规则（`name/category/weight/fields/patterns`），加载时预编译正则存到 `compiled`。
@@ -93,15 +94,15 @@ Hit@K、MRR、A/B/C 分档汇总、A档 case 卡片
 3. **`extract_evidence`**：
    - 每步取命中规则中 **weight 最大**的作为强度（防长报错叠加放大）；
    - `_error_signature` 粗粒度归一化错误（小写、数字→`<N>`、提取错误类型），SHA1 哈希得聚类 key；
-   - 同签名（同类反复失败）**只保留一个最强/最早种子**，用于下游图传播"一种症状只传播一次"。
+   - 同签名（同类反复失败）只计入 `failed_clusters` 诊断；重复线索不会改变 PageRank。
 4. **`_tier`**：出现 `terminal_failure` / `tool_env_failure` → **A**；`negative_confession` → **B**；否则 **C**（`status="no_evidence"`）。**A/B 是"有硬失败证据"，C 是"无证据"**。
 5. 计数区分：`failed_occurrences`（原始命中）vs `failed_clusters`（独立症状数）。
 
 ---
 
-## 4. `graph.py` — 轨迹依赖图与反向个性化 PageRank（PPR）
+## 4. `graph.py` — 轨迹依赖图与全图 PageRank
 
-**职责**：把轨迹建成有向依赖图（节点=step 序号），然后从"症状种子"出发沿**反向边**跑个性化 PageRank，得到"最可能是失败源头"的图上分数——这是"路径通道"（path channel）的核心。
+**职责**：把轨迹建成有向依赖图（节点=step 序号），在非时间依赖边的反向投票图上运行普通 PageRank，得到全局结构重要性分数——这是"路径通道"（path channel）的核心。PageRank 不读取失败证据或标签。
 
 ### 数据结构
 - `Edge`：`source`（先序）、`target`（后序）、`weight`、`relation`。
@@ -120,14 +121,12 @@ Hit@K、MRR、A/B/C 分档汇总、A档 case 卡片
 
 - `_add`：去 self-loop、去重（同源同目标只保留最强关系）。
 
-### 2) `ppr_from_source_ids` — 反向 PPR 迭代
+### 2) `pagerank` — 反向依赖图上的普通 PageRank
 
-1. 种子向量：`symptom_seeds`（含 `source_step_id` + `strength`）通过 `source_step_id → ordinal` 映射表落到概率向量，**归一化**使不同轨迹的种子强度可比；
-2. 建**反向图**（边 `target → source`），悬空节点（无入边者）加 self-loop 保证概率守恒；
-3. 迭代式反向传播：`next_ranks[p] = (1-α)·seed[p] + α·Σ_{n→p} ranks[n]·w/normalizer`，即"每个节点的概率按出边权重分配回其前驱"——**往源头方向扩散**；
-4. 以 L1 距离 < tolerance 判定收敛，返回 `(ranks, converged, iterations)`。
-
-- `reverse_pagerank` 是同逻辑的变体（调用方已持有 ordinal 种子），两者共用同一套迭代核心。
+1. 过滤 `temporal` 边，避免纯时间链在行归一化后系统性奖励早期节点；
+2. 将因果边 `source → target` 翻转为投票边 `target → source`，使依赖者向其前置依赖投票；
+3. 使用均匀 teleport 向量，初始向量同样均匀；悬挂节点按标准 PageRank 向全部节点均匀分配概率；
+4. 以 L1 距离 < tolerance 判定收敛，返回 `(ranks, converged, iterations)`。替换 clue 命中或失败证据不会改变结果。
 
 ---
 
@@ -167,21 +166,21 @@ Hit@K、MRR、A/B/C 分档汇总、A档 case 卡片
 ```
 score_raw(step) = semantic_w · minmax(语义分数)
                 + clue_w     · clue_scores（保持规则固定量纲, 不再归一化）
-                + path_w     · minmax(PPR分数 × specificity)
+                + path_w     · minmax(PageRank分数)
 suspiciousness = score_raw / denominator          (denominator 默认 = 三权之和 2.12)
 ```
 
 ### 实现逻辑（`rank_trajectory`）
-1. **证据**：`extract_evidence` → `EvidenceResult`（tier/status/clue_scores/symptom_seeds）。
+1. **证据**：`extract_evidence` → `EvidenceResult`（tier/status/clue_scores/hits）。
 2. **语义**：以 `failure_observations` 拼接文本为查询，算每步语义分数，minmax 归一化。
-3. **图**：`build_graph` + `ppr_from_source_ids`（源 = 去重后的 symptom seeds）。
-4. **特异性**：默认 `[1.0]*n`（乘性作用于 PPR 分数，即默认路径通道纯粹是轨迹局部的）。
+3. **图**：`build_graph` + `pagerank`（全图、均匀 teleport、无失败 seed）。
+4. **特异性**：仅作为跨轨迹诊断字段，不乘入主 PageRank 分数。
 5. **融合**：从 config 读权重（默认 `semantic=0.12, clue=1.0, path=1.0`）。
 6. **排序**：按 `score_raw` 降序，**平票时 ordinal 小的优先** → 决定性的稳定复现。
 7. **审计信息**：
    - `evidence` 列表由 `_evidence_for_step` 生成（terminal/tool/confession 命中、读改写复用构件、失败证据上游等可解释信号）；
    - `components` 拆分三通道归一的分数；
-   - `graph_stats`（边数、按 relation 统计、PPR 收敛情况、失败出现/聚类数）；
+   - `graph_stats`（因果边数、PageRank 边数、按 relation 统计、PageRank 收敛情况、悬挂节点数、失败出现/聚类数）；
    - **`config_hash` / `input_hash`**（SHA256 of 规范化 JSON）——每个输出记录精确的配置与输入版本。
 
 ### `rank_file`
@@ -209,9 +208,8 @@ suspiciousness = score_raw / denominator          (denominator 默认 = 三权�
 **职责**：给 A 档（硬证据）轨迹生成可解释的 case 卡片，统计"简单、可审计"的失败类别，渲染 Markdown 报告。被 `scripts/case_report.py` 使用。
 
 ### 实现逻辑
-- **`nearest_seed_distance`**：建图后把影响边**当作无向**，从每个 root 做 **BFS**，求"根因 ↔ 症状种子"的最短图距离（多个 root/seed 取最小）。用于诊断"根因在结构上是否与症状相连"（而非传播）。
-- **`make_case_cards`**：只处理 `evidence_tier == "A"` 的轨迹（B/C 保留在聚合指标里，不进人工 case 审查协议）；每卡含 top-3、根因排名/构件/证据明细、最近种子距离、`symptom_seeds`。
-- **`error_categories`**：三个可审计错误计数——根因无排名证据（root_evidence 为空）、根因与种子图无路径（距离为 None）、根因排在 top-5 之外。
+- **`make_case_cards`**：只处理 `evidence_tier == "A"` 的轨迹（B/C 保留在聚合指标里，不进人工 case 审查协议）；每卡含 top-3、根因排名/构件/证据明细、`clue_hits` 与 PageRank 图统计。
+- **`error_categories`**：可审计错误计数——根因无排名证据（root_evidence 为空）、根因排在 top-5 之外。
 - **`render_case_report`**：渲染成 Markdown（`# AgenTracer A-tier case report` + 每 case 一节 + 错误类别统计）。
 
 ---
@@ -240,12 +238,12 @@ python src/loghound_agent_debug/cli.py inputs.jsonl \
 | negative_confession | negative_confession | 0.4 | decision_text | `previous attempt.{0,120}failed` / `failed due to ... error` / `test cases ... failed` |
 | weak_termination | weak_termination | 0.3 | observation_text | （patterns 空，预留） |
 
-注意 A/B 档判定只认前两类 + confession，`weak_termination` 不参与分档、也不成为传播种子。
+注意 A/B 档判定只认前两类 + confession，`weak_termination` 不参与分档，也不影响 PageRank。
 
 ### `configs/default.yaml` — 排序配置
 ```yaml
 semantic.query_task_weight: 0.4   # 语义通道中任务 vs 失败的权重
-graph.alpha: 0.85                 # PPR 阻尼因子
+graph.alpha: 0.85                 # PageRank 阻尼因子
 graph.tolerance / max_iterations: 1e-6 / 1000
 fusion.semantic / clue / path: 0.12 / 1.0 / 1.0   # 三通道融合权重
 fusion.denominator: 2.12          # 归一化分母（= 三权之和）
@@ -265,11 +263,11 @@ cli.py ──────────────────> rankers/loghound_
                              ├──> evidence.py (线索/分档/种子)
                              ├──> features/semantic.py (语义+minmax)
                              ├──> features/specificity.py (默认中性)
-                             ├──> graph.py (建图+反向PPR)
+                             ├──> graph.py (建图+全图 PageRank)
                              └──> schema.py (input_to_dict/input_from_dict)
 adapters/agentracer.py ──> schema.py
 evaluate.py ─────────────> schema.py (Label)
 reporting.py ────────────> graph.py, schema.py
 ```
 
-**一句话总结**：`schema.py` 定义规范对象；`adapters/` 把原始数据对齐到 schema（标签物理分离）；`evidence.py` 找失败硬证据并分级；`graph.py` 建模依赖并沿反向 PPR 往源头扩散；`features/` 提供语义/特异性通道；`rankers/loghound_static.py` 三通道融合出嫌疑排序；`evaluate.py` 与 `reporting.py` 分别在文档里评测、在人工审查里解释结果；`cli.py` 只是批量运行的入口。
+**一句话总结**：`schema.py` 定义规范对象；`adapters/` 把原始数据对齐到 schema（标签物理分离）；`evidence.py` 找失败硬证据并分级；`graph.py` 建模依赖并在反向投票图上运行全图 PageRank；`features/` 提供语义/特异性诊断；`rankers/loghound_static.py` 三通道融合出嫌疑排序；`evaluate.py` 与 `reporting.py` 分别在文档里评测、在人工审查里解释结果；`cli.py` 只是批量运行的入口。

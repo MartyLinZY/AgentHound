@@ -55,7 +55,7 @@ def main() -> None:
             "trajectory_id": item.trajectory_id,
             "evidence_tier": evidence.tier,
             "evidence_status": evidence.status,
-            "seed_steps": [seed["source_step_id"] for seed in evidence.symptom_seeds],
+            "clue_hit_steps": [item.steps[hit.step_ordinal].source_step_id for hit in evidence.hits],
             "failed_occurrences": evidence.failed_occurrences,
             "failed_clusters": evidence.failed_clusters,
             "step_count": len(item.steps),
@@ -85,7 +85,7 @@ def main() -> None:
     metadata = {
         "trajectories": len(inputs),
         "specificity": corpus_statistics(inputs),
-        "specificity_used_for_ranking": config.get("specificity", {}).get("mode", "singleton"),
+        "specificity_diagnostic_mode": config.get("specificity", {}).get("mode", "singleton"),
         "rule_version": rules.get("version"),
         "ranking_path": str(ranking_path),
         "evidence_split_path": str(split_path),

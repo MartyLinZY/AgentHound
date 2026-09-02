@@ -87,7 +87,7 @@ conda run -n mybook python scripts/run_experiment.py
 
 | 文件 | 作用 |
 |---|---|
-| `evidence.py` | 加载 YAML clue 规则，扫描结构化的 `decision_text`、`action_text` 和 `observation_text`，输出命中规则、证据等级、症状种子以及失败去重统计 |
+| `evidence.py` | 加载 YAML clue 规则，扫描结构化的 `decision_text`、`action_text` 和 `observation_text`，输出命中规则、证据等级以及失败聚类统计；不生成图 PageRank 种子 |
 | `features/semantic.py` | 在单条轨迹内部计算任务/失败观察与每个 step 的 TF-IDF cosine 相关性，并提供 min-max 归一化 |
 | `features/specificity.py` | 将 step 归一化为模板，计算跨轨迹模板特异性；当前主协议默认使用 `singleton`，即每个 step 的特异性为 1 |
 
@@ -97,13 +97,13 @@ conda run -n mybook python scripts/run_experiment.py
 - **B**：存在 agent 明确陈述失败的弱证据；
 - **C**：没有可用的负向证据，状态为 `no_evidence`。
 
-重复出现的同一失败会按错误签名聚类，症状种子保留代表性 occurrence，同时记录 `failed_occurrences` 和 `failed_clusters`。
+重复出现的同一失败会按错误签名聚类，同时记录 `failed_occurrences` 和 `failed_clusters`；聚类仅用于诊断，不影响 PageRank。
 
 ### 3.3 图构建与根因排序
 
 | 文件 | 作用 |
 |---|---|
-| `graph.py` | 根据时间、同 agent、artifact 和显式消息关系构建有向轨迹图；以症状节点为种子，在反向图上运行 Personalized PageRank，向上游传播可疑度 |
+| `graph.py` | 根据时间、同 agent、artifact 和显式消息关系构建有向轨迹图；过滤纯时间边后，在反向依赖投票图上运行全图 PageRank |
 | `rankers/loghound_static.py` | 组合 semantic、clue 和 path 三个通道，归一化并生成稳定排序结果，同时记录图统计、输入 hash 和配置 hash |
 
 排序过程可以概括为：
@@ -112,7 +112,7 @@ conda run -n mybook python scripts/run_experiment.py
 每条轨迹
   ├─ semantic：step 与 task/failure observation 的文本相关性
   ├─ clue：step 上的显式失败规则命中
-  └─ path：失败症状沿依赖图反向传播的 PPR 分数
+  └─ path：反向依赖投票图上的全图 PageRank 分数
              │
              ▼
      轨迹内归一化 + 固定权重融合
@@ -121,14 +121,14 @@ conda run -n mybook python scripts/run_experiment.py
        按 score 降序、ordinal 升序稳定排名
 ```
 
-主配置中的默认融合权重为 semantic `0.12`、clue `1.0`、path `1.0`。semantic 和 path 做轨迹内 min-max；clue 保留规则文件中的绝对权重。没有证据时不生成伪造的症状种子，也不运行 PPR。
+主配置中的默认融合权重为 semantic `0.12`、clue `1.0`、path `1.0`。semantic 和 path 做轨迹内 min-max；clue 保留规则文件中的绝对权重。没有证据时关闭 clue，但仍运行不依赖失败证据的 PageRank。
 
 ### 3.4 评估与报告
 
 | 文件 | 作用 |
 |---|---|
 | `evaluate.py` | 将排名与 `Label` 对齐，计算每条轨迹的首个根因排名、Hit@K 和 MRR，并按轨迹长度汇总 |
-| `reporting.py` | 生成 A-tier case cards，计算根因与症状种子的图距离，并归类“无排名证据”“无图路径”“未进入 Top-5”等错误 |
+| `reporting.py` | 生成 A-tier case cards，保留 clue 命中和 PageRank 图统计，并归类“无排名证据”“未进入 Top-5”等错误 |
 
 评估指标包括 `Hit@1`、`Hit@3`、`Hit@5`、`MRR`、`Mean Rank` 和 `Median Rank`，并按短轨迹（`T<=10`）、中等轨迹（`10<T<=30`）和长轨迹（`T>30`）提供长度分桶结果。
 
@@ -139,8 +139,8 @@ conda run -n mybook python scripts/run_experiment.py
 | 文件 | 覆盖内容 |
 |---|---|
 | `test_adapters.py` | 验证命令与 Terminal output 保留在同一个 decision step；验证 `*_attacked_solution.py` 文件名归一化为 `<SOLUTION_FILE>` |
-| `test_graph_direction.py` | 验证 PPR 在反向图中会把失败症状分数传给上游步骤，而不是偏向下游步骤 |
-| `test_scoring.py` | 验证常量通道的 min-max 结果为全零；验证无证据轨迹不会生成 clue 或 PPR seed |
+| `test_graph_direction.py` | 验证普通 PageRank 在反向依赖图中按结构重要性偏向上游依赖，且忽略纯时间边 |
+| `test_scoring.py` | 验证常量通道的 min-max 结果为全零；验证无证据轨迹仍运行 PageRank，且 PageRank 不受 clue 影响 |
 | `test_metrics.py` | 验证平均排名、中位排名和样本数等汇总指标 |
 | `test_no_label_leakage.py` | 验证 ranker API 不接收 label，并且实现不引用 `ground_truth` 或 `mistake_step`；同时验证可在没有标签的情况下完成排序 |
 
@@ -162,7 +162,7 @@ conda run -n mybook pytest tests/test_no_label_leakage.py
 |---|---|
 | `data/processed/agentracer/inputs.jsonl` | 排序器可见的 canonical 输入 |
 | `data/processed/agentracer/labels.jsonl` | 仅评估与报告使用的根因标签 |
-| `data/splits/evidence_split.json` | 每条轨迹的 A/B/C 证据等级、症状种子和失败统计 |
+| `data/splits/evidence_split.json` | 每条轨迹的 A/B/C 证据等级、clue 命中步骤和失败统计 |
 | `outputs/rankings/rankings.jsonl` | 每条轨迹的完整 step 排名、分数组件、证据和图统计 |
 | `outputs/metrics/summary.json` | 全体及 A/B/C 子集指标 |
 | `outputs/metrics/per_trajectory.csv` | 逐轨迹评估明细 |

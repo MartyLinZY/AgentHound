@@ -11,8 +11,7 @@ import yaml
 
 from loghound_agent_debug.evidence import EvidenceResult, extract_evidence, load_clue_rules
 from loghound_agent_debug.features.semantic import minmax, scores as semantic_scores
-from loghound_agent_debug.features.specificity import scores_for
-from loghound_agent_debug.graph import build_graph, ppr_from_source_ids
+from loghound_agent_debug.graph import build_graph, pagerank, pagerank_dangling_nodes, pagerank_edge_count
 from loghound_agent_debug.schema import TrajectoryInput, input_to_dict
 
 
@@ -33,7 +32,7 @@ def _failure_text(input_item: TrajectoryInput) -> str:
     return " ".join(observation.content for observation in input_item.failure_observations)
 
 
-def _evidence_for_step(ordinal: int, evidence: EvidenceResult, graph_edges: list) -> list[str]:
+def _evidence_for_step(ordinal: int, evidence: EvidenceResult, graph_edges: list, path_norm: list[float]) -> list[str]:
     """Explain which local or graph-derived signals contributed to a step."""
     result = []
     hits = [hit for hit in evidence.hits if hit.step_ordinal == ordinal]
@@ -45,13 +44,13 @@ def _evidence_for_step(ordinal: int, evidence: EvidenceResult, graph_edges: list
         result.append("agent_negative_confession")
     if any(edge.target == ordinal and edge.relation == "artifact" for edge in graph_edges):
         result.append("reads_or_modifies_reused_artifact")
-    if any(edge.target == ordinal and edge.relation in {"temporal", "same_agent", "message"} for edge in graph_edges) and ordinal not in {hit.step_ordinal for hit in evidence.hits}:
-        result.append("upstream_of_failure_evidence")
+    if path_norm[ordinal] >= 0.8:
+        result.append("high_graph_importance")
     return result
 
 
-def rank_trajectory(input_item: TrajectoryInput, config: dict[str, Any], clue_rules: dict[str, Any], specificity: list[float] | None = None) -> dict[str, Any]:
-    """Rank every step using semantic, clue, and upstream graph channels."""
+def rank_trajectory(input_item: TrajectoryInput, config: dict[str, Any], clue_rules: dict[str, Any]) -> dict[str, Any]:
+    """Rank every step using semantic, clue, and global PageRank channels."""
     evidence = extract_evidence(input_item, clue_rules)
     semantic = semantic_scores(
         input_item,
@@ -59,20 +58,13 @@ def rank_trajectory(input_item: TrajectoryInput, config: dict[str, Any], clue_ru
         task_weight=float(config.get("semantic", {}).get("query_task_weight", 0.4)),
     )
     graph = build_graph(input_item)
-    ordinal_by_source = {step.source_step_id: step.ordinal for step in input_item.steps}
-    ppr, converged, iterations = ppr_from_source_ids(
+    pagerank_scores, converged, iterations = pagerank(
         graph,
-        ordinal_by_source,
-        evidence.symptom_seeds,
         alpha=float(config.get("graph", {}).get("alpha", 0.85)),
         tolerance=float(config.get("graph", {}).get("tolerance", 1e-6)),
         max_iterations=int(config.get("graph", {}).get("max_iterations", 1000)),
     )
-    if specificity is None:
-        specificity = [1.0] * len(input_item.steps)
-    # Specificity is multiplicative with graph propagation; the default value
-    # of one leaves the main protocol purely trajectory-local.
-    path = [upstream * spec for upstream, spec in zip(ppr, specificity)]
+    path = pagerank_scores
     semantic_norm = minmax(semantic)
     path_norm = minmax(path)
     fusion = config.get("fusion", {})
@@ -94,11 +86,13 @@ def rank_trajectory(input_item: TrajectoryInput, config: dict[str, Any], clue_ru
             "components": {
                 "semantic_normalized": round(semantic_norm[ordinal], 9),
                 "clue": round(evidence.clue_scores[ordinal], 9),
+                "pagerank": round(path[ordinal], 9),
                 "path_normalized": round(path_norm[ordinal], 9),
             },
-            "evidence": _evidence_for_step(ordinal, evidence, graph.edges),
+            "evidence": _evidence_for_step(ordinal, evidence, graph.edges, path_norm),
         })
     # Earliest ordinal wins exact score ties, making repeated runs stable.
+    ordinal_by_source = {step.source_step_id: step.ordinal for step in input_item.steps}
     ranking.sort(key=lambda item: (-item["score_raw"], int(ordinal_by_source[item["source_step_id"]])))
     for rank, item in enumerate(ranking, 1):
         item["rank"] = rank
@@ -108,13 +102,25 @@ def rank_trajectory(input_item: TrajectoryInput, config: dict[str, Any], clue_ru
         "evidence_status": evidence.status,
         "evidence_tier": evidence.tier,
         "ranking": ranking,
-        "symptom_seeds": evidence.symptom_seeds,
+        "clue_hits": [
+            {
+                "source_step_id": input_item.steps[hit.step_ordinal].source_step_id,
+                "score": hit.strength,
+                "category": hit.category,
+                "rule_names": list(hit.rule_names),
+            }
+            for hit in evidence.hits
+        ],
         "graph_stats": {
             "nodes": graph.nodes,
             "edges": len(graph.edges),
+            "causal_edges": len(graph.edges),
+            "pagerank_edges": pagerank_edge_count(graph),
             "edge_relations": {relation: sum(edge.relation == relation for edge in graph.edges) for relation in sorted({edge.relation for edge in graph.edges})},
-            "ppr_converged": converged,
-            "ppr_iterations": iterations,
+            "pagerank_converged": converged,
+            "pagerank_iterations": iterations,
+            "pagerank_sum": round(sum(path), 12),
+            "dangling_nodes": pagerank_dangling_nodes(graph),
             "failed_occurrences": evidence.failed_occurrences,
             "failed_clusters": evidence.failed_clusters,
         },

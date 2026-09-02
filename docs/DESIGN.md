@@ -50,11 +50,11 @@ LogHound 的三个主要信号不能逐字段照搬，但可以迁移其证据�
 |---|---|---|
 | 缺陷报告与源码方法的 VSM 相似度 | 任务/失败证据与执行步内容的文本相关性 | 信息检索产生候选可疑度 |
 | 日志与异常栈中的方法 | 错误消息、失败测试、无效工具调用、终止症状所关联的步骤 | 运行线索比普通文本更直接 |
-| 静态调用图上的路径重建与 PageRank | 时间、消息、agent、文件和工具依赖构成的轨迹图；从症状反向传播 | 用结构关系把表面失败追溯到上游步骤 |
-| 测试覆盖率抑制广泛执行的方法 | 跨轨迹模板频率抑制常见编排/样板步骤 | 常见但信息量低的节点不应占据榜首 |
+| 静态调用图上的路径重建与 PageRank | 时间、消息、agent、文件和工具依赖构成的轨迹图；在全图上运行非个性化 PageRank | 用全局结构重要性识别被多个后续步骤依赖的关键轨迹节点 |
+| 测试覆盖率抑制广泛执行的方法 | 跨轨迹模板频率仅作为 PageRank 偏置诊断，不进入主版本融合 | 检查常见编排节点是否被结构通道过度奖励 |
 | 多路归一化加权 | step-level 多路归一化加权 | 生成统一可疑度排名 |
 
-最大差异是：LogHound 需要从不完整日志恢复执行路径，而 agent 轨迹已经给出实际顺序。因此这里不再“重建执行序列”，而是从序列上补建依赖边，并沿依赖边反向寻找失败的上游来源。
+最大差异是：LogHound 需要从不完整日志恢复执行路径，而 agent 轨迹已经给出实际顺序。因此这里不再“重建执行序列”，而是从序列上补建依赖边，再用全图 PageRank 衡量每个步骤在整条轨迹中的结构重要性。第三通道不使用失败步骤或其他可疑步骤作为传播起点，避免把已经暴露错误的症状节点再次加权。
 
 ## 3. 数据设计
 
@@ -171,8 +171,8 @@ Terminal output: [command]: pwd
 - `ground_truth` 和 `mistake_reason` 在真实推理时不可获得，必须物理隔离。
 - 文件名为 test；未经额外训练集支持，不可据此调权。
 - 本地 AgenTracer Parquet 的 last-step 多数是"完成任务"的编排消息，但**并非完全没有 step-level 失败观察**：`content` 内嵌 663 处 `Terminal output` 回传（3.3.1），其中仅 9 条轨迹含真实硬失败、31 条仅 agent 陈述式弱证据、87 条无证据（3.1.1）。因此 evidence-aware 合格集只有 9 条强样本，**不得将 40/127 说成主验证集规模**；
-- 大量弱证据高度模板化（"Since the previous attempt to create the file with content failed, ..."），本质是注入故障的痕迹而非自然测试失败，若直接当 clue seed 会在错误步骤散布分数（4.4 处理）；
-- 同一条失败在轨迹内可能重复数十次（如 `Filter_56113_I` 相同 `AssertionError` 出现 10 次），若按 4.5 的 seed 归一化 ∑s=1 会把种子强度稀释到多个重复步骤，需要失败去重（4.5 处理）。
+- 大量弱证据高度模板化（"Since the previous attempt to create the file with content failed, ..."），本质是注入故障的痕迹而非自然测试失败；它只影响局部 clue 分，不得参与第三通道的 PageRank 初始化（4.4、4.5）；
+- 同一条失败在轨迹内可能重复数十次（如 `Filter_56113_I` 相同 `AssertionError` 出现 10 次）。重复命中会使多个步骤获得局部 clue 分，因此仍需在报告中统计失败簇；但第三通道不使用失败 seed，不会因重复错误而改变 PageRank 的初始分布。
 
 ## 4. 初版排序算法
 
@@ -186,7 +186,7 @@ flowchart LR
     B --> E[步骤文本与线索特征]
     C --> F[文本相关性分数]
     C --> G[显式失败线索分数]
-    D --> H[上游图传播与步骤特异性]
+    D --> H[全图 PageRank 结构重要性]
     F --> I[分数归一化与融合]
     G --> I
     H --> I
@@ -201,22 +201,22 @@ flowchart LR
 - traceback、异常、非零退出码；
 - 工具返回的 invalid、not found、timeout、permission 等错误；
 - agent 明确陈述的未完成、无法继续或达到限制；
-- 若没有显式错误但输入明确标记了负向终止，则使用最后一个负向 observation 作为弱终止证据；正常的"完成""提交成功"或"任务结束"消息不能作为 failure seed。
+- 若没有显式错误但输入明确标记了负向终止，则使用最后一个负向 observation 作为弱终止证据；正常的"完成""提交成功"或"任务结束"消息不能作为 failure clue。
 
 本地 AgenTracer 的 evidence 判定按 3.1.1 的档位执行，且必须满足证据来源约束：**只有 `[command output]` 回传（A 档）和 agent 陈述中的失败声明（B 档）算数；任务正文中出现的 `assert`、`Invalid input`、`avoid timeouts` 等词汇是任务说明，不是失败观察**。实现 clue 规则时必须显式剔除命中发生在系统模板行/任务复述段的情况（实现按 3.3.1 的段落切分后只扫描 observation_text）。
 
-如果输入没有任何负向 observation，也没有明确负向终止状态，则标记为 `no_evidence`：不生成伪造的最后一步 seed，`clue` 和 `path` 通道记为无信息，并在主实验中单独报告或排除该条轨迹。这样可以区分"算法没有找到根因"和"数据没有提供失败线索"。
+如果输入没有任何负向 observation，也没有明确负向终止状态，则标记为 `no_evidence`：不生成伪造的失败线索，`clue` 通道记为无信息；但第三通道只依赖轨迹结构，因此仍在全图上运行 PageRank。该状态用于区分“没有局部失败证据”和“图结构本身不可构建”，不能把 `no_evidence` 等同于第三通道无分数。
 
 实验分成两个协议：
 
-- `evidence-aware`：输入含至少一个真实负向 observation，运行 semantic、clue 和 path 三个通道，是主方法协议。主结果限定 A 档（9 条）并附逐条案例；B 档（31 条）作为弱证据稳健性子集单独报告，不并入主结果；
-- `trace-only`：输入没有负向 observation（C 档 87 条），只运行 task-only semantic 通道，clue/path 记为无信息，不能把结果解释为完整方法效果；位置等基线推迟到后续阶段，当前阶段仅作为无证据输入下的对照观察单独报告。
+- `evidence-aware`：输入含至少一个真实负向 observation，运行 semantic、clue 和 PageRank 结构重要性三个通道，是主方法协议。主结果限定 A 档（9 条）并附逐条案例；B 档（31 条）作为弱证据稳健性子集单独报告，不并入主结果；
+- `trace-only`：输入没有负向 observation（C 档 87 条），运行 task-only semantic 与 PageRank 结构重要性通道，clue 记为无信息。该分层用于观察在没有失败线索时，纯文本与结构重要性能够提供多少排序信息；不能把结果解释为 evidence-aware 完整方法效果。
 
 任务文本 $q$ 用于理解意图，但正确答案 `ground_truth` 不得进入失败证据。
 
 ### 4.3 通道一：静态文本相关性
 
-初版使用 TF-IDF cosine，避免模型调用和额外训练。查询由任务约束和失败观察组成，文档为每个步骤的 agent、`decision_text`、`action_text`、工具名和 artifact；`raw_content` 中重复的系统 prompt、Current Plan、Response Language 和被引用任务不进入语义文档。词表与 IDF 只在单条轨迹内部构建（文档集 = 该轨迹全部步骤 + 任务文本 + 失败观察），主版本不跨轨迹共享词表，避免语义通道携带跨样本信息；跨轨迹统计只发生在 4.5 的 $S_{spec}$ 通道。
+初版使用 TF-IDF cosine，避免模型调用和额外训练。查询由任务约束和失败观察组成，文档为每个步骤的 agent、`decision_text`、`action_text`、工具名和 artifact；`raw_content` 中重复的系统 prompt、Current Plan、Response Language 和被引用任务不进入语义文档。词表与 IDF 只在单条轨迹内部构建（文档集 = 该轨迹全部步骤 + 任务文本 + 失败观察），主版本不跨轨迹共享词表，避免语义通道携带跨样本信息。4.5 的模板特异性若被计算，也只作为诊断字段，不进入任一主通道得分。
 
 单独使用“与任务相似”会偏向复述需求的早期步骤，单独使用“与错误相似”又会偏向最后的表面症状。因此保留两个子分数：
 
@@ -252,50 +252,64 @@ $$
 S_{clue}(t) = \max_{r \in R_t} w_r
 $$
 
-未命中任何规则为 0；命中多条取最大值而非求和，避免大段报错文本因重复命中被放大。上述数值写入 `clue_rules.yaml` 并为每次运行记录版本。clue 既保留显式症状的局部证据，也通过 symptom seed 驱动上游传播；不能再用“绝对权重较小”解释其影响，因为 4.6 不对 clue 做轨迹内 min-max。
+未命中任何规则为 0；命中多条取最大值而非求和，避免大段报错文本因重复命中被放大。上述数值写入 `clue_rules.yaml` 并为每次运行记录版本。clue 只表示当前步骤上可直接观察到的局部失败证据，不参与 PageRank 的初始分布、随机跳转分布或边权计算；不能再用“绝对权重较小”解释其影响，因为 4.6 不对 clue 做轨迹内 min-max。
 
-symptom seed 判定：命中 terminal、tool/env 或 negative confession 的步骤都成为 symptom seed，seed 强度就是该步骤的 $S_{clue}(t)$；若输入明确为失败但没有显式规则命中，才把最后一个负向 observation 作为 0.3 的弱 seed。若某步只命中 tool/env 类规则，它既保留局部 clue 分，也会通过反向传播把分数传给上游 action，便于处理“错误动作立即失败”和“工具错误由更早错误触发”两种情况。
+命中 terminal、tool/env 或 negative confession 的步骤记录为 `clue_hits`，用于解释局部得分和开展错误分析。即使输入明确为失败但没有规则命中，也不补造最后一步线索。`clue_hits` 不是 graph seed：某步的错误词数量、错误类别和 $S_{clue}(t)$ 都不会改变第三通道的 PageRank 结果。
 
 规则表应放在配置文件并为每次运行记录版本，不能在看到 test 标签后逐条补规则。
 
-### 4.5 通道三：轨迹图与上游传播
+### 4.5 通道三：轨迹图与全局 PageRank 结构重要性
 
-构建有向图 $G=(V,E)$，一个节点对应一个候选步骤。边从影响源指向被影响步骤，初版包括：
+先构建因果方向图 $G_c=(V,E_c)$，一个节点对应一个候选步骤。边从影响源指向被影响步骤，初版包括：
 
-- 相邻时间边 $t \rightarrow t+1$；
+- 相邻时间边 $t \rightarrow t+1$（只用于保存完整轨迹顺序和诊断，不进入主版本 PageRank）；
 - 同一 agent 的相邻决策边；
 - 消息发送步骤到接收者后续步骤；
 - 计划任务到完成该任务的步骤；
 - artifact 写入步骤到后续读取/修改步骤；
 - 工具调用到对应工具结果；如果结果已附着在同一个 decision step 内，则作为该节点的 observation，不额外创建候选节点。
 
-主版本固定边权为 artifact/tool 1.0、显式消息/任务 0.8、同 agent 0.5、纯时间相邻 0.2。如果同一对节点命中多种关系，边权取这些关系权重的最大值，避免重复关系人为放大；如果某类边无法可靠抽取，则缺省，不能凭文本猜出不存在的文件依赖。
+主版本固定进入 PageRank 的边权为 artifact/tool 1.0、显式消息/任务 0.8、同 agent 0.5。如果同一对节点命中多种关系，边权取这些关系权重的最大值，避免重复关系人为放大；如果某类边无法可靠抽取，则缺省，不能凭文本猜出不存在的文件依赖。纯时间相邻边虽然记录在 $G_c$ 中，但不进入主版本 PageRank：在只有一条出边时，加权归一化会把 0.2 仍变为转移概率 1，导致普通时间链系统性奖励早期节点。将时间边纳入 PageRank 只能作为单独的结构敏感性分析。
 
-以失败 symptom 节点为个性化种子，在反向图 $G^{-1}$ 上运行 Personalized PageRank（PPR）。反向图由正向边翻转得到：$u \to v$（$u$ 影响 $v$）翻转为 $v \to u$。令 $M$ 为反向图的行随机化转移矩阵（每个节点的出边按权重归一化；无出边的悬挂节点记自环，避免分数泄漏）。种子向量 $s \in [0,1]^T$ 按 4.4 的 symptom seed 取值，即每个命中 terminal、tool/env 或 negative confession 的步骤使用其 $S_{clue}(t)$，再归一化使 $\sum_t s_t = 1$。没有任何 seed 时不运行 PPR，直接将 $S_{up}$ 记为 0 并标记 `no_evidence`。PPR 平稳分布由迭代求解：
-
-**seed 去重（本地数据特有，必须实现）**：同一失败在轨迹内重复出现多次（如 `Filter_56113_I` 相同 `AssertionError` 出现在 step 10/20/28/... 共 10 次，`Codeforces_7286_I` 相同 unittest FAIL 出现在 step 26/58/86/... 共 6 次）。若不去重，∑s=1 归一化会把种子强度稀释到重复步骤上。去重规则：按（命令签名哈希, 结构化错误签名：异常类型+断言行内容模板）聚类，同一簇只保留**首次出现步骤**作为 seed，seed 强度取该簇最大 $S_{clue}$；去重计数写入 `graph_stats.failed_occurrences`。
+PageRank 中一条边表示“源节点给目标节点投票”。为了让被多个后续步骤依赖的上游步骤获得更高结构重要性，在不改变 $G_c$ 的因果语义和审计输出的前提下，构造 PageRank 图：
 
 $$
-r^{(0)} = s, \qquad r^{(k+1)} = (1-\alpha)\,s + \alpha\,M^{\top} r^{(k)}
+E_{dep}=\{(u,v,w)\in E_c\mid relation(u,v)\neq temporal\}
 $$
 
-迭代至 $\lVert r^{(k+1)} - r^{(k)} \rVert_1 < 10^{-6}$ 收敛，主版本固定 $\alpha = 0.85$，权重敏感性（$0.7/0.85/0.95$）推迟到后续阶段补充。最终定义 $S_{up}(t) := r_t$，其绝对尺度由 4.6 的轨迹内 min-max 归一化消除。这样分数从终止症状流向可能导致它的上游步骤，而不是继续流向下游表面错误。
-
-模板化编排步骤会在大量轨迹中重复。参考 LogHound 的 coverage-aware 思路，为步骤计算跨轨迹特异性：
-
 $$
-S_{spec}(t) = \log\frac{N+1}{df(c_t)+1}
+G_{pr}=(V,E_{pr}), \qquad (u,v,w)\in E_{dep}\Longrightarrow(v,u,w)\in E_{pr}
 $$
 
-其中 $c_t$ 是步骤 $t$ 的结构化模板串，$df(c_t)$ 是包含该模板串的轨迹数，$N$ 是参与统计的轨迹总数。模板串只使用 agent role、action type、tool name 和规范化后的命令签名，不使用完整任务正文或系统 prompt。生成按固定顺序执行以保证可复现：小写化 → 将文件路径、URL、hash/ID、数字替换为统一占位符 → 去标点与停用词 → 保留结构化 token 顺序拼接。两条步骤模板串相同即属同一簇，初版只做精确匹配、不做模糊聚类。主结果不使用 test 输入上的跨样本统计，令 $S_{spec}(t)=1$；使用完整无标签 test 输入计算 $df$ 的版本属于 transductive 敏感性分析。这样主结果中 $S_{path}(t)=S_{up}(t)$，而不是令 $N=1$ 使对数项退化为 0。实现必须报告 singleton 比例和 $S_{spec}$ 方差；若模板退化为大多数 singleton，则停用 specificity 并将其作为失败分析结果。
+也就是说，如果步骤 $u$ 影响步骤 $v$，则在 $G_{pr}$ 中由 $v$ 向 $u$ 投票。这只是确定普通 PageRank 的边方向，不是从失败症状开始反向传播。所有节点都参与计算，错误步骤、正常步骤和无错误证据的步骤具有相同的初始概率与随机跳转概率。
 
-LogHound 的路径分数内部混合了 VSM、PageRank 与 coverage；初版若照搬，语义信号会在路径通道与最终融合（4.6 的 $0.12 \cdot \widehat{S}_{sem}$ 项）中被重复计权，且“去掉 semantic”消融将无法定义。因此初版把 VSM 拆出为独立的通道一，路径通道只保留 PageRank×coverage 结构，首版定义：
+令 $P$ 为 $G_{pr}$ 的加权行随机转移矩阵，节点 $i$ 到节点 $j$ 的转移概率为 $w_{ij}/\sum_k w_{ik}$。对没有出边的悬挂节点，按标准 PageRank 做法将其概率均匀分配到全部 $T$ 个节点，而不是设置自环。令均匀分布 $u=\frac{1}{T}\mathbf{1}$，则：
 
 $$
-S_{path}(t) = S_{up}(t) \cdot S_{spec}(t)
+r^{(0)} = u, \qquad r^{(k+1)} = (1-\alpha)\,u + \alpha\,P^{\top}r^{(k)}
 $$
 
-这样三个通道正交：semantic（文本相关性）、clue（显式线索）、path（结构传播），各自的贡献可在后续阶段的消融中独立移除。
+迭代至 $\lVert r^{(k+1)}-r^{(k)}\rVert_1<10^{-6}$ 收敛，主版本固定 $\alpha=0.85$，并设置确定性的节点顺序和最大迭代次数。最终定义：
+
+$$
+S_{path}(t)=S_{pr}(t):=r_t
+$$
+
+该通道不读取 $S_{clue}$、`clue_hits`、evidence tier、失败类型或标签，因此对同一张轨迹图，无论识别出多少失败线索，$S_{path}$ 都必须完全相同。A/B/C 三档均运行 PageRank；只有节点数为 0 或图构建失败时才标记该通道不可用。单节点图的 PageRank 固定为 1；没有任何依赖边的多节点图得到均匀分布，按 4.6 的规则归一化后该通道贡献为 0。
+
+第三通道的含义是“全局结构重要性”，而不是因果概率：一个高分步骤表示它被较多或较重要的后续步骤依赖，不保证它一定是根因。同 agent 链和早期编排节点仍可能引入位置偏置，因此必须在报告中同时给出 PageRank 排名、节点的加权入/出度、ordinal 分桶以及各类边覆盖率，用于检查某类关系或早期位置是否主导结果。
+
+模板特异性 $S_{spec}$ 可继续作为诊断字段计算，用于观察常见编排步骤是否占据榜首，但主版本不再将其与 PageRank 相乘，否则第三通道将不再是常规 PageRank。若后续研究 coverage-aware 变体，必须作为独立、预注册的扩展实验报告，不能替换这里的主结果。
+
+这样三个通道保持解耦：semantic 表示文本相关性，clue 表示局部显式失败线索，path 表示与失败线索无关的全图结构重要性。
+
+实现时必须用自动化测试固定以下不变量：
+
+1. 同一张依赖图在替换、增加或删除 `clue_hits` 后，PageRank 向量逐元素不变；
+2. 对称节点获得相同分数，被多个高重要性后续节点共同依赖的上游节点获得更高分数；
+3. 全悬挂图得到均匀分布，归一化后的 path 通道为全 0；
+4. 默认计算的 $E_{pr}$ 中不存在纯时间相邻边，且改变失败证据不会改变 $E_{pr}$；
+5. PageRank 概率和在数值误差内等于 1，重复运行的节点顺序、迭代次数和最终分数一致。
 
 ### 4.6 分数归一化与最终融合
 
@@ -325,13 +339,14 @@ $$
       "components": {
         "semantic_normalized": 0.31,
         "clue": 0.70,
+        "pagerank": 0.042391,
         "path_normalized": 0.92
       },
-      "evidence": ["upstream_of_test_failure", "writes_reused_artifact"]
+      "evidence": ["high_graph_importance", "writes_reused_artifact"]
     }
   ],
-  "symptom_seeds": [{"source_step_id": "22", "strength": 1.0}],
-  "graph_stats": {"nodes": 23, "edges": 41, "ppr_converged": true, "ppr_iterations": 18},
+  "clue_hits": [{"source_step_id": "22", "score": 1.0, "category": "terminal_failure"}],
+  "graph_stats": {"nodes": 23, "causal_edges": 41, "pagerank_edges": 18, "pagerank_converged": true, "pagerank_iterations": 18, "dangling_nodes": 1},
   "config_hash": "...",
   "input_hash": "..."
 }
@@ -345,7 +360,7 @@ $$
 
 当前阶段只做一个实验，回答一个问题：
 
-> LogHound 的证据融合方法（语义 + 显式线索 + 反向图传播的三路静态融合，见 4.3–4.6）迁移到 agent 执行轨迹后，能否把根因步骤排到足够靠前。
+> LogHound 的证据融合方法（语义 + 显式线索 + 全图 PageRank 结构重要性的三路静态融合，见 4.3–4.6）迁移到 agent 执行轨迹后，能否把根因步骤排到足够靠前。
 
 实验对象为本地 AgenTracer coding test 的 127 条轨迹，使用预先固定的配置和规则运行一次完整流程。当前不做：
 
@@ -380,17 +395,17 @@ $$
 - C 档（87 条）：单独列一节或排除，不与主结果混算；
 - 按短轨迹 $T \le 10$、中轨迹 $10<T\le30$、长轨迹 $T>30$ 分层；
 - 按根因 agent 和根因位置分桶，观察命中分布（只记录现象，不做偏置归因结论）；
-- 对有明确 symptom seed 的轨迹，报告根因到最近 seed 的图距离；没有 seed 的轨迹不计算该项。
+- 报告真实根因步骤在第三通道中的 PageRank 排名，以及其加权入/出度、ordinal 分桶；同时报告各类图边覆盖率，检查结构分是否被同 agent 链或位置先验主导。
 
 注意：本实验没有基线或消融对照，绝对指标只用于判断迁移后的方法能否定位根因。
 
 ### 5.4 报告内容与错误分析
 
-输出格式与 4.7 一致（逐轨迹 ranking JSONL + 组件分数 + evidence + symptom_seeds + graph_stats + 汇总 CSV），本实验报告重点：
+输出格式与 4.7 一致（逐轨迹 ranking JSONL + 组件分数 + evidence + clue_hits + graph_stats + 汇总 CSV），本实验报告重点：
 
-1. A 档 9 条逐条案例卡：真实根因、方法给出的 Top-1/Top-3、各组件归一化分数、evidence 列表、根因到最近 seed 的图距离；
-2. B 档：核对 confession 模板句（3.4、4.4）是否把分数散布到非根因步，并记录为错误分析；
-3. C 档：记录无证据输入下的表现，验证 4.2 的 no_evidence 门控与 4.5 的“无 seed 不运行 PPR”是否按设计生效；
+1. A 档 9 条逐条案例卡：真实根因、方法给出的 Top-1/Top-3、各组件归一化分数、evidence 列表、根因的 PageRank 排名及加权入/出度；
+2. B 档：核对 confession 模板句（3.4、4.4）是否把局部 clue 分散布到非根因步，并确认它不会改变 PageRank 分数；
+3. C 档：记录无证据输入下的表现，验证 4.2 的 no_evidence 门控只关闭 clue、PageRank 仍按全图结构正常运行；
 4. 错误分类统计：标签争议、根因无显式证据、图边缺失、症状误判、模板偏置，作为判断迁移方案是否需要后续改进的依据。
 
 ### 5.5 完成标准与后续阶段
@@ -398,9 +413,9 @@ $$
 本实验完成标准：
 
 1. 一条命令可从 raw 数据复现 prepare → run → evaluate 全流程，重复运行排名与指标一致；
-2. A 档 9 条逐条案例表完整产出，能说明每条的真实根因命中情况与证据链；
+2. A 档 9 条逐条案例表完整产出，能说明每条的真实根因命中情况、组件分数与结构信息；
 3. 汇总指标在 A 档给出、B 档单独给出、C 档单列；
-4. 人工抽查至少 30 条（A 档全查 + B/C 抽样），确认高排名证据与真正的上游错误有关，而不只是末尾错误词匹配；B 档特别核对 confession 模板句是否在错误步骤散布分数；
+4. 人工抽查至少 30 条（A 档全查 + B/C 抽样），确认高排名结果是否来自有效依赖关系，而不只是末尾错误词匹配、同 agent 链或其他位置偏置；B 档特别核对 confession 模板句是否只影响 clue、不会改变 PageRank；
 5. 明确记录：实验结论只描述迁移方法的绝对效果，不含基线、消融或跨域结论。
 
 通过后再决定是否进入 SWE-bench Pro 标注。若未通过，先按错误分析判断是数据域不匹配、步骤图抽取失败，还是“静态证据不足以识别反事实根因”。
@@ -469,16 +484,16 @@ conda run -n mybook python ...
 - 生成 `inputs.jsonl` 与 `labels.jsonl`；
 - 自动验证 step 唯一性、agent 对齐、缺失值和长度；
 - 写 `test_no_label_leakage.py`，确保 ranker API 无法访问 label 对象；
-- 审计失败观察存在率、负向 seed 覆盖率、规则误报率、各类图边覆盖率和 specificity singleton 比例；
+- 审计失败观察存在率、clue 命中覆盖率、规则误报率、各类图边覆盖率、PageRank 悬挂节点比例和 specificity singleton 比例；
 - 固化数据校验和和运行配置。
 
-完成标准：127 条全部通过映射检查，转换前后 step 数和内容 hash 不变；审计脚本输出 3.1.1 的 9/31/87 三档划分并写入 `data/splits/evidence_split.json`（含每条轨迹的 evidence 类型、seed step 列表、去重后的失败簇数）；验证 3.3.1 的段落切分与任务正文误报排除规则在抽查样本上无误报。若审计后 A 档仍不足 9 条，主方法验证以逐条案例报告为主，不得宣称已通过 bootstrap 级验证。
+完成标准：127 条全部通过映射检查，转换前后 step 数和内容 hash 不变；审计脚本输出 3.1.1 的 9/31/87 三档划分并写入 `data/splits/evidence_split.json`（含每条轨迹的 evidence 类型、clue hit 步骤列表、重复失败簇数）；验证 3.3.1 的段落切分与任务正文误报排除规则在抽查样本上无误报。若审计后 A 档仍不足 9 条，主方法验证以逐条案例报告为主，不得宣称已通过 bootstrap 级验证。
 
 ### P1：单一迁移实验实现
 
-- 实现当前方法主流程（semantic、clue、graph、specificity 与三路融合）；
+- 实现当前方法主流程（semantic、clue、graph/PageRank 与三路融合，并输出 specificity 诊断字段）；
 - 实现 failure observation 解析、decision_text/action_text/observation_text 抽取与 clue 规则；
-- 实现轨迹图、反向 PPR、specificity 和三路融合；
+- 实现轨迹因果图、反向依赖图上的非个性化 PageRank、specificity 诊断字段和三路融合；
 - 输出逐轨迹排名 JSONL 和汇总 CSV。
 
 完成标准：一条命令可从 raw data 生成可复现实验结果，重复运行排名一致。
@@ -507,7 +522,7 @@ conda run -n mybook python ...
 
 初版若成功，最稳妥的结论是：
 
-> LogHound 的“文本证据 + 运行线索 + 结构路径 + 覆盖感知抑噪 + 排名融合”范式，可以在不重放 agent 环境的条件下迁移为执行步级根因排序，并在 AgenTracer coding test 上展现出执行步级定位效果；本实验只报告该迁移方法的绝对结果。
+> LogHound 的“文本证据 + 运行线索 + 全图结构重要性 + 排名融合”范式，可以在不重放 agent 环境的条件下迁移为执行步级根因排序，并在 AgenTracer coding test 上展现出执行步级定位效果；本实验只报告该迁移方法的绝对结果。
 
 初版不能声称：
 

@@ -2,42 +2,10 @@
 
 from __future__ import annotations
 
-from collections import Counter, deque
+from collections import Counter
 from typing import Any
 
-from loghound_agent_debug.graph import build_graph
 from loghound_agent_debug.schema import Label, TrajectoryInput
-
-
-def nearest_seed_distance(item: TrajectoryInput, ranking: dict[str, Any], root_ids: list[str]) -> int | None:
-    """Return the shortest undirected graph distance from any root to any seed."""
-    graph = build_graph(item)
-    ordinal = {step.source_step_id: step.ordinal for step in item.steps}
-    roots = [ordinal[root] for root in root_ids if root in ordinal]
-    seeds = [ordinal[str(seed["source_step_id"])] for seed in ranking.get("symptom_seeds", []) if str(seed["source_step_id"]) in ordinal]
-    if not roots or not seeds:
-        return None
-    # Distance is used for diagnosis, not propagation, so treat influence
-    # edges as undirected to answer whether a root is structurally connected.
-    adjacency = [[] for _ in item.steps]
-    for edge in graph.edges:
-        adjacency[edge.source].append(edge.target)
-        adjacency[edge.target].append(edge.source)
-    best = None
-    for root in roots:
-        distances = {root: 0}
-        # BFS gives the shortest number of dependency hops from this root.
-        queue = deque([root])
-        while queue:
-            current = queue.popleft()
-            for neighbor in adjacency[current]:
-                if neighbor not in distances:
-                    distances[neighbor] = distances[current] + 1
-                    queue.append(neighbor)
-        for seed in seeds:
-            if seed in distances:
-                best = distances[seed] if best is None else min(best, distances[seed])
-    return best
 
 
 def make_case_cards(inputs: dict[str, TrajectoryInput], labels: dict[str, Label], rankings: list[dict[str, Any]]) -> list[dict[str, Any]]:
@@ -62,8 +30,8 @@ def make_case_cards(inputs: dict[str, TrajectoryInput], labels: dict[str, Label]
             "top_3": top,
             "root_components": [item["components"] for item in root_items],
             "root_evidence": [item["evidence"] for item in root_items],
-            "nearest_seed_graph_distance": nearest_seed_distance(inputs[result["trajectory_id"]], result, root_ids),
-            "symptom_seeds": result.get("symptom_seeds", []),
+            "clue_hits": result.get("clue_hits", []),
+            "graph_stats": result.get("graph_stats", {}),
         })
     return cards
 
@@ -74,8 +42,6 @@ def error_categories(cards: list[dict[str, Any]]) -> dict[str, int]:
     for card in cards:
         if not card["root_evidence"] or not any(evidence for group in card["root_evidence"] for evidence in group):
             counts["root_cause_without_ranked_evidence"] += 1
-        if card["nearest_seed_graph_distance"] is None:
-            counts["root_cause_no_graph_path_to_seed"] += 1
         if card["root_ranks"] and card["root_ranks"][0] > 5:
             counts["root_cause_ranked_below_top5"] += 1
     return dict(sorted(counts.items()))
@@ -90,8 +56,9 @@ def render_case_report(cards: list[dict[str, Any]], errors: dict[str, int]) -> s
             "",
             f"- Root cause step(s): `{', '.join(card['root_cause_steps'])}` ({', '.join(card['root_cause_agents']) or 'unknown agent'})",
             f"- Root rank(s): {card['root_ranks']}",
-            f"- Nearest seed graph distance: {card['nearest_seed_graph_distance']}",
-            f"- Symptom seeds: {card['symptom_seeds']}",
+            f"- Root path components: {[item.get('path_normalized', 0.0) for item in card['root_components']]}",
+            f"- Clue hits: {card['clue_hits']}",
+            f"- PageRank graph stats: {card['graph_stats']}",
             "- Top-3:",
         ])
         for item in card["top_3"]:

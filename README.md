@@ -9,7 +9,7 @@
 - `docs/DESIGN.md`：问题定义、LogHound 迁移映射、算法设计、实验设计和实施路线。
 - `data/README.md`：数据目录规范、已核验的数据事实和防泄漏规则。
 - `data/raw/agentracer/tracertraj-code-test.parquet`：本地已有的 AgenTracer coding 测试集副本。
-- `src/loghound_agent_debug/`：统一 schema、AgenTracer adapter、证据抽取、TF-IDF、反向 PPR 图和评估器。
+- `src/loghound_agent_debug/`：统一 schema、AgenTracer adapter、证据抽取、TF-IDF、全图 PageRank 图和评估器。
 - `configs/`：预注册的固定参数与 clue 规则。
 
 ## 设计结论
@@ -18,7 +18,7 @@
 
 1. 失败证据与执行步的文本相关性；
 2. 显式错误、工具失败和终止症状等轨迹线索
-3. 从失败症状沿轨迹依赖图反向传播得到的上游因果分数。
+3. 在反向依赖投票图上运行不依赖失败证据的全图 PageRank，得到结构重要性分数。
 
 
 
@@ -40,6 +40,6 @@ conda run -n mybook python scripts/case_report.py
 输出位于 `outputs/`（已被 git 忽略），统一输入和标签分别位于
 `data/processed/agentracer/inputs.jsonl` 与 `labels.jsonl`。排序器只接受前者；评估器才会同时读取标签。
 
-本地数据审计固定得到 A/B/C=`9/31/87`。A 档是有硬失败回传的主验证集，B 档是 agent 陈述式弱证据，C 档无负向观察，只运行 task-only semantic 对照，不解释为完整方法效果。
+本地数据审计固定得到 A/B/C=`9/31/87`。A 档是有硬失败回传的主验证集，B 档是 agent 陈述式弱证据，C 档无负向观察；C 档关闭 clue，但仍运行 task-only semantic 与全图 PageRank，不解释为 evidence-aware 完整方法效果。
 
 详细方案见 [docs/DESIGN.md](docs/DESIGN.md)。

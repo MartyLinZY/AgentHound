@@ -30,7 +30,6 @@ class EvidenceResult:
     status: str
     clue_scores: list[float]
     hits: list[ClueHit]
-    symptom_seeds: list[dict[str, Any]]
     failed_occurrences: int
     failed_clusters: int
 
@@ -87,7 +86,7 @@ def _tier(input_item: TrajectoryInput, hits: list[ClueHit]) -> str:
 
 
 def extract_evidence(input_item: TrajectoryInput, rules: dict[str, Any]) -> EvidenceResult:
-    """Extract local clue scores and deduplicated symptom seeds per trajectory."""
+    """Extract local clue scores and failure-cluster diagnostics per trajectory."""
     clue_scores = [0.0] * len(input_item.steps)
     hits: list[ClueHit] = []
     for step in input_item.steps:
@@ -109,29 +108,20 @@ def extract_evidence(input_item: TrajectoryInput, rules: dict[str, Any]) -> Evid
         clue_scores[step.ordinal] = float(strongest["weight"])
 
     tier = _tier(input_item, hits)
-    # A repeated observation is one symptom for propagation purposes. Keep the
-    # first occurrence, while preserving the number of raw occurrences for the
-    # graph audit.
-    seed_by_cluster: dict[str, ClueHit] = {}
+    # Keep clustering only as an audit statistic.  Clue hits never initialize
+    # or personalize the graph PageRank channel.
+    clusters: set[str] = set()
     for hit in hits:
         if hit.category == "weak_termination":
             continue
-        cluster = _hash_signature(hit.signature)
-        if cluster not in seed_by_cluster or hit.strength > seed_by_cluster[cluster].strength:
-            seed_by_cluster[cluster] = hit
-    seeds = []
-    for hit in sorted(seed_by_cluster.values(), key=lambda x: x.step_ordinal):
-        step = input_item.steps[hit.step_ordinal]
-        evidence = "terminal_failure" if hit.category == "terminal_failure" else "tool_failure" if hit.category == "tool_env_failure" else "negative_confession"
-        seeds.append({"source_step_id": step.source_step_id, "strength": hit.strength, "evidence": evidence})
-    # failed_occurrences counts raw hits, while failed_clusters reflects the
-    # number of independent symptoms that can seed graph propagation.
+        clusters.add(_hash_signature(hit.signature))
+    # failed_occurrences counts raw hits, while failed_clusters is diagnostic
+    # only and has no effect on the graph channel.
     return EvidenceResult(
         tier=tier,
         status="ok" if tier != "C" else "no_evidence",
         clue_scores=clue_scores,
         hits=hits,
-        symptom_seeds=seeds,
         failed_occurrences=len(hits),
-        failed_clusters=len(seed_by_cluster),
+        failed_clusters=len(clusters),
     )

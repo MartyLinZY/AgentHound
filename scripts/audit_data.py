@@ -56,7 +56,7 @@ def main() -> None:
             "trajectory_id": item.trajectory_id,
             "evidence_tier": evidence.tier,
             "evidence_status": evidence.status,
-            "seed_steps": [seed["source_step_id"] for seed in evidence.symptom_seeds],
+            "clue_hit_steps": [item.steps[hit.step_ordinal].source_step_id for hit in evidence.hits],
             "failed_occurrences": evidence.failed_occurrences,
             "failed_clusters": evidence.failed_clusters,
             "step_count": len(item.steps),
