@@ -56,3 +56,7 @@ data/raw/*
 .env
 .env.*
 !.env.example
+
+docs/
+agent/
+project/

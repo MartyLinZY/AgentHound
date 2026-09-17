@@ -64,7 +64,7 @@ LogHound 的三个主要信号不能逐字段照搬，但可以迁移其证据�
 |---|---|---|
 | AgenTracer coding test，127 条 | 主可行性数据源；按证据分档：9 条硬失败（A 档，主验证）、31 条弱证据（B 档，稳健性）、87 条 trace-only（C 档，对照） | 与 coding 任务最接近，已有单根因 step/agent 标签；step-level 失败观察部分存在（A/B 档共 40 条），且混合了注入故障痕迹，需按 3.1.1 分档 |
 | <br />                | <br />  | <br />                                    |
-| SWE-bench Pro                | 第二阶段外部测试集                                                              | 最接近最终科研目标，但需要先定义并完成人工标注                                                                    |
+| SWE-bench Pro                | 第二阶段外部测试集；轨迹由官方 mini-SWE-agent scaffold 生成                    | 最接近最终科研目标，但需要先生成轨迹并完成人工标注                                                                    |
 
 本地 AgenTracer 完整论文规模大于当前 127 条文件，但当前工作区只有 coding test 子集。设计和实验报告必须区分"论文数据规模"与"本地实际可用规模"。
 
@@ -144,9 +144,19 @@ A+B 合并为 evidence-aware 合格集（40 条），但**主协议只以 A 档�
 2. 排名单元是一个 agent decision step。初版 AgenTracer 中一个 history 元素对应一个 decision step；未来数据中可把一个 assistant 决策和其工具结果合并为一个 decision step，并在 `source_event_ids` 中保留原始事件映射；
 3. 一条记录中的 thinking、command、message 不再拆成多个候选，但要解析为 `decision_text`、`action_text`、`observation_text`，并保留 `raw_content` 供审计。
 
-可以把步骤内部进一步解析为 action、observation、tool 和 artifact 字段，但这些只是特征，不改变评估单元。未来适配 SWE-bench Pro 时，再额外建立"assistant 决策 + 工具结果"的 canonical decision 映射，并保留原始 event 到 decision 的映射表。
+可以把步骤内部进一步解析为 action、observation、tool 和 artifact 字段，但这些只是特征，不改变评估单元。适配 SWE-bench Pro 时，使用官方 mini-SWE-agent scaffold 的 assistant 决策与工具结果建立 canonical decision 映射，并保留原始 event 到 decision 的映射表。
 
-#### 3.3.1 content 的四段结构与回传解析（实测格式）
+#### 3.3.1 SWE-bench Pro 轨迹生成框架
+
+SWE-bench Pro 原始数据是静态任务，不包含执行轨迹。轨迹生成统一采用官方评测仓库提供的 mini-SWE-agent scaffold：
+
+- 入口仓库：[scaleapi/SWE-bench_Pro-os](https://github.com/scaleapi/SWE-bench_Pro-os)；
+- agent 子模块：[mini-swe-agent](https://github.com/scaleapi/mini-swe-agent)；
+- 使用官方 mini-swe-agent scaffold 的 Docker、任务初始化和 patch 收集流程；
+- 每次运行保存 scaffold commit、agent commit、模型与参数、turn limit、`instance_id`、原始事件、生成 patch 和评测结果；
+- 不使用其他 agent 框架替代官方 mini-swe-agent scaffold，以保证轨迹格式、工具交互和结果具有可比性。
+
+#### 3.3.2 content 的四段结构与回传解析（实测格式）
 
 一条 thinking 帧的 `content` 按顺序混合四段内容：系统模板行（`# Past Experience` / `# Tool State` / `# Current Plan` 等）→ 任务复述/思考 → ```json 命令数组 → `Terminal output:` 回传块。回传块格式实测为：
 
@@ -166,7 +176,7 @@ Terminal output: [command]: pwd
 ### 3.4 AgenTracer 已确认的风险
 
 - `history` 是 NumPy `ndarray`，不是 JSON 字符串；适配器要同时兼容数组和字符串化列表。
-- 127 条标签都能正确映射，但轨迹长度从 2 到 151，不能只报告未归一化平均排名。
+- 127 条标签都能正确映射，但轨迹长度从 2 到 151，必须按长度分层报告 Top-K 与 MRR。
 - Engineer 占根因 agent 的 72.4%，step 4 占根因步的 33.1%，存在强角色和位置先验。
 - `ground_truth` 和 `mistake_reason` 在真实推理时不可获得，必须物理隔离。
 - 文件名为 test；未经额外训练集支持，不可据此调权。
@@ -281,7 +291,7 @@ $$
 G_{pr}=(V,E_{pr}), \qquad (u,v,w)\in E_{dep}\Longrightarrow(v,u,w)\in E_{pr}
 $$
 
-也就是说，如果步骤 $u$ 影响步骤 $v$，则在 $G_{pr}$ 中由 $v$ 向 $u$ 投票。这只是确定普通 PageRank 的边方向，不是从失败症状开始反向传播。所有节点都参与计算，错误步骤、正常步骤和无错误证据的步骤具有相同的初始概率与随机跳转概率。
+也就是说，如果步骤 $u$ 影响步骤 $v$，则在 $G_{pr}$ 中由 $v$ 向 $u$ 投票。所有节点都参与计算，错误步骤、正常步骤和无错误证据的步骤具有相同的初始概率与随机跳转概率。
 
 令 $P$ 为 $G_{pr}$ 的加权行随机转移矩阵，节点 $i$ 到节点 $j$ 的转移概率为 $w_{ij}/\sum_k w_{ik}$。对没有出边的悬挂节点，按标准 PageRank 做法将其概率均匀分配到全部 $T$ 个节点，而不是设置自环。令均匀分布 $u=\frac{1}{T}\mathbf{1}$，则：
 
@@ -386,7 +396,6 @@ $$
 
 - Hit@1、Hit@3、Hit@5；
 - MRR；
-- Mean Rank 与 Median Rank；
 
 统计报告口径：
 
@@ -418,8 +427,6 @@ $$
 4. 人工抽查至少 30 条（A 档全查 + B/C 抽样），确认高排名结果是否来自有效依赖关系，而不只是末尾错误词匹配、同 agent 链或其他位置偏置；B 档特别核对 confession 模板句是否只影响 clue、不会改变 PageRank；
 5. 明确记录：实验结论只描述迁移方法的绝对效果，不含基线、消融或跨域结论。
 
-通过后再决定是否进入 SWE-bench Pro 标注。若未通过，先按错误分析判断是数据域不匹配、步骤图抽取失败，还是“静态证据不足以识别反事实根因”。
-
 ## 6. 实施结构
 
 目录只服务于第 5 节的单一迁移实验：当前实现 AgenTracer adapter、三路融合排序和统一评估；不设置基线/消融目录，也不加入 AgentDebug 数据或阶段。SWE-bench Pro 仅作为未来可能的数据扩展预留。
@@ -448,7 +455,7 @@ loghound-agent-debug/
 │   ├── graph.py
 │   ├── features/{semantic,clue,specificity}.py
 │   ├── rankers/loghound_static.py  # 三路融合主方法
-│   ├── evaluate.py                 # Hit@K/MRR/NR 与 A/B/C 分层结果
+│   ├── evaluate.py                 # Hit@K/MRR 与 A/B/C 分层结果
 │   ├── reporting.py                # 逐条案例卡与错误分类（5.4）
 │   └── cli.py
 ├── scripts/
@@ -500,7 +507,7 @@ conda run -n mybook python ...
 
 ### P2：单一实验评估与错误分析
 
-- 计算 Hit@K、MRR、NR 和 A/B/C 分层结果；
+- 计算 step-level 与 agent-level 的 Hit@1/3/5、MRR，以及 A/B/C 分层结果；
 - 生成逐条案例与错误分析；
 - 人工抽查至少 30 条：命中、近失、完全失败各 10 条；
 - 记录失败类型：标签争议、根因无显式证据、图边缺失、症状误判、模板偏置。
@@ -511,6 +518,9 @@ conda run -n mybook python ...
 
 通过第 5.5 节完成标准后再启动。建议标注规范：
 
+- 使用官方 mini-SWE-agent scaffold 生成轨迹，并先完成单实例 smoke，再运行固定规模 pilot；
+- 固化 scaffold/agent commit、模型配置、turn limit、Docker 镜像和评测脚本版本；
+- 只将官方 scaffold 产生的原始事件转换为统一 `TrajectoryInput`，保留事件到 decision step 的映射；
 - 标注“最早的、若被正确替换可显著改变失败结局的 agent 决策步”；
 - 允许多个互相独立的根因组成最小集合；
 - 区分 agent 错误与纯工具/环境错误；

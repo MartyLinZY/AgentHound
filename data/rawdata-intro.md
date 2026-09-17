@@ -86,7 +86,7 @@ history[22] Team Leader   "sends to Alex: 请实现..."                ← 最�
 ## 几个要点
 
 - `patch` + `test_patch` 是"答案"，`FAIL_TO_PASS` 命中 + `PASS_TO_PASS` 不破 = 任务解决；
-- **判定标准是跑测试，不是文本相似度**——评测需要在 Docker 里应用智能体生成的 patch 后执行测试；
+- **判定标准是跑测试，不是文本相似度**——评测需要在 Docker 里应用智能体生成的 patch 后执行测试；轨迹生成统一采用官方 mini-SWE-agent scaffold，评测流程采用 `scaleapi/SWE-bench_Pro-os`。
 - 附带字段（`requirements`、`interface`、`issue_specificity`、`issue_categories`）是 ScaleAI 企业版比 Princeton 原版多的，适合做任务难度分层、给 agent 的提示工程、或者按类别做子分析。
 
 ***
@@ -101,4 +101,6 @@ history[22] Team Leader   "sends to Alex: 请实现..."                ← 最�
 | 答案形式    | `ground_truth`（参考代码）               | `patch` + `test_patch` + 测试用例 |
 | 失败如何定义  | 数据生成流程中的故障注入；当前文件不含 step-level 失败 observation | 任务本身待解决，成败由测试判定               |
 | 规模/域    | 127 / 多 agent coding               | 731 / 11 个企业级仓库，4 种语言         |
-| 在你的流程中  | **P0-P2 trace-only 对照集**；补充失败 observation 后才可作为 evidence-aware 主验证集 | **P4 最终外部测试素材**（先跑 agent 再标注） |
+| 在你的流程中  | **P0-P2 trace-only 对照集**；补充失败 observation 后才可作为 evidence-aware 主验证集 | **P3 最终外部测试素材**（先用官方 mini-SWE-agent scaffold 生成轨迹，再标注） |
+
+轨迹生成约定：SWE-bench Pro 的原始 parquet 只提供静态任务。后续用于本项目的轨迹必须由官方 mini-SWE-agent scaffold 生成，并保存 scaffold commit、模型配置、turn limit、实例 ID、原始事件和官方评测结果。该目录不接收其他 agent 框架生成的轨迹。

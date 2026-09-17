@@ -8,7 +8,7 @@
 data/
 ├── raw/                     # 原始数据，只读保存
 │   ├── agentracer/
-│   └── swebench_pro/         # ScaleAI 版任务基准已下载；agent 轨迹待自行生成
+│   └── swebench_pro/         # ScaleAI 版任务基准与官方 mini-SWE-agent 轨迹
 ├── interim/                 # 适配器解析后的中间数据
 ├── processed/               # 统一 schema 的 JSONL
 ├── splits/                  # train/dev/test 清单，只存 trajectory_id
@@ -69,7 +69,8 @@ SHA-256：`c8cd7115496ad4e9a8b21d088cef576a65bf821bb542b24336f13f714cef13f8`（7
 - `instance_id` 已匿名化（哈希形式），无法直接反查到原始 GitHub issue 和 PR，但 `patch`、`base_commit` 仍在。
 - `fail_to_pass` / `pass_to_pass` / `issue_categories` / `issue_specificity` 是**字符串化的 JSON 列表**（`"[...]"` 形式），解析必须用 `ast.literal_eval`，直接 `json.loads` 会报错。
 - HF 卡片未声明 license（与 SWE-bench Verified 一致）。数据内容来自各 GitHub 仓库 issue/补丁，各自许可不同；仅限研究用途，发布衍生数据前需自行确认。
-- 它是**静态任务基准**（issue→patch→测试），**没有 agent 轨迹，也没有根因标签**。用于本项目必须先让 coding agent 在任务上运行生成轨迹，再按 DESIGN.md P4 的标注规范人工标注根因步。
+- 它是**静态任务基准**（issue→patch→测试），原始数据**没有 agent 轨迹，也没有根因标签**。轨迹生成统一使用官方 mini-SWE-agent scaffold；生成后再按 DESIGN.md P3 的标注规范人工标注根因步。
+- 轨迹目录必须随运行记录保存 mini-SWE-agent scaffold 的 commit、模型配置、turn limit、`instance_id`、输出 patch 和官方评测结果；不得混入其他 agent 框架生成的轨迹。
 - 未经可行性门槛（DESIGN.md §5.5）通过前，不投入大范围标注；该文件只作为最终外部测试素材的原始任务源。
 
 ## 防泄漏规则

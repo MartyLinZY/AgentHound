@@ -2,7 +2,10 @@
 
 本目录用于把 LogHound 的静态故障定位思想迁移到 coding-agent 的失败轨迹根因定位。
 
-当前目标是：输入一条已经失败的 agent 执行轨迹，输出所有执行步的可疑度排名；第一阶段先在已有根因步标注的数据上验证可行性，再决定是否为 SWE-bench Pro 轨迹开展人工标注。
+当前目标是：输入一条已经失败的 agent 执行轨迹，输出所有执行步的可疑度排名；第一阶段先在已有根因步标注的数据上验证可行性，再使用官方 mini-SWE-agent scaffold 在 SWE-bench Pro 上生成轨迹并开展人工标注。
+
+SWE-bench Pro 本身是静态任务基准，不附带 agent 轨迹。后续轨迹统一由官方
+[SWE-bench Pro 评测仓库](https://github.com/scaleapi/SWE-bench_Pro-os)提供的 mini-SWE-agent scaffold 生成；生成时记录 scaffold 版本、模型配置、turn limit、任务实例和评测结果。
 
 ## 当前内容
 

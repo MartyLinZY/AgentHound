@@ -34,13 +34,19 @@
       "languages": {"go": 280, "python": 266, "js": 165, "ts": 20},
       "split_declared_by_filename": "test",
       "intended_role": "final_external_coding_agent_evaluation",
-      "caveat": "ScaleAI 企业版（731 条，instance_id 匿名化），非 Princeton 原版 SWE-bench Pro（50 条，取自 SWE-bench Verified）；原版在本环境 HF 上已不可访问（401）。静态任务基准，无 agent 轨迹与根因标签，需自行跑 agent 生成轨迹并标注。"
+      "generation_framework": {
+        "name": "mini-SWE-agent scaffold",
+        "repository": "https://github.com/scaleapi/SWE-bench_Pro-os",
+        "agent_repository": "https://github.com/scaleapi/mini-swe-agent",
+        "trajectory_policy": "Use the official mini-SWE-agent scaffold only; record scaffold commit, model configuration, turn limit, and evaluator result for every run."
+      },
+      "caveat": "ScaleAI 企业版（731 条，instance_id 匿名化），非 Princeton 原版 SWE-bench Pro（50 条，取自 SWE-bench Verified）；原版在本环境 HF 上已不可访问（401）。静态任务基准，无 agent 轨迹与根因标签，需使用官方 mini-SWE-agent scaffold 生成轨迹并标注。"
     },
     {
       "name": "swe-bench-pro-agent-trajectories",
       "status": "deferred_until_feasibility_gate",
       "path": "data/raw/swebench_pro/",
-      "note": "raw 任务基准已就绪（见 swe-bench-pro-task-benchmark-scaleai）；agent 轨迹需自行生成并人工标注根因，仍待可行性门槛通过后启动",
+      "note": "raw 任务基准已就绪（见 swe-bench-pro-task-benchmark-scaleai）；使用官方 mini-SWE-agent scaffold 生成 agent 轨迹并人工标注根因，仍待可行性门槛通过后启动",
       "intended_role": "final_external_coding_agent_evaluation"
     }
   ]
