@@ -40,6 +40,7 @@ data/splits/*
 # Locally downloaded source datasets (large and subject to their own licenses)
 data/raw/*
 
+data/
 # Keep directory placeholders versionable when they are added later.
 !data/interim/.gitkeep
 !data/processed/.gitkeep
@@ -60,3 +61,4 @@ data/raw/*
 docs/
 agent/
 project/
+.workbuddy/

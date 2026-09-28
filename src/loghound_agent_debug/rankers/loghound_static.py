@@ -11,7 +11,7 @@ import yaml
 
 from loghound_agent_debug.evidence import EvidenceResult, extract_evidence, load_clue_rules
 from loghound_agent_debug.features.semantic import minmax, scores as semantic_scores
-from loghound_agent_debug.graph import build_graph, pagerank, pagerank_dangling_nodes, pagerank_edge_count
+from loghound_agent_debug.graph import build_graph, build_rootse_graph, pagerank, pagerank_dangling_nodes, pagerank_edge_count
 from loghound_agent_debug.schema import TrajectoryInput, input_to_dict
 
 
@@ -49,7 +49,7 @@ def _evidence_for_step(ordinal: int, evidence: EvidenceResult, graph_edges: list
     return result
 
 
-def rank_trajectory(input_item: TrajectoryInput, config: dict[str, Any], clue_rules: dict[str, Any]) -> dict[str, Any]:
+def rank_trajectory(input_item: TrajectoryInput, config: dict[str, Any], clue_rules: dict[str, Any], rootse_dependencies: list[dict[str, Any]] | None = None) -> dict[str, Any]:
     """Rank every step using semantic, clue, and global PageRank channels."""
     evidence = extract_evidence(input_item, clue_rules)
     semantic = semantic_scores(
@@ -57,7 +57,7 @@ def rank_trajectory(input_item: TrajectoryInput, config: dict[str, Any], clue_ru
         _failure_text(input_item),
         task_weight=float(config.get("semantic", {}).get("query_task_weight", 0.4)),
     )
-    graph = build_graph(input_item)
+    graph = build_rootse_graph(len(input_item.steps), rootse_dependencies or []) if rootse_dependencies is not None else build_graph(input_item)
     pagerank_scores, converged, iterations = pagerank(
         graph,
         alpha=float(config.get("graph", {}).get("alpha", 0.85)),
@@ -121,6 +121,10 @@ def rank_trajectory(input_item: TrajectoryInput, config: dict[str, Any], clue_ru
             "pagerank_iterations": iterations,
             "pagerank_sum": round(sum(path), 12),
             "dangling_nodes": pagerank_dangling_nodes(graph),
+            "fusion_weights": {"semantic": semantic_weight, "clue": clue_weight, "structure": path_weight, "denominator": denominator},
+            "pagerank_alpha": float(config.get("graph", {}).get("alpha", 0.85)),
+            "pagerank_tolerance": float(config.get("graph", {}).get("tolerance", 1e-6)),
+            "pagerank_max_iterations": int(config.get("graph", {}).get("max_iterations", 1000)),
             "failed_occurrences": evidence.failed_occurrences,
             "failed_clusters": evidence.failed_clusters,
         },

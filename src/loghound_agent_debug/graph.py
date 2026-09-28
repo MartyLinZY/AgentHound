@@ -16,6 +16,7 @@ class Edge:
     target: int
     weight: float
     relation: str
+    evidence: list[dict] | None = None
 
 
 @dataclass(frozen=True)
@@ -24,6 +25,25 @@ class Graph:
 
     nodes: int
     edges: list[Edge]
+
+
+def build_rootse_graph(nodes: int, dependencies: list) -> Graph:
+    """Merge RootSE evidence by step pair and assign one fixed edge weight."""
+    merged: dict[tuple[int, int], dict] = {}
+    for dependency in dependencies:
+        source = int(dependency["source_ordinal"] if isinstance(dependency, dict) else dependency.source_ordinal)
+        target = int(dependency["target_ordinal"] if isinstance(dependency, dict) else dependency.target_ordinal)
+        if source < 0 or target < 0 or source >= nodes or target >= nodes or source >= target:
+            continue
+        key = (source, target)
+        relation = dependency["relation"] if isinstance(dependency, dict) else dependency.relation
+        evidence = dependency.get("evidence", dependency) if isinstance(dependency, dict) else dependency.evidence
+        item = merged.setdefault(key, {"relations": set(), "evidence": []})
+        item["relations"].add(str(relation))
+        if evidence not in item["evidence"]:
+            item["evidence"].append(evidence)
+    edges = [Edge(a, b, 0.1, "+".join(sorted(value["relations"])), value["evidence"]) for (a, b), value in sorted(merged.items())]
+    return Graph(nodes, edges)
 
 
 def _add(edges: dict[tuple[int, int], Edge], source: int, target: int, weight: float, relation: str) -> None:

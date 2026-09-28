@@ -6,10 +6,19 @@ graph:
   tolerance: 0.000001
   max_iterations: 1000
 fusion:
-  semantic: 0.12
-  clue: 1.0
-  path: 1.0
-  denominator: 2.12
+  semantic: 0.5
+  clue: 0.05
+  path: 0.45
+  denominator: 1
 specificity:
   mode: "singleton"
   normalize: true
+rootse_llm:
+  request_params:
+    reasoning_effort: high
+    thinking:
+      type: enabled
+    max_tokens: 65536
+  output_token_overrides:
+    "rootse/swe-agent-live/gpt5mini/instance_sphinx-doc__sphinx-10435|18": 8192
+    "rootse/swe-agent-live/claude-sonnet-4-5/instance_sympy__sympy-13878|65": 8192
