@@ -1,48 +1,79 @@
 # LogHound-Agent-Debug
 
-本目录用于把 LogHound 的静态故障定位思想迁移到 coding-agent 的失败轨迹根因定位。
+LogHound-Agent-Debug 对 coding-agent 的失败执行轨迹进行步骤级根因排序：给定任务和一条已保存的轨迹，为每个执行步骤计算可疑度并输出排名。项目关注离线分析和可审计证据，不在排序时读取根因标签。
 
-当前目标是：输入一条已经失败的 agent 执行轨迹，输出所有执行步的可疑度排名；第一阶段先在已有根因步标注的数据上验证可行性，再使用官方 mini-SWE-agent scaffold 在 SWE-bench Pro 上生成轨迹并开展人工标注。
+## 当前实现
 
-SWE-bench Pro 本身是静态任务基准，不附带 agent 轨迹。后续轨迹统一由官方
-[SWE-bench Pro 评测仓库](https://github.com/scaleapi/SWE-bench_Pro-os)提供的 mini-SWE-agent scaffold 生成；生成时记录 scaffold 版本、模型配置、turn limit、任务实例和评测结果。
+- **三路静态排序**：任务/失败观察与步骤文本的 TF-IDF 相关性、可解释的失败线索分数，以及基于轨迹依赖图的全图 PageRank 结构分数。
+- **AgenTracer**：适配本地 127 条 coding test 轨迹，并按证据强度分为 A 硬失败（9 条）、B 弱失败陈述（31 条）和 C 无失败证据（87 条）。这是 test 子集；不能据此训练参数或规则。
+- **RootSE**：适配 102 条、共 5,268 个步骤的 repository-level 轨迹。依赖图结合可确定的文件状态依赖和受约束的 LLM 依赖抽取；LLM 提议只在验证证据后进入图。当前完整本地运行使用 semantic/clue/path 权重 `0.50/0.05/0.45`，Top-1 为 `10/102`，Top-3 为 `21/102`。这是一组数据集上的实验结果，不代表跨数据集性能保证。
 
-## 当前内容
+## 环境与安装
 
-- `docs/DESIGN.md`：问题定义、LogHound 迁移映射、算法设计、实验设计和实施路线。
-- `data/README.md`：数据目录规范、已核验的数据事实和防泄漏规则。
-- `data/raw/agentracer/tracertraj-code-test.parquet`：本地已有的 AgenTracer coding 测试集副本。
-- `src/loghound_agent_debug/`：统一 schema、AgenTracer adapter、证据抽取、TF-IDF、全图 PageRank 图和评估器。
-- `configs/`：预注册的固定参数与 clue 规则。
+项目要求 Python 3.11 或更高版本。仓库使用 `pyproject.toml` 声明核心依赖；`requirements.txt` 另列数据集读取和测试所需依赖。按项目约定，以下命令在 Conda `mybook` 环境中运行：
 
-## 设计结论
+```bash
+conda run -n mybook python -m pip install -r requirements.txt
+```
 
-在具有 step-level 失败观察的轨迹上，初版采用完全离线的三路静态证据融合：
+## 数据
 
-1. 失败证据与执行步的文本相关性；
-2. 显式错误、工具失败和终止症状等轨迹线索
-3. 在反向依赖投票图上运行不依赖失败证据的全图 PageRank，得到结构重要性分数。
+数据文件不随仓库提交。请按 [`data/README.md`](data/README.md) 放置数据，并在使用前核对各数据集的来源与许可。
 
+默认路径：
 
+```text
+data/raw/agentracer/tracertraj-code-test.parquet
+data/raw/rootse/                      # RootSE 原始轨迹与标签
+```
 
-## 运行实验
+处理结果写入 `data/processed/`；实验产物写入 `outputs/`。这些本地数据和产物均由 `.gitignore` 排除。输入和标签分别保存为 `inputs.jsonl` 与 `labels.jsonl`；**排序阶段只读取输入，评估阶段才读取标签**。不要将数据集、标签、实验缓存、`.env` 或服务密钥提交到共享仓库。
 
-所有 Python 命令使用项目约定的 `mybook` 环境。一条命令完成数据转换、A/B/C 审计、排名、指标和 A 档案例报告：
+## 运行 AgenTracer 实验
+
+一条命令完成数据转换、证据审计、排序、指标计算和案例报告：
 
 ```bash
 conda run -n mybook python scripts/run_experiment.py
 ```
 
-如需单独重跑后处理：
+若要单独检查预处理数据或证据分层，可分别运行：
+
+```bash
+conda run -n mybook python scripts/prepare_data.py
+conda run -n mybook python scripts/audit_data.py
+```
+
+`run_experiment.py` 本身会从原始数据开始完成整套流程；如需在已有排名上单独重算评估或案例报告：
 
 ```bash
 conda run -n mybook python scripts/evaluate.py
 conda run -n mybook python scripts/case_report.py
 ```
 
-输出位于 `outputs/`（已被 git 忽略），统一输入和标签分别位于
-`data/processed/agentracer/inputs.jsonl` 与 `labels.jsonl`。排序器只接受前者；评估器才会同时读取标签。
+## 运行 RootSE 实验
 
-本地数据审计固定得到 A/B/C=`9/31/87`。A 档是有硬失败回传的主验证集，B 档是 agent 陈述式弱证据，C 档无负向观察；C 档关闭 clue，但仍运行 task-only semantic 与全图 PageRank，不解释为 evidence-aware 完整方法效果。
+先将 RootSE 数据放在 `data/raw/rootse/`。完整流程需要设置 `API_KEY` 和 `MODEL_NAME`；可选 `API_ENDPOINT` 用于指定兼容接口。凭据应保存在本地环境或被 Git 忽略的 `.env` 中，不要提交。
 
-详细方案见 [docs/DESIGN.md](docs/DESIGN.md)。
+```bash
+conda run -n mybook python scripts/run_rootse_experiment.py --workers 1
+```
+
+只使用已有缓存、不发送 API 请求：
+
+```bash
+conda run -n mybook python scripts/run_rootse_experiment.py --cache-only
+```
+
+运行状态、排名和缓存默认写入 `outputs/rootse/`。若任务未全部完成，状态文件会标明未完成轨迹；不应把不完整运行当作最终评测结果。
+
+## 项目结构
+
+```text
+configs/                       排序参数与线索规则
+data/                          数据说明、元数据和本地数据目录
+scripts/                       数据准备、实验、评估和报告入口
+src/loghound_agent_debug/      schema、适配器、证据、图与排序器
+tests/                         单元与数据隔离测试
+outputs/                       本地实验结果（不提交）
+```

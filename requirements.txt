@@ -1,0 +1,5 @@
+# Install the package and core dependencies declared in pyproject.toml.
+-e .
+
+# Test tooling.
+pytest>=8.0
