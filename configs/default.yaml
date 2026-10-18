@@ -22,3 +22,21 @@ rootse_llm:
   output_token_overrides:
     "rootse/swe-agent-live/gpt5mini/instance_sphinx-doc__sphinx-10435|18": 8192
     "rootse/swe-agent-live/claude-sonnet-4-5/instance_sympy__sympy-13878|65": 8192
+rootse_misstep:
+  prompt_version: "misstep_v1"
+  format_version: "misstep_json_v1"
+  weights:
+    evidence_contradiction: 0.5
+    requirement_misreading: 0.4
+    unfounded_assumption: 0.4
+    invalid_action: 0.4
+  max_field_chars: 2000
+  max_input_chars: 60000
+  max_output_tokens: 8192
+  max_summary_chars: 500
+  max_requests_per_trajectory: 100
+fusion_misstep:
+  semantic: 0.40
+  misstep: 0.35
+  path: 0.25
+  denominator: 1

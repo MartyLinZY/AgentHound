@@ -4,9 +4,9 @@ LogHound-Agent-Debug 对 coding-agent 的失败执行轨迹进行步骤级根因
 
 ## 当前实现
 
-- **三路静态排序**：任务/失败观察与步骤文本的 TF-IDF 相关性、可解释的失败线索分数，以及基于轨迹依赖图的全图 PageRank 结构分数。
+- **三路静态排序**：RootSE 使用语义相关性、决策时点错误（misstep）和依赖图结构分数；AgenTracer 保留原线索分数。RootSE misstep 通过决策时点引文校验后替换 clue 槽位。
 - **AgenTracer**：适配本地 127 条 coding test 轨迹，并按证据强度分为 A 硬失败（9 条）、B 弱失败陈述（31 条）和 C 无失败证据（87 条）。这是 test 子集；不能据此训练参数或规则。
-- **RootSE**：适配 102 条、共 5,268 个步骤的 repository-level 轨迹。依赖图结合可确定的文件状态依赖和受约束的 LLM 依赖抽取；LLM 提议只在验证证据后进入图。当前完整本地运行使用 semantic/clue/path 权重 `0.50/0.05/0.45`，Top-1 为 `10/102`，Top-3 为 `21/102`。这是一组数据集上的实验结果，不代表跨数据集性能保证。
+- **RootSE**：适配 102 条、共 5,268 个步骤的 repository-level 轨迹。第三通道依赖缓存已重建并覆盖全量轨迹，且与第二通道 misstep 缓存分开保存。第二通道在每条轨迹最多 100 次请求后，91/102 条完成排名；另 11 条触及预算上限。在三路结果共有的 91 条轨迹上，misstep 融合 Top-1/Top-3/MRR 为 `7/91`、`29/91`、`0.2459`，旧线索融合为 `12/91`、`25/91`、`0.2581`。这是未完成全量的探索性比较，不代表跨数据集性能保证。
 
 ## 环境与安装
 
@@ -59,11 +59,15 @@ conda run -n mybook python scripts/case_report.py
 conda run -n mybook python scripts/run_rootse_experiment.py --workers 1
 ```
 
-只使用已有缓存、不发送 API 请求：
+只使用已有的两通道缓存、不发送 API 请求：
 
 ```bash
-conda run -n mybook python scripts/run_rootse_experiment.py --cache-only
+conda run -n mybook python scripts/run_rootse_experiment.py --cache-only --misstep-cache-only
 ```
+
+第三通道依赖缓存与第二通道 misstep 缓存分别保存在 `outputs/rootse/dependency_cache/` 和 `outputs/rootse/misstep_cache/`。首次运行或缓存被删除后，需配置模型 API 并重新生成缺失缓存；`--skip-misstep` 用于运行原 clue 融合消融。
+
+若运行中断，可添加 `--resume` 复用已有排名并只处理尚无排名的轨迹；`--resume-failures` 仅重试仍有 misstep 请求预算的失败轨迹。
 
 运行状态、排名和缓存默认写入 `outputs/rootse/`。若任务未全部完成，状态文件会标明未完成轨迹；不应把不完整运行当作最终评测结果。
 

@@ -49,7 +49,7 @@ def _evidence_for_step(ordinal: int, evidence: EvidenceResult, graph_edges: list
     return result
 
 
-def rank_trajectory(input_item: TrajectoryInput, config: dict[str, Any], clue_rules: dict[str, Any], rootse_dependencies: list[dict[str, Any]] | None = None) -> dict[str, Any]:
+def rank_trajectory(input_item: TrajectoryInput, config: dict[str, Any], clue_rules: dict[str, Any], rootse_dependencies: list[dict[str, Any]] | None = None, misstep_scores: list[float] | None = None) -> dict[str, Any]:
     """Rank every step using semantic, clue, and global PageRank channels."""
     evidence = extract_evidence(input_item, clue_rules)
     semantic = semantic_scores(
@@ -68,15 +68,30 @@ def rank_trajectory(input_item: TrajectoryInput, config: dict[str, Any], clue_ru
     semantic_norm = minmax(semantic)
     path_norm = minmax(path)
     fusion = config.get("fusion", {})
-    semantic_weight = float(fusion.get("semantic", 0.12))
-    clue_weight = float(fusion.get("clue", 1.0))
-    path_weight = float(fusion.get("path", 1.0))
-    denominator = float(fusion.get("denominator", semantic_weight + clue_weight + path_weight))
+    if misstep_scores is not None:
+        if len(misstep_scores) != len(input_item.steps):
+            raise ValueError("misstep_scores must align with trajectory steps")
+        if "fusion_misstep" not in config:
+            raise ValueError("misstep_scores provided but fusion_misstep configuration is missing")
+        active_fusion = config["fusion_misstep"]
+        semantic_weight = float(active_fusion["semantic"])
+        clue_weight = float(active_fusion["misstep"])
+        path_weight = float(active_fusion["path"])
+        denominator = float(active_fusion.get("denominator", semantic_weight + clue_weight + path_weight))
+        channel_name = "misstep"
+    else:
+        active_fusion = fusion
+        semantic_weight = float(active_fusion.get("semantic", 0.12))
+        clue_weight = float(active_fusion.get("clue", 1.0))
+        path_weight = float(active_fusion.get("path", 1.0))
+        denominator = float(active_fusion.get("denominator", semantic_weight + clue_weight + path_weight))
+        channel_name = "clue"
     ranking = []
     for ordinal, step in enumerate(input_item.steps):
         # Clue scores stay on their fixed rule scale; semantic and path have
         # already been normalized within this trajectory.
-        raw = semantic_weight * semantic_norm[ordinal] + clue_weight * evidence.clue_scores[ordinal] + path_weight * path_norm[ordinal]
+        clue_or_misstep = evidence.clue_scores[ordinal] if misstep_scores is None else float(misstep_scores[ordinal])
+        raw = semantic_weight * semantic_norm[ordinal] + clue_weight * clue_or_misstep + path_weight * path_norm[ordinal]
         ranking.append({
             "rank": 0,
             "source_step_id": step.source_step_id,
@@ -86,6 +101,7 @@ def rank_trajectory(input_item: TrajectoryInput, config: dict[str, Any], clue_ru
             "components": {
                 "semantic_normalized": round(semantic_norm[ordinal], 9),
                 "clue": round(evidence.clue_scores[ordinal], 9),
+                **({"misstep": round(float(misstep_scores[ordinal]), 9)} if misstep_scores is not None else {}),
                 "pagerank": round(path[ordinal], 9),
                 "path_normalized": round(path_norm[ordinal], 9),
             },
@@ -121,7 +137,7 @@ def rank_trajectory(input_item: TrajectoryInput, config: dict[str, Any], clue_ru
             "pagerank_iterations": iterations,
             "pagerank_sum": round(sum(path), 12),
             "dangling_nodes": pagerank_dangling_nodes(graph),
-            "fusion_weights": {"semantic": semantic_weight, "clue": clue_weight, "structure": path_weight, "denominator": denominator},
+            "fusion_weights": {"semantic": semantic_weight, channel_name: clue_weight, "structure": path_weight, "denominator": denominator},
             "pagerank_alpha": float(config.get("graph", {}).get("alpha", 0.85)),
             "pagerank_tolerance": float(config.get("graph", {}).get("tolerance", 1e-6)),
             "pagerank_max_iterations": int(config.get("graph", {}).get("max_iterations", 1000)),
