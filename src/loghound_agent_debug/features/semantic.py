@@ -16,14 +16,28 @@ _STOP = {
 }
 
 
-def semantic_document(step: Step) -> str:
-    """Build the step document while removing repeated orchestration scaffolding."""
+def semantic_document(step: Step, include_observation: bool = False) -> str:
+    """Build the step document from the decision and action only.
+
+    Observation is deliberately excluded: it dominates the character budget
+    (~76% of a RootSE trajectory) and rewards verbose tool output rather than
+    the decision that introduced the error.  Agent/role are constants in the
+    RootSE single-agent setting and only dilute the vector.
+    ``include_observation=True`` restores the old behaviour for rollback and
+    ablation runs.
+    """
     decision = step.decision_text
     # The history repeats the whole task in the orchestration scaffold. It is
     # retained in raw_content, but must not become a document-level shortcut.
     decision = re.sub(r"\bQuestion:\s+.*?(?=\bNo Plan\b|# Current Task|# Response Language|\Z)", " ", decision, flags=re.I | re.S)
     decision = re.sub(r"\bTask ID:\s*\S+", " ", decision, flags=re.I)
-    return " ".join(filter(None, [step.agent, step.role, decision, step.action_text, step.observation_text, *step.artifacts_read, *step.artifacts_written]))
+    parts = [decision, step.action_text, *step.artifacts_read, *step.artifacts_written]
+    if include_observation:
+        # Rollback path: restore the exact pre-Day-1 document, agent/role prefix
+        # included, so the historical baseline is reproducible without editing
+        # code.  Dropping only the observation would still shift every cosine.
+        parts = [step.agent, step.role, decision, step.action_text, step.observation_text, *step.artifacts_read, *step.artifacts_written]
+    return " ".join(filter(None, parts))
 
 
 def _tokens(text: str) -> list[str]:
@@ -43,9 +57,10 @@ def _cosine(left: Counter[str], right: Counter[str], idf: dict[str, float]) -> f
     return sum(lv[key] * rv[key] for key in keys) / denom if denom else 0.0
 
 
-def scores(input_item: TrajectoryInput, failure_text: str, task_weight: float = 0.4) -> list[float]:
+def scores(input_item: TrajectoryInput, failure_text: str, task_weight: float = 0.4,
+           include_observation: bool = False) -> list[float]:
     """Score each step against task intent and observed failure text."""
-    documents = [_tokens(semantic_document(step)) for step in input_item.steps]
+    documents = [_tokens(semantic_document(step, include_observation)) for step in input_item.steps]
     task_tokens = _tokens(input_item.task)
     failure_tokens = _tokens(failure_text)
     all_docs = documents + [task_tokens, failure_tokens]

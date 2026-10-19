@@ -52,7 +52,13 @@ def _summary(values: list[float]) -> dict[str, float]:
 
 
 def _phase_timings(item: TrajectoryInput, config: dict, rules: dict) -> dict[str, float]:
-    """Time ranker phases while rebuilding the same intermediate values."""
+    """Time ranker phases while rebuilding the same intermediate values.
+
+    The benchmark input is the AgenTracer JSONL, which never passes
+    ``rootse_dependencies``, so the linear fusion branch here mirrors
+    ``rank_trajectory`` exactly.  RootSE RRF timing comes from
+    ``official_rank_trajectory_ms``, which calls the real ranker.
+    """
     start = time.perf_counter_ns()
     evidence = extract_evidence(item, rules)
     evidence_end = time.perf_counter_ns()
@@ -61,6 +67,7 @@ def _phase_timings(item: TrajectoryInput, config: dict, rules: dict) -> dict[str
         item,
         _failure_text(item),
         task_weight=float(config.get("semantic", {}).get("query_task_weight", 0.4)),
+        include_observation=bool(config.get("semantic", {}).get("include_observation", False)),
     )
     graph = build_graph(item)
     pagerank_scores, _converged, iterations = pagerank(

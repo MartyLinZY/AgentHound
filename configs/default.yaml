@@ -1,6 +1,9 @@
 schema_version: "0.1.0"
 semantic:
   query_task_weight: 0.4
+  # Observation is ~76% of a RootSE trajectory and rewards verbose tool output.
+  # Set to true to restore the pre-Day-1 behaviour.
+  include_observation: false
 graph:
   alpha: 0.85
   tolerance: 0.000001
@@ -10,6 +13,16 @@ fusion:
   clue: 0.05
   path: 0.45
   denominator: 1
+# RootSE-only override. Kept separate from `fusion` so the AgenTracer baseline
+# and the linear rollback stay byte-identical. method: "linear" disables RRF.
+fusion_rootse:
+  method: "rrf"
+  k: 60
+  semantic: 0.4
+  path: 1.0
+  anchor: 1.0
+  clue: 0.0
+  misstep: 1.0
 specificity:
   mode: "singleton"
   normalize: true

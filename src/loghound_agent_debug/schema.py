@@ -58,6 +58,9 @@ class TrajectoryInput:
     outcome: str
     failure_observations: list[FailureObservation]
     steps: list[Step]
+    # Failure-test symbols (file/class/function/assertion names).  Derived from
+    # failed_tests.error_description only; never from failure_id/failure_reason.
+    failure_anchors: list[str] = field(default_factory=list)
 
 
 @dataclass(frozen=True)
@@ -107,6 +110,7 @@ def input_from_dict(data: dict[str, Any]) -> TrajectoryInput:
         outcome=data.get("outcome", "failure"),
         failure_observations=observations,
         steps=steps,
+        failure_anchors=[str(x) for x in data.get("failure_anchors", [])],
     )
 
 

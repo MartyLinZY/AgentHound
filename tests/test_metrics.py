@@ -6,7 +6,7 @@ from loghound_agent_debug.schema import Label
 
 def test_step_summary_only_reports_top_k_and_mrr():
     summary = summarize_rows([{
-        "steps": 5, "hit_at_1": 0, "hit_at_3": 1, "hit_at_5": 1,
+        "steps": 5, "hit_at_1": 0, "hit_at_3": 1, "hit_at_5": 1, "hit_at_10": 1,
         "mrr": 1 / 3,
     }])
     assert summary["n"] == 1
@@ -14,6 +14,7 @@ def test_step_summary_only_reports_top_k_and_mrr():
         "Hit@1": 0,
         "Hit@3": 1,
         "Hit@5": 1,
+        "Hit@10": 1,
         "MRR": 1 / 3,
     }
     assert "Mean Rank" not in summary

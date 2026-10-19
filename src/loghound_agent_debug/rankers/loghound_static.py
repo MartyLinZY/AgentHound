@@ -10,6 +10,7 @@ from typing import Any
 import yaml
 
 from loghound_agent_debug.evidence import EvidenceResult, extract_evidence, load_clue_rules
+from loghound_agent_debug.features import anchor as anchor_scores
 from loghound_agent_debug.features.semantic import minmax, scores as semantic_scores
 from loghound_agent_debug.graph import build_graph, build_rootse_graph, pagerank, pagerank_dangling_nodes, pagerank_edge_count
 from loghound_agent_debug.schema import TrajectoryInput, input_to_dict
@@ -32,6 +33,41 @@ def _failure_text(input_item: TrajectoryInput) -> str:
     return " ".join(observation.content for observation in input_item.failure_observations)
 
 
+def _ranks(values: list[float]) -> list[int]:
+    """1-based ranks, ties broken by the earlier ordinal for determinism."""
+    order = sorted(range(len(values)), key=lambda i: (-values[i], i))
+    ranks = [0] * len(values)
+    for rank, index in enumerate(order, 1):
+        ranks[index] = rank
+    return ranks
+
+
+def _is_constant(values: list[float]) -> bool:
+    """A channel with one repeated score carries no ordering information."""
+    return not values or max(values) == min(values)
+
+
+def _rrf_fuse(channels: dict[str, tuple[list[float], float]], k: int) -> tuple[list[float], dict[str, float]]:
+    """Reciprocal Rank Fusion over named channels.
+
+    Constant channels are skipped: a channel that gives every step the same
+    score carries no ordering information, and RRF would otherwise turn its
+    arbitrary tie order into a spurious signal.
+    """
+    if not channels:
+        return [], {}
+    size = len(next(iter(channels.values()))[0])
+    fused = [0.0] * size
+    active: dict[str, float] = {}
+    for name, (values, weight) in channels.items():
+        if weight <= 0 or _is_constant(values):
+            continue
+        active[name] = weight
+        for index, rank in enumerate(_ranks(values)):
+            fused[index] += weight / (k + rank)
+    return fused, active
+
+
 def _evidence_for_step(ordinal: int, evidence: EvidenceResult, graph_edges: list, path_norm: list[float]) -> list[str]:
     """Explain which local or graph-derived signals contributed to a step."""
     result = []
@@ -50,13 +86,20 @@ def _evidence_for_step(ordinal: int, evidence: EvidenceResult, graph_edges: list
 
 
 def rank_trajectory(input_item: TrajectoryInput, config: dict[str, Any], clue_rules: dict[str, Any], rootse_dependencies: list[dict[str, Any]] | None = None, misstep_scores: list[float] | None = None) -> dict[str, Any]:
-    """Rank every step using semantic, clue, and global PageRank channels."""
+    """Rank every step using semantic, anchor, clue, and global PageRank channels.
+
+    ``fusion.method: linear`` (the global default) keeps the historical weighted
+    sum.  ``fusion_rootse.method: rrf`` enables reciprocal rank fusion on the
+    RootSE path only, so the AgenTracer baseline stays reproducible.
+    """
     evidence = extract_evidence(input_item, clue_rules)
     semantic = semantic_scores(
         input_item,
         _failure_text(input_item),
         task_weight=float(config.get("semantic", {}).get("query_task_weight", 0.4)),
+        include_observation=bool(config.get("semantic", {}).get("include_observation", False)),
     )
+    anchor = anchor_scores.scores(input_item)
     graph = build_rootse_graph(len(input_item.steps), rootse_dependencies or []) if rootse_dependencies is not None else build_graph(input_item)
     pagerank_scores, converged, iterations = pagerank(
         graph,
@@ -64,46 +107,93 @@ def rank_trajectory(input_item: TrajectoryInput, config: dict[str, Any], clue_ru
         tolerance=float(config.get("graph", {}).get("tolerance", 1e-6)),
         max_iterations=int(config.get("graph", {}).get("max_iterations", 1000)),
     )
-    path = pagerank_scores
-    semantic_norm = minmax(semantic)
-    path_norm = minmax(path)
-    fusion = config.get("fusion", {})
-    if misstep_scores is not None:
-        if len(misstep_scores) != len(input_item.steps):
-            raise ValueError("misstep_scores must align with trajectory steps")
-        if "fusion_misstep" not in config:
-            raise ValueError("misstep_scores provided but fusion_misstep configuration is missing")
-        active_fusion = config["fusion_misstep"]
-        semantic_weight = float(active_fusion["semantic"])
-        clue_weight = float(active_fusion["misstep"])
-        path_weight = float(active_fusion["path"])
-        denominator = float(active_fusion.get("denominator", semantic_weight + clue_weight + path_weight))
-        channel_name = "misstep"
+    if misstep_scores is not None and len(misstep_scores) != len(input_item.steps):
+        raise ValueError("misstep_scores must align with trajectory steps")
+
+    # fusion_rootse overrides fusion only on the RootSE path, and only when it
+    # explicitly asks for RRF.  Every other caller (AgenTracer, rollback to
+    # linear) keeps the global fusion section untouched.
+    rootse_fusion = config.get("fusion_rootse") or {}
+    if rootse_dependencies is not None and str(rootse_fusion.get("method", "")).lower() == "rrf":
+        fusion = rootse_fusion
     else:
-        active_fusion = fusion
-        semantic_weight = float(active_fusion.get("semantic", 0.12))
-        clue_weight = float(active_fusion.get("clue", 1.0))
-        path_weight = float(active_fusion.get("path", 1.0))
-        denominator = float(active_fusion.get("denominator", semantic_weight + clue_weight + path_weight))
-        channel_name = "clue"
+        fusion = config.get("fusion") or {}
+    method = str(fusion.get("method", "linear")).lower()
+
+    semantic_norm = minmax(semantic)
+    path_norm = minmax(pagerank_scores)
+    if method == "rrf":
+        k = max(1, int(fusion.get("k", 60)))
+        weights = {
+            "semantic": float(fusion.get("semantic", 1.0)),
+            "path": float(fusion.get("path", 1.0)),
+            "anchor": float(fusion.get("anchor", 1.0)),
+            "clue": float(fusion.get("clue", 0.0)),
+            "misstep": float(fusion.get("misstep", 1.0 if misstep_scores is not None else 0.0)),
+        }
+        channels = {
+            "semantic": (semantic, weights["semantic"]),
+            "path": (pagerank_scores, weights["path"]),
+            "anchor": (anchor, weights["anchor"]),
+            "clue": (evidence.clue_scores, weights["clue"]),
+        }
+        if misstep_scores is not None:
+            channels["misstep"] = (misstep_scores, weights["misstep"])
+        raw_scores, active = _rrf_fuse(channels, k)
+        # The best reachable score puts every active channel at rank 1, so the
+        # fused score can be reported on a 0-1 scale without pretending to be a
+        # calibrated probability.
+        max_possible = sum(active.values()) / (k + 1) if active else 0.0
+        score_scale = max_possible or 1.0
+        fusion_weights = {"method": "rrf", "k": k, **weights, "active_channels": sorted(active), "denominator": score_scale}
+    else:
+        if misstep_scores is not None:
+            if "fusion_misstep" not in config:
+                raise ValueError("misstep_scores provided but fusion_misstep configuration is missing")
+            active_fusion = config["fusion_misstep"]
+            semantic_weight = float(active_fusion["semantic"])
+            clue_weight = float(active_fusion["misstep"])
+            path_weight = float(active_fusion["path"])
+            denominator = float(active_fusion.get("denominator", semantic_weight + clue_weight + path_weight))
+            third_channel = [float(x) for x in misstep_scores]
+            channel_name = "misstep"
+        else:
+            active_fusion = fusion
+            semantic_weight = float(active_fusion.get("semantic", 0.12))
+            clue_weight = float(active_fusion.get("clue", 1.0))
+            path_weight = float(active_fusion.get("path", 1.0))
+            denominator = float(active_fusion.get("denominator", semantic_weight + clue_weight + path_weight))
+            third_channel = evidence.clue_scores
+            channel_name = "clue"
+        raw_scores = [
+            semantic_weight * semantic_norm[i] + clue_weight * third_channel[i] + path_weight * path_norm[i]
+            for i in range(len(input_item.steps))
+        ]
+        score_scale = denominator or 1.0
+        fusion_weights = {"method": "linear", "semantic": semantic_weight, channel_name: clue_weight, "structure": path_weight, "denominator": denominator}
+    semantic_rank = _ranks(semantic)
+    path_rank = _ranks(pagerank_scores)
+    anchor_rank = _ranks(anchor)
     ranking = []
     for ordinal, step in enumerate(input_item.steps):
         # Clue scores stay on their fixed rule scale; semantic and path have
         # already been normalized within this trajectory.
-        clue_or_misstep = evidence.clue_scores[ordinal] if misstep_scores is None else float(misstep_scores[ordinal])
-        raw = semantic_weight * semantic_norm[ordinal] + clue_weight * clue_or_misstep + path_weight * path_norm[ordinal]
         ranking.append({
             "rank": 0,
             "source_step_id": step.source_step_id,
             "agent": step.agent,
-            "score_raw": round(raw, 9),
-            "suspiciousness": round(raw / denominator if denominator else 0.0, 9),
+            "score_raw": round(raw_scores[ordinal], 9),
+            "suspiciousness": round(raw_scores[ordinal] / score_scale if score_scale else 0.0, 9),
             "components": {
                 "semantic_normalized": round(semantic_norm[ordinal], 9),
+                "semantic_rank": semantic_rank[ordinal],
                 "clue": round(evidence.clue_scores[ordinal], 9),
-                **({"misstep": round(float(misstep_scores[ordinal]), 9)} if misstep_scores is not None else {}),
-                "pagerank": round(path[ordinal], 9),
+                "pagerank": round(pagerank_scores[ordinal], 9),
                 "path_normalized": round(path_norm[ordinal], 9),
+                "path_rank": path_rank[ordinal],
+                "anchor": round(anchor[ordinal], 9),
+                "anchor_rank": anchor_rank[ordinal],
+                **({"misstep": round(float(misstep_scores[ordinal]), 9)} if misstep_scores is not None else {}),
             },
             "evidence": _evidence_for_step(ordinal, evidence, graph.edges, path_norm),
         })
@@ -135,9 +225,9 @@ def rank_trajectory(input_item: TrajectoryInput, config: dict[str, Any], clue_ru
             "edge_relations": {relation: sum(edge.relation == relation for edge in graph.edges) for relation in sorted({edge.relation for edge in graph.edges})},
             "pagerank_converged": converged,
             "pagerank_iterations": iterations,
-            "pagerank_sum": round(sum(path), 12),
+            "pagerank_sum": round(sum(pagerank_scores), 12),
             "dangling_nodes": pagerank_dangling_nodes(graph),
-            "fusion_weights": {"semantic": semantic_weight, channel_name: clue_weight, "structure": path_weight, "denominator": denominator},
+            "fusion_weights": fusion_weights,
             "pagerank_alpha": float(config.get("graph", {}).get("alpha", 0.85)),
             "pagerank_tolerance": float(config.get("graph", {}).get("tolerance", 1e-6)),
             "pagerank_max_iterations": int(config.get("graph", {}).get("max_iterations", 1000)),

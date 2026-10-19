@@ -44,9 +44,11 @@ def _row_from_result(result: dict[str, Any], label: Label) -> dict[str, Any]:
         "hit_at_1": int(any(rank <= 1 for rank in root_ranks)),
         "hit_at_3": int(any(rank <= 3 for rank in root_ranks)),
         "hit_at_5": int(any(rank <= 5 for rank in root_ranks)),
+        "hit_at_10": int(any(rank <= 10 for rank in root_ranks)),
         "agent_hit_at_1": int(any(rank <= 1 for rank in agent_ranks)),
         "agent_hit_at_3": int(any(rank <= 3 for rank in agent_ranks)),
         "agent_hit_at_5": int(any(rank <= 5 for rank in agent_ranks)),
+        "root_rank": first_rank,
         "mrr": 1.0 / first_rank if root_ranks else 0.0,
         "agent_mrr": 1.0 / first_agent_rank if agent_ranks else 0.0,
     }
@@ -70,6 +72,7 @@ def summarize_rows(rows: list[dict[str, Any]], include_length: bool = True) -> d
             "Hit@1": mean("hit_at_1"),
             "Hit@3": mean("hit_at_3"),
             "Hit@5": mean("hit_at_5"),
+            "Hit@10": mean("hit_at_10"),
             "MRR": mean("mrr"),
         },
     }

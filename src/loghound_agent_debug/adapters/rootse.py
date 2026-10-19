@@ -20,6 +20,38 @@ def _text(value: Any) -> str:
     return str(value)
 
 
+_ANCHOR_TOKEN = re.compile(r"[A-Za-z_][A-Za-z0-9_]{3,}")
+_ANCHOR_STOP = {
+    "the", "this", "that", "with", "from", "have", "will", "your", "they",
+    "them", "then", "than", "into", "file", "files", "code", "test", "tests",
+    "error", "line", "true", "false", "none", "self", "cls", "args", "kwargs",
+    "return", "value", "values", "import", "class", "def", "result",
+    "expected", "actual", "assert", "assertion", "failed", "failure",
+}
+
+
+def extract_failure_anchors(raw: dict[str, Any]) -> list[str]:
+    """Extract code symbols from failure-test error descriptions only.
+
+    This function must not read failure_id, failure_reason, or gold_patch: they
+    are annotations, and using them would leak the answer into the ranking
+    input.  The order of first appearance is kept so runs stay reproducible.
+    """
+    texts: list[str] = []
+    failed_tests = raw.get("failed_tests")
+    if isinstance(failed_tests, dict):
+        for value in failed_tests.values():
+            if isinstance(value, dict):
+                texts.append(_text(value.get("error_description")))
+    blob = " ".join(texts)
+    seen: dict[str, None] = {}
+    for token in _ANCHOR_TOKEN.findall(blob):
+        if token.lower() in _ANCHOR_STOP:
+            continue
+        seen.setdefault(token, None)
+    return list(seen)
+
+
 def _trajectory_id(raw: dict[str, Any], path: Path) -> str:
     rel = path.relative_to(path.parents[3]).as_posix() if len(path.parents) > 3 else path.as_posix()
     return f"rootse/{rel.removeprefix('data/')}".removesuffix(".json")
@@ -73,6 +105,9 @@ def load_rootse_file(path: str | Path) -> tuple[TrajectoryInput, Label]:
         schema_version="0.1.0", dataset="rootse", trajectory_id=trajectory_id,
         task=_text(raw.get("original_mission_prompt")), domain="coding", outcome="failure",
         failure_observations=observations, steps=steps,
+        # Anchors come from the failure context only, and are built before the
+        # label is read so ranking never touches annotation fields.
+        failure_anchors=extract_failure_anchors(raw),
     )
     # Read the annotation only after constructing the label-free input.
     label = Label(

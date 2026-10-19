@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Evaluate complete RootSE rankings using exact step-ID Top-1 and Top-3."""
+"""Evaluate complete RootSE rankings with Top-K, MRR, and per-agent breakdowns."""
 
 from __future__ import annotations
 
@@ -10,6 +10,8 @@ from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "src"))
 from loghound_agent_debug.adapters.rootse import load_rootse
+
+KS = (1, 3, 5, 10)
 
 
 def _read_jsonl(path: Path) -> list[dict]:
@@ -34,10 +36,46 @@ def evaluate(inputs: list, labels: list, rankings: list[dict]) -> dict:
         if result.get("graph_stats", {}).get("pagerank_converged") is not True:
             raise ValueError(f"PageRank did not converge for {trajectory.trajectory_id}")
         roots = set(label_by_id[trajectory.trajectory_id].root_cause_steps)
-        ranked = found[:3]
-        rows.append({"trajectory_id": trajectory.trajectory_id, "root_cause_steps": sorted(roots), "top1_step_id": found[0]["source_step_id"], "top3_step_ids": [x["source_step_id"] for x in ranked], "top1_hit": bool(found and str(found[0]["source_step_id"]) in roots), "top3_hit": any(str(x["source_step_id"]) in roots for x in ranked)})
+        # An incomplete ranking must never look like a lucky hit, so an absent
+        # root step is treated as one worse than the last ranked position.
+        ranks = {str(x["source_step_id"]): int(x["rank"]) for x in found}
+        root_ranks = sorted(ranks[r] for r in roots if r in ranks)
+        best = root_ranks[0] if root_ranks else len(ranks) + 1
+        rows.append({
+            "trajectory_id": trajectory.trajectory_id,
+            "agent": trajectory.steps[0].agent if trajectory.steps else "unknown",
+            "root_cause_steps": sorted(roots),
+            "root_rank": best,
+            "mrr": 1.0 / best if root_ranks else 0.0,
+            "top1_step_id": found[0]["source_step_id"],
+            "top3_step_ids": [x["source_step_id"] for x in found[:3]],
+            **{f"top{k}_hit": bool(any(r <= k for r in root_ranks)) for k in KS},
+        })
+
     n = len(rows)
-    return {"dataset": "dengdan1999/RootSE", "trajectories": n, "step_level_top1": sum(x["top1_hit"] for x in rows) / n if n else 0.0, "step_level_top3": sum(x["top3_hit"] for x in rows) / n if n else 0.0, "top1_hits": sum(x["top1_hit"] for x in rows), "top3_hits": sum(x["top3_hit"] for x in rows), "per_trajectory": rows}
+    summary = {
+        "dataset": "dengdan1999/RootSE",
+        "trajectories": n,
+        **{f"step_level_top{k}": sum(x[f"top{k}_hit"] for x in rows) / n if n else 0.0 for k in KS},
+        **{f"top{k}_hits": sum(x[f"top{k}_hit"] for x in rows) for k in KS},
+        "mrr": sum(x["mrr"] for x in rows) / n if n else 0.0,
+        # Share of the top-5 recall the reranker could still recover: the gap
+        # between "found in top-5" and "ranked first" is the reranking ceiling.
+        "p_top1_given_top5": (
+            sum(1 for x in rows if x["top1_hit"]) / max(sum(1 for x in rows if x["top5_hit"]), 1)
+        ),
+        "by_agent": {},
+        "per_trajectory": rows,
+    }
+    for agent in sorted({x["agent"] for x in rows}):
+        subset = [x for x in rows if x["agent"] == agent]
+        m = len(subset)
+        summary["by_agent"][agent] = {
+            "n": m,
+            **{f"top{k}": sum(x[f"top{k}_hit"] for x in subset) / m for k in KS},
+            "mrr": sum(x["mrr"] for x in subset) / m,
+        }
+    return summary
 
 
 def main() -> int:

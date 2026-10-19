@@ -70,16 +70,21 @@ def test_ranker_fusion_branch_and_legacy_formula(tmp_path):
     item = inputs[0]
     config = load_config("configs/default.yaml")
     rules = load_clue_rules("configs/clue_rules.yaml")
+    # The legacy linear formula is only reachable without fusion_rootse; that is
+    # the rollback path and still requires fusion_misstep when misstep is given.
     old = dict(config)
     old.pop("fusion_misstep")
+    old.pop("fusion_rootse", None)
     baseline = rank_trajectory(item, old, rules, [])
     legacy_again = rank_trajectory(item, old, rules, [])
     assert baseline == legacy_again
     with pytest.raises(ValueError, match="fusion_misstep"):
         rank_trajectory(item, old, rules, [], [0.0] * len(item.steps))
+    # RootSE now fuses with RRF and records the configured channel weights.
     ranked = rank_trajectory(item, config, rules, [], [0.0] * len(item.steps))
     assert "misstep" in ranked["ranking"][0]["components"]
-    assert ranked["graph_stats"]["fusion_weights"]["misstep"] == 0.35
+    assert ranked["graph_stats"]["fusion_weights"]["method"] == "rrf"
+    assert ranked["graph_stats"]["fusion_weights"]["misstep"] == 1.0
 
 
 def test_chunk_cache_hit_reuses_response(tmp_path, monkeypatch):
