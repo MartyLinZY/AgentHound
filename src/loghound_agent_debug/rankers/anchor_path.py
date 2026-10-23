@@ -48,7 +48,10 @@ def supporting_paths(item: TrajectoryInput, graph: Graph, evidence: AnchorEviden
 def rank_trajectory(item: TrajectoryInput, config: dict[str, Any], rules: dict[str, Any], dependencies: list[dict[str, Any]], variant: str = "anchors-backtrace") -> dict[str, Any]:
     if variant not in VARIANTS:
         raise ValueError(f"unknown variant: {variant}")
-    # Reuse identical semantic features, fusion weights and global baseline.
+    # These historical variants implement linear fusion. Keep the upstream
+    # RootSE RRF override confined to the static ranker instead of mixing formulas.
+    if variant != "baseline":
+        config = {**config, "fusion_rootse": {}, "fusion": {**config.get("fusion", {}), "method": "linear"}}
     result = rank_static(item, config, rules, dependencies)
     result.update({"variant": variant, "protocol": item.protocol, "algorithm_version": ANCHOR_VERSION})
     result["dependency_hash"] = _hash(dependencies)

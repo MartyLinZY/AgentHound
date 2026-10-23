@@ -20,6 +20,38 @@ def _text(value: Any) -> str:
     return str(value)
 
 
+_ANCHOR_TOKEN = re.compile(r"[A-Za-z_][A-Za-z0-9_]{3,}")
+_ANCHOR_STOP = {
+    "the", "this", "that", "with", "from", "have", "will", "your", "they",
+    "them", "then", "than", "into", "file", "files", "code", "test", "tests",
+    "error", "line", "true", "false", "none", "self", "cls", "args", "kwargs",
+    "return", "value", "values", "import", "class", "def", "result",
+    "expected", "actual", "assert", "assertion", "failed", "failure",
+}
+
+
+def extract_failure_anchors(raw: dict[str, Any]) -> list[str]:
+    """Extract code symbols from failure-test error descriptions only.
+
+    This function must not read failure_id, failure_reason, or gold_patch: they
+    are annotations, and using them would leak the answer into the ranking
+    input.  The order of first appearance is kept so runs stay reproducible.
+    """
+    texts: list[str] = []
+    failed_tests = raw.get("failed_tests")
+    if isinstance(failed_tests, dict):
+        for value in failed_tests.values():
+            if isinstance(value, dict):
+                texts.append(_text(value.get("error_description")))
+    blob = " ".join(texts)
+    seen: dict[str, None] = {}
+    for token in _ANCHOR_TOKEN.findall(blob):
+        if token.lower() in _ANCHOR_STOP:
+            continue
+        seen.setdefault(token, None)
+    return list(seen)
+
+
 def _trajectory_id(raw: dict[str, Any], path: Path) -> str:
     # Both official layouts must address the same run/cache key: HF data/ and
     # TrajAudit RootSE/. Do not include the download directory in the identity.
@@ -100,6 +132,10 @@ def load_rootse_file(path: str | Path, protocol: str = "trace-only") -> tuple[Tr
         protocol=protocol, diagnostic_tests=diagnostic_tests,
         task_id=_text(raw.get("instance_id")), repository=_text(raw.get("repo")),
         base_commit=_text(raw.get("base_commit")),
+        # Follow the same first-test input policy as diagnostic_tests.
+        failure_anchors=extract_failure_anchors({"failed_tests": {
+            t.test_id: {"error_description": t.error_description} for t in diagnostic_tests
+        }}),
     )
     # Read the annotation only after constructing the label-free input.
     label = Label(

@@ -73,6 +73,7 @@ class TrajectoryInput:
     task_id: str = ""
     repository: str = ""
     base_commit: str = ""
+    failure_anchors: list[str] = field(default_factory=list)
 
     def __post_init__(self) -> None:
         if self.protocol not in {"trace-only", "postmortem"}:
@@ -133,6 +134,7 @@ def input_from_dict(data: dict[str, Any]) -> TrajectoryInput:
         task_id=data.get("task_id", ""),
         repository=data.get("repository", ""),
         base_commit=data.get("base_commit", ""),
+        failure_anchors=[str(x) for x in data.get("failure_anchors", [])],
     )
 
 

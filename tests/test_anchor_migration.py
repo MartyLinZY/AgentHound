@@ -46,6 +46,9 @@ def test_protocol_isolates_test_evidence_and_labels_and_preserves_original_ids(t
     trace, _ = load_rootse_file(path)
     post, _ = load_rootse_file(path, protocol="postmortem")
     assert trace.diagnostic_tests == []
+    assert trace.failure_anchors == []
+    assert "ASSERTION_ONLY_IN_POSTMORTEM" in post.failure_anchors
+    assert "second" not in post.failure_anchors
     assert [s.source_step_id for s in trace.steps] == ["step-A", "step-C"]
     assert len(post.diagnostic_tests) == 1
     assert post.steps == trace.steps and post.failure_observations == trace.failure_observations
