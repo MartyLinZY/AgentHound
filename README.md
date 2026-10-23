@@ -133,3 +133,10 @@ bash scripts/reproduce_ppt_code_audit.sh
 入口安装锁定依赖并运行测试，再扫描全102条/5268步骤，核对816组固定图排名及原始state/排名哈希。产物写入 `outputs/ppt-code-audit/`。本入口不读取密钥、不发送模型请求、不覆盖冻结产物。
 
 新构图实验默认目录改为 `rootse-migration-state-v2-deepseek-v41-flash-32k`，使用前需另行冻结并运行；不得把旧结果直接归给修复后的规则图。
+
+## Attention map 实验版本（2026-10-23）
+
+新增失败条件化步骤关系矩阵与单步残差排序，入口和复现说明见
+[experiments/attentionmap/README.md](experiments/attentionmap/README.md)。
+原有baseline、RRF和锚点回溯入口继续保留。首轮102条、35组、5折、3种子的结果见
+[Attention map实验报告](outputs/attentionmap-v1/analysis/report.md)。
