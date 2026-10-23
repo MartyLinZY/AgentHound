@@ -1,0 +1,18 @@
+{
+  "experiment": "rootse-all-at-once-qwen35-397b-a17b-v1",
+  "source_repository": "https://github.com/LogAnalysisTech/TrajAudit.git",
+  "source_commit": "664e211b011bb0730816b06800bb841950fe0b38",
+  "model": "qwen3.5-397b-a17b",
+  "endpoint": "https://zhenze-huhehaote.cmecloud.cn/v1/chat/completions",
+  "temperature": 0,
+  "max_tokens": 8192,
+  "timeout_seconds": 300,
+  "workers": 3,
+  "transport_attempts": 3,
+  "context_policy": "full_input_overflow_is_failure",
+  "parser": "upstream_extract_json_strict_no_repair",
+  "dataset_manifest": "dataset_manifest.json",
+  "paper_reference": "paper_reference.json",
+  "selection_note": "用户要求验证更强模型。Qwen3.5-397B-A17B的最长输入探测成功：840125字符，185937输入tokens，HTTP200；此探测仅验证上下文接收，不作为定位预测。模型选择未依据根因标签或准确率。",
+  "reasoning_mode_note": "服务默认思考模式，探测返回独立reasoning字段；未额外设置思考开关。8192输出预算与14B一致，但可能包含思考token，算力消耗并不等同。"
+}

@@ -1,0 +1,110 @@
+[
+  {
+    "path": "/Users/linzheyuan/Library/Containers/com.tencent.xinWeChat/Data/Documents/xwechat_files/wxid_6g4qa6ko2zhf12_94bd/msg/file/2026-10/9.29note.pptx",
+    "sha256": "fa7effd1deccda4890c1a866e38bc9d7f47a2aa84c255fd400e17dd17a773209",
+    "slides": [
+      {
+        "slide": 1,
+        "text": "LogHound · 汇报\n本周\n工作：\n单\nagent\n执行轨迹的\n「步骤依赖关系」\n本周把第三通道针对 RootSE 单 agent 轨迹重做，\n用规则追踪文件状态 + LLM 抽取可核验依赖建图\n102\n条轨迹\n5,268\n个步骤\n6,757\n条依赖边"
+      },
+      {
+        "slide": 2,
+        "text": "本周\n工作\n适配 RootSE 数据：完成 \n102 条轨迹\n、\n5,268 个步骤\n 的实验\n第三通道改成「规则追踪文件状态 +\nLLM 抽取信息／方案依赖」建图\nLLM 只补充依赖证据，不判断根因；\n根因排序仍由三通道融合产生\n最新完整结果\nTop-1\n15/102\n14.7%\nTop-3\n26/102\nP02"
+      },
+      {
+        "slide": 3,
+        "text": "单\nagent\n执行轨迹的\n特性\n一条单 agent 轨迹的步骤顺序\n步骤 1\n读取报错\n步骤 2\n修改 a.py\n步骤 3\n跑测试\n步骤 4\n调用接口\n步骤 5\n输出结果\n只有先后，没有「使用了什么」的证据 → \n无法建依赖边\n数据设置\nRootSE 是真实 coding-agent 失败轨迹，\n当前版本包含 102 条轨迹、5,268 个步骤\n每个原始步骤作为一个排名节点，\n保留 thought、response、action、\nobservation 和原始步骤 ID\n需要解决的问题\n单 agent 轨迹没有多 agent 协作关系；\n简单加「同 agent／时间顺序边」会把普通\n执行顺序误当成依赖\n评价采用 Top-1、Top-3；\nP03"
+      },
+      {
+        "slide": 4,
+        "text": "在能说明「后续使用了什么」时连边\n旧结构信号主要表示全局图结构重要性，不能直接解释某一步为何影响后续执行。\n新图保留有证据的早期步骤 → 后续步骤依赖关系，\nstate_dependency\n某步骤生成／更新的文件状态\n被后续步骤读取或沿用\ninformation_use / plan_adoption\n后续决策使用了前序观察中的具体信息，\n或采用了前序提出的具体方案\n规则边与 LLM 边按步骤对合并；每条边权\n固定为 0.1\n，证据一并保留\nP04"
+      },
+      {
+        "slide": 5,
+        "text": "用文件版本表达可确认的状态依赖\n文件 a.py 的版本链：只有当前可确认版本的生产步骤才与读取步骤相连\n步骤 2 · 修改 a.py\n产生版本 v1\n步骤 5 · 覆盖 a.py\n产生版本 v2\n步骤 8 · 读取 a.py\n读到版本 v2\n追踪规则\n解析读取、局部修改、追加、覆盖、\n复制、移动和删除操作\n完全覆盖产生新版本，不因路径相同\n自动继承旧版本；局部修改可保留\n对旧版本的依赖\nP05"
+      },
+      {
+        "slide": 6,
+        "text": "每个目标步骤一次有边界的依赖判断\n抽取流程（每步都有明确边界）\n1\n选定最多 8 个前序候选：最近 3 步优先，\n其余按路径／符号重合及文本检索补充\n2\n前序可见 thought、response、action、\nobservation；目标只给前三者，不给\n目标 observation\n3\n只回答是否有直接的信息使用或方案采用，\n并给出两端原文与简短理由\n目标步骤 9\n发送：thought、response、action\n不\n可见\n：目标 observation\n候选：最多 8 个（最近 3 步优先）\n输出：来源字段原文、目标字段原文、\n简短理由\n4\n程序校验\n校验候选归属、时间方向、字段与引用\n是否与实际发送片段完全匹配\n未通过校验的关系不入图并记录原因\nP06"
+      },
+      {
+        "slide": 7,
+        "text": "结构通道\n第三通道内部流程\n依赖边\n反转\nPageRank\n归一化\n三通道融合\n排序输出\n机制\n把依赖边反向后运行 PageRank：\n后续使用者向其依赖来源投票，\n被后续步骤依赖的上游步骤获得较高结构分\n结构分与语义相关性、显式失败线索\n分开计算，再做三通道融合\n当前实验配置权重\n语义\n0.50\n线索\n0.05\n结构\n0.45\nP08"
+      },
+      {
+        "slide": 8,
+        "text": "只按结构分排序：\n命中根因的轨迹数 / 102\n40\n30\n20\n10\n7\n33\n15\n26\n第三通道单独排序\n三通道融合\nTop-1\nTop-3\n计算方法\n对每条完整轨迹只按第三通道\nPageRank 分数排序，分数并列时\n按原始步骤顺序优先\n用同一 RootSE 根因步骤标签\n做精确匹配\n单通道 Top-3 更高（33 vs. 26），\n但 Top-1 更低（7 vs. 15）\n结构分单独使用时，根因更常进入前三而不常排在第一；\n「结构重要」还不足以精确等同「根因」\n融合把部分结构候选推到了榜首，同时也改变了前三覆盖\nP09"
+      },
+      {
+        "slide": 9,
+        "text": "线索质量仍是瓶颈\n已经接通的能力\n第三通道已能在 102 条轨迹上构图并\n完成排名\nLLM 依赖抽取、规则状态追踪、缓存和\n严格评估链路已经接通\n融合 Top-1 命中 15 条，高于第三通道\n单独的 7 条\n仍然存在的偏差\n融合 Top-3 命中 26 条，第三通道单独\n排序命中 33 条\n不能只看一个聚合指标，需分析融合\n为何丢失部分 Top-3 候选\n语义相关不等于错误证据\n第二通道的显式线索若只抓到末尾报错，\n可能排到症状而不是上游触发步骤\n这也是下一阶段优先检查的方向\nP11"
+      },
+      {
+        "slide": 10,
+        "text": "从「找到报错」\n到\n「定位最早的决定性\n失败线索」\n1\n先做错误分析：按失败类型和轨迹长度分组，\n抽查 Top-1／Top-3 错例，统计线索命中在\n根因之前、根因处还是根因之后\n2\n重定义第二通道线索：区分终止失败、\n工具／环境错误、模型自我纠错、\n重复失败症状等类别；保留触发规则和原文证据\n3\n控制症状偏置：从末尾测试失败回溯到\n更早的相关操作或观察，避免「最明显报错」\n自动变成最高分\n方向\n让显式失败线索更接近\n「根因发生在哪里」，\n而不只是「最后哪里报错」\n末尾测试失败（症状）\n回溯\n最早的决定性失败线索\nP12\n第 2、3 条为最高优先级"
+      },
+      {
+        "slide": 11,
+        "text": "本周小结与下一步\n下一步主要修改第二\n通道\nRootSE 102 条完成，融合 Top-1 \n15/102\n、Top-3 \n26/102\n第二通道目前还是对\nagenttracer\n的失败提取\n，\n还没有引入大模型\n，\n下周准备考虑更好的修改第二通道\n，\n使其适合单\nagent\n轨迹的\n分析\nLogHound · 组会汇报 · 2026-09-28\nP13"
+      }
+    ]
+  },
+  {
+    "path": "/Users/linzheyuan/Library/Containers/com.tencent.xinWeChat/Data/Documents/xwechat_files/wxid_6g4qa6ko2zhf12_94bd/msg/file/2026-09/Coding_Agent_Failure_Analysis_Revised_Plan_Update.pptx",
+    "sha256": "6870e3c2775b1af9a84f88caabb4ec4a48b6d7098782a6060369e20ac67dc777",
+    "slides": [
+      {
+        "slide": 1,
+        "text": "Failure Diagnosis for Coding Agents\nZheyuan \nLin\nzheyuanlin@smail.nju.edu.cn\nState Key Laboratory for Novel Software Technology\nSoftware Security and Compiler Technology Lab\n Nanjing University"
+      },
+      {
+        "slide": 2,
+        "text": "Introduction\nCoding Agent Failure Diagnosis\nObservable execution traces\nAgents repeatedly search, edit, and test.\nTraces record actions, artifacts, and feedback.\nA final outcome does not identify the decision to inspect.\nErrors can precede both failure lock-in and visible symptoms.\nGoal: rank candidate failure steps and expose the evidence behind each candidate.\nSource: Zhao et al., Failure as a Process (2026), Fig. 3"
+      },
+      {
+        "slide": 3,
+        "text": "Motivation\nFailure Analysis of Coding Agent Execution Traces\nA Real Directory-Handling Failure\nClaude Code issue #1669 · user-reported tool sequence\nObserved action\nReported output\nBash(cd …)\n“no such file or directory”\nRead(../../…)\n“File does not exist”\nRead(…)\n“Read 40 lines”\nFurther relative-path reads\nRepeated failures; user interrupts\nWhat should we inspect?\nThe execution context used by each call.\nThe feedback available before the next action.\nAn earlier decision worth inspecting.\nOne successful read does not establish sustained recovery.\nSource: bgrant0607, 25 Jul 2025. Condensed partial trace; the underlying cause is unverified."
+      },
+      {
+        "slide": 4,
+        "text": "Related Work\nFailure Analysis of Coding Agent Execution Traces\nRelated Work: Diagnostic Approaches\nDirection\nRepresentative work\nDiagnostic mechanism\nSoftware localization\nLogHound\nMap runtime clues to program paths\nError diagnosis\nAgentDebug\nClassify errors and select critical steps\nLearned attribution\nAgenTracer\nConstruct labels and learn Who/When prediction\nCoding traces\nCodeTracer, TrajAudit\nRepresent state and inspect relevant evidence\nEvidence reasoning\nAgentRx, FALAT,\nAgentScope, FAMAS\nCheck constraints, reason over dependencies, or compare repeated runs"
+      },
+      {
+        "slide": 5,
+        "text": "Related Work\nFailure Analysis of Coding Agent Execution Traces\nAgentDebug: Critical Errors and Feedback\nDiagnostic target\nCritical step, error type, evidence, and feedback.\nDesign lesson\nSeparate local errors, critical-error selection, and recovery.\nAgentErrorBench provides 200 trajectories from ALFWorld, WebShop, and GAIA."
+      },
+      {
+        "slide": 6,
+        "text": "Related Work\nFailure Analysis of Coding Agent Execution Traces\nAgenTracer: Annotation and Attribution\nBuild labels\nOracle-assisted replay and verified fault injection.\nTrain attribution\nAn 8B model predicts the responsible agent and decisive step.\nOracle information used to create labels must stay outside diagnosis-time inputs."
+      },
+      {
+        "slide": 7,
+        "text": "Related Work\nFailure Analysis of Coding Agent Execution Traces\nCoding-Specific Diagnosis\nCodeTracer\nTrajAudit\nFold lengthy observations.\nRetrieve relevant details during investigation.\nUse test-failure evidence to localize a step.\nCompare state representation, evidence selection, localization, and total diagnosis cost."
+      },
+      {
+        "slide": 8,
+        "text": "Related Work\nFailure Analysis of Coding Agent Execution Traces\nChecks and Dependencies as Evidence\nAgentRx: checked evidence\nWork\nEvidence mechanism\nFALAT\nTyped dependencies and candidate verification\nAgentScope\nBehavioral graphs and neural invariants\nFAMAS\nRepeated-run action spectra and ranking\nStructured evidence is established. Its incremental value and total cost must be tested."
+      },
+      {
+        "slide": 9,
+        "text": "Related Work\nFailure Analysis of Coding Agent Execution Traces\nLogHound: Evidence and Path Ranking\nRetain\nMap clues to entities.\nUse paths to support ranking.\nAdapt\nReplace program methods with actions and observed artifact states.\nTransfer the evidence-to-ranking mechanism; redesign the state and relationship model."
+      },
+      {
+        "slide": 10,
+        "text": "Synthesis\nFailure Analysis of Coding Agent Execution Traces\nResearch Gap and Hypothesis\nCan \nreconstructed\n evidence paths improve step ranking at a fixed diagnosis budget?\nEstablished\nStructured traces, constraint checks, and dependency reasoning already exist.\nProposed focus\nWithin one run, link clues to exact artifact versions and recorded context.\nB\netter ranking, or comparable ranking at lower end-to-end cost."
+      },
+      {
+        "slide": 11,
+        "text": "Research Questions\nFailure Analysis of Coding Agent Execution Traces\nResearch Questions\nRQ1  Localization\nDoes the \nmetohd \nimprove failure-step ranking?\nCompare with direct reading, retrieval, and existing diagnosis methods.\nRQ2  Mechanism\nWhat do \nreconstructed \nevidence paths contribute?\nCompare the same facts as text, manual paths, and extracted paths.\nRQ3  Efficiency\nCan we achieve comparable quality at lower cost?\nMeasure total diagnosis cost and repeated-run variability."
+      },
+      {
+        "slide": 12,
+        "text": "Evaluation Plan\nFailure Analysis of Coding Agent Execution Traces\nData Sources and Trace Collection\nSource\nRole in the study\nConstruction or audit\nRootSE\nFailure-step localization\n102 labeled failures\nRetain original step IDs.\nAudit available execution state.\nCodeTraceBench\nIncorrect / unuseful steps\nSuccessful and recovered runs\nVerified is a subset of full.\nKeep detection labels separate.\nNew SWE-bench runs\nEvidence-path reconstruction and evaluation\nOne fixed agent and model first\nCapture snapshots and diffs,\nworking directories, and tests."
+      },
+      {
+        "slide": 13,
+        "text": "Evaluation Plan\nFailure Analysis of Coding Agent Execution Traces\nBaselines and Evaluation Protocol\nComparison\nPurpose\nError / recent-edit heuristics\nEstablish a low-cost reference.\nFull-trace LLM\nTest direct diagnosis from all available observations.\nRetrieval + the same LLM\nSeparate evidence selection from path reasoning.\nTrajAudit first\nThen add CodeTracer and an AgentDebug adaptation.\nAnchors + version-aware paths\nTest the proposed transfer under the same protocol.\nShared conditions\nSame diagnosis model, evidence access, and total budget."
+      }
+    ]
+  }
+]

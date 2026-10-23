@@ -1,0 +1,67 @@
+[
+  {
+    "file": "MIGRATION.md",
+    "before_sha256": "a74309296a826d93d0463c27f3ea43f2bc591ad586e790a34e69647d8e10cf15",
+    "after_sha256": "515b4380c4950c098c4083bfba4c431684ff8acd7bcaac46cc52eabcc29b7f41"
+  },
+  {
+    "file": "ROOTSE_MIGRATION_EXPERIMENT.md",
+    "before_sha256": "3031618c771fa58bc462e6f8bb15413f5c12446ca3c12855f539b30ad7bbfb35",
+    "after_sha256": "3df34c30cb83ea79c48f2dad4886239beadf8fe7ea98d090a650c2930f0a6611"
+  },
+  {
+    "file": "experiments/rootse_migration/config.json",
+    "before_sha256": "7c493cd23cbf25b6ac6da65d9167721a12bb11ad9456810015ba1431753bc65c",
+    "after_sha256": "4a62aa48bd93bf866c9cf80dc585374f91244ac8b2c47e8b9972abcb61455098"
+  },
+  {
+    "file": "scripts/audit_rootse_migration_results.py",
+    "before_sha256": "51f7b663f6234eb966ef33eafd3b628dccdccdf5b806ebc1ed2b4ea010155424",
+    "after_sha256": "86fb50c37067205e40e73a3e6e02c44a7931f681855f48acc1a24a65ac41e0f6"
+  },
+  {
+    "file": "scripts/migration_core.py",
+    "before_sha256": "c8fb986e81df11396164dc16c44bd286de40e1479e44f48f602e67aec1cdfdf6",
+    "after_sha256": "20a5aff595823163dfae69edfa617f096e7c3876159c99a36b6e9db27cda082b"
+  },
+  {
+    "file": "scripts/plot_rootse_migration.py",
+    "before_sha256": "cf37d10b21bf4e4ba76b8d7f7e3a0d37c5e450beaa4a06155659dfd2cc143ee7",
+    "after_sha256": "0d046b35db84be53887bfabb6a34fea4d3537e16457665a95af2fcf0170089c0"
+  },
+  {
+    "file": "scripts/report_rootse_migration.py",
+    "before_sha256": "6ed90e756b9b8217d1354a9e162f531743b9b93b873c194b7efda7135c9e9bca",
+    "after_sha256": "68a9769d4ef9e68e93ec722dbf96e6a01ecbeec25e775995b844f50d6bfc5f4a"
+  },
+  {
+    "file": "scripts/reproduce_rootse_migration.sh",
+    "before_sha256": "2b68336ba6d7b0625b244d36a7c64d431f1ea802a9c19ad10691deb66d8d2d20",
+    "after_sha256": "b53e6a7935ee4c52d16ba9dde43ad95a22af86670acbdf5f20ab470ffcda9b4b"
+  },
+  {
+    "file": "scripts/run_rootse_migration.py",
+    "before_sha256": "dc65ee4ff58d55406ecb8ae82fc0a1e4a74aa1c5e06ac7588b721141b2c5fb1e",
+    "after_sha256": "7ba05a3f4c98e0bedd402567c82582c141e853832329b0b3a5471425ad6d431e"
+  },
+  {
+    "file": "scripts/verify_rootse_migration.py",
+    "before_sha256": "50322add6bd073bed3fa1ac725a2dd973a12a25be0f986e05ad70f4c3ed3a735",
+    "after_sha256": "12e37f047b987900e4e641d59e527886f18f637cc7c1ac662fe22fdfc40102ec"
+  },
+  {
+    "file": "README.md",
+    "before_sha256": "d8aca8cee3d2020cbd09a051ae5b7e924f1f4dac13ed832d21c9839f04ab7f94",
+    "after_sha256": "9bdb84ef2d6265ba834ccb819fecd93334639d3f9286ee0c097ece6d8124b1b7"
+  },
+  {
+    "file": "src/loghound_agent_debug/rankers/loghound_static.py",
+    "before_sha256": "6223f0f842f33e79db0940bddbedcfbdf65d403d58401e6203e68b908fa75514",
+    "after_sha256": "f2e16b341592672d0fb2d2624f45e6973a682922a776f4db4cac6ee3d75005b4"
+  },
+  {
+    "file": "src/loghound_agent_debug/rootse_operations.py",
+    "before_sha256": "ff245ef2215d1c1f0d2794d7b4eab7bf8bfaca550bd428df4e3c0fefd3113179",
+    "after_sha256": "49f18426ea45b1cb14d5eed4c74bc17989be5028735865ef315b8a156be07beb"
+  }
+]

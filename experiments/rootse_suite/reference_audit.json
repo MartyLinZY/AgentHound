@@ -1,0 +1,1491 @@
+{
+  "cases": 102,
+  "without_refs": 0,
+  "without_passing_refs": 44,
+  "below_three_total_trajectories": 0,
+  "reference_counts": {
+    "2": 10,
+    "10": 20,
+    "6": 52,
+    "8": 2,
+    "7": 2,
+    "9": 4,
+    "5": 12
+  },
+  "cases_detail": [
+    {
+      "source_file": "RootSE/auto-code-rover/gpt-4-0125/instance_astropy__astropy-14182.json",
+      "n_refs": 2,
+      "passing_refs": 0,
+      "ref_steps": 9,
+      "refs_hashes": [
+        "ca505408dc3ff556d1634c189654a8536d3afc14134bc90f2df17a9169c2d052",
+        "3d6c3a6026333b8d5f8f94b5082ef1565954ff2aed90d9b1f9a4d22f1cf0a9a3"
+      ]
+    },
+    {
+      "source_file": "RootSE/auto-code-rover/gpt-4-0125/instance_django__django-10914.json",
+      "n_refs": 2,
+      "passing_refs": 2,
+      "ref_steps": 8,
+      "refs_hashes": [
+        "5509235aa36c328321c2fdb301e8f5f6a0bc12fbeac3647db7e4b61ba3c72fc5",
+        "d0c3ddf0224c2ea6b4c0665812e5991c44e67763087a4ece1ac7406beb3fef1b"
+      ]
+    },
+    {
+      "source_file": "RootSE/auto-code-rover/gpt-4-0125/instance_django__django-13551.json",
+      "n_refs": 2,
+      "passing_refs": 1,
+      "ref_steps": 8,
+      "refs_hashes": [
+        "5343af66e29a93b967e86b075790a760029437d999370676f12ca742ca21a781",
+        "79690aa105572c0f128347753591d0f50e7f990bc847b398bf30653a320e403a"
+      ]
+    },
+    {
+      "source_file": "RootSE/auto-code-rover/gpt-4-0125/instance_django__django-14534.json",
+      "n_refs": 2,
+      "passing_refs": 0,
+      "ref_steps": 9,
+      "refs_hashes": [
+        "81aac6611a7054e2ec20d98295efaa1a441a8727f258868f460703b7bac4a9b9",
+        "bc52355157a85e8b93e6b0823e2a7166ebfdf55b1a405a1cec89f5fd5efeab88"
+      ]
+    },
+    {
+      "source_file": "RootSE/auto-code-rover/gpt-4-0125/instance_django__django-14787.json",
+      "n_refs": 2,
+      "passing_refs": 2,
+      "ref_steps": 11,
+      "refs_hashes": [
+        "e44bf53c30b0d79a399d0735f0ddc9043ff06276dd6fbcefb4f4c96a82edd75e",
+        "865821f70e9147768cea2ed08ea40e76fbc2649a240b5fd1bcef4c8e894fb604"
+      ]
+    },
+    {
+      "source_file": "RootSE/auto-code-rover/gpt-4-0125/instance_django__django-14999.json",
+      "n_refs": 2,
+      "passing_refs": 1,
+      "ref_steps": 12,
+      "refs_hashes": [
+        "efbe88a13ee3ec97a9ed50b1acb4d7a57bbe7320b00145e154661ed72b9b2289",
+        "a9aceffe19c6470c2fbe57233fb2f22665ff145cea6adef619bb6c518c1e5bbc"
+      ]
+    },
+    {
+      "source_file": "RootSE/auto-code-rover/gpt-4-0125/instance_django__django-15252.json",
+      "n_refs": 2,
+      "passing_refs": 0,
+      "ref_steps": 12,
+      "refs_hashes": [
+        "e23958c7a7925263a08e37542bce8e70c37fd5d3aadf4dc07558f5f81d9e5a59",
+        "0e1a452018493bd0bc829b8c5679636cd63e2062e7be85da79882019d9e5a7cc"
+      ]
+    },
+    {
+      "source_file": "RootSE/auto-code-rover/gpt-4-0125/instance_django__django-15695.json",
+      "n_refs": 2,
+      "passing_refs": 0,
+      "ref_steps": 10,
+      "refs_hashes": [
+        "10708337c0bfc4340a7920ab57d19e735409c30b78bd9f8f5acf326fa9edf353",
+        "0837716d808d84ecfdfd8b56cd50553d10ecc209495873ba7db4d5af43faec27"
+      ]
+    },
+    {
+      "source_file": "RootSE/auto-code-rover/gpt-4-0125/instance_sympy__sympy-12419.json",
+      "n_refs": 2,
+      "passing_refs": 0,
+      "ref_steps": 17,
+      "refs_hashes": [
+        "59407145238248a88bcc5cfe2618b466e40ecc9fee4edb8546ffc4183268f566",
+        "526697d062fa2c9e2ac1550f6fd28aa9e2bdaf65420e4c31c31ff021565764a8"
+      ]
+    },
+    {
+      "source_file": "RootSE/auto-code-rover/gpt-4-0125/instance_sympy__sympy-22714.json",
+      "n_refs": 2,
+      "passing_refs": 2,
+      "ref_steps": 7,
+      "refs_hashes": [
+        "3499bc12e1c7eb83b2d649326248f8fd5f85d6dac44df4a648e491c3b77b3bf2",
+        "9a9db0d9928949d3f14e0ad53bcb46184dad485ebe2ce47fa34b5f5f601efac9"
+      ]
+    },
+    {
+      "source_file": "RootSE/openhands/qwen3-coder-480B-A35B-instruct/12rambau__sepal_ui-646.json",
+      "n_refs": 10,
+      "passing_refs": 0,
+      "ref_steps": 466,
+      "refs_hashes": [
+        "e91ce5efb52d9678343c0ac387e6ca3c0371575d23af7d1b7294a70977564e4b",
+        "5d1835fe13c35ce05ffa3bf6c5c21246d0995b0dd9bc169ff2b19279c452b039",
+        "7e1ee6b512f1bc18a07dbb1a675de8a87702d42f471a73e33c46c5db341054bc",
+        "2221b89b1a557eeff6a983c9dd71624582f880a3c0408ea2f1eee4a1b7ede311",
+        "795ba893657ed4e7c41ae6b88d7cc529005bb34df25826f5629e62007ed86c06",
+        "65b1701a9e338fd935ab277c2d3b4b2f41a8e0cd8ac218706e3f01aceaed4270",
+        "e1f2f95c650382374369657e5318e57cf44829c8a84aef6c31a10ab729a881e9",
+        "5a3a4c267d5f39056252aac6c03b5abd51a58833aebd87b9dcc0fdc3039852dd",
+        "bfc2838c1052ff326aa60de5e66146bf1df1c0b3ecca10308f2bafd84fc4f7bc",
+        "fcdd2443d96b383fcd5a1b4bcc4b1f96b493fbe30f3bebaa5b128e7f7c9378f1"
+      ]
+    },
+    {
+      "source_file": "RootSE/openhands/qwen3-coder-480B-A35B-instruct/15five__scim2-filter-parser-13.json",
+      "n_refs": 10,
+      "passing_refs": 0,
+      "ref_steps": 492,
+      "refs_hashes": [
+        "88cfef752b3db199a6d8f3a7ecaa6723277500b08e095583e4038b8371463d15",
+        "3eeb75183885bbdf87fa45e4c28e30a78df7f54443f21f0f0db67c017470280e",
+        "205d2b817cbdc76270d0dd600daafccbcbad16d4092321e5abf8d0a80861c9ce",
+        "9268135a0414b8dca4e508cbd0a63d5d3e8e214921d575a6fe7c1166b690c778",
+        "5ab94ad0d6e07d8e2161e6a1f54d2403ed6a5f5faa136ac37336e6e8c9c17f07",
+        "c1b81801408468df64f49d31c44be80fff9ed339f4fe29a6fb3169677b6bd282",
+        "c8ca2320e28165590ea2ad1e9b5a0862edd7cc956a86ba7e79e4c42d647f783f",
+        "4eb759e2a20148d8fbbf47e558372372c397a69e18597fe0f9f14c7f77f1e3a6",
+        "3b03b78a697dbb126824617b11d0056d860e583a43f87921f11ab80de3d0d9a9",
+        "ae5ccf3190eca939c6fe618f6a4ecf5dfaa121a09b8b9c5a7010cfe5ddcc97a9"
+      ]
+    },
+    {
+      "source_file": "RootSE/openhands/qwen3-coder-480B-A35B-instruct/ARMmbed__mbed-tools-138.json",
+      "n_refs": 6,
+      "passing_refs": 2,
+      "ref_steps": 354,
+      "refs_hashes": [
+        "25b31c5b66f23a18924482fc6f74faf990cc0261ffbdb4949673bb295303e3ff",
+        "382e8132649220d1f9cecf195240d65f950f7a330da5e4c8547f9602ad1d5da6",
+        "fca34001bda749f1572cf6a7b8836fde19b7d70dd39ae3684f95ab4661a7f120",
+        "fdfa0eafae5e1c9624967d2b3e461c94411e2ba67eac907c796111c2e16458b3",
+        "00d81cfdf011ada08ed45c145629e32043f2b5f4a51b7ce436501728ce5cd072",
+        "5916fbaf8512f3c24d24bf7284fb3fa9607712465865b9a5941e2e34d34141cb"
+      ]
+    },
+    {
+      "source_file": "RootSE/openhands/qwen3-coder-480B-A35B-instruct/ARMmbed__mbed-tools-91.json",
+      "n_refs": 10,
+      "passing_refs": 3,
+      "ref_steps": 737,
+      "refs_hashes": [
+        "b56ca063578370bd10e0777719a9803ec2b110038b9dd6a0bd2483fff8d78d72",
+        "431fc3821a10fc5b1c5d87241d312950fedaefbab89add00ed33563c23a1944d",
+        "3464379e1adc5100b29d7cd6b3d2f79c5fed21883d9c84872df3ae0e6175ecf6",
+        "9d17566929fb07c2112810c32c4145ea7125c52c77d2200391473658ded37545",
+        "caf59955e5ed2c7d555c3956f6c4df1c6fd45f4f081d6e66b8928149ce067bb0",
+        "a3c393a3dafd9570b8dc014c46ab30a271bc7fb30a893ff3ce433ede798db9a1",
+        "1e5913b4de223cbf993428438d39c069b659785981c02fe527f46789b0924966",
+        "4e6070e1c6c93b97aebab78541ca7ab1600a14f4877cbea3c482346e6d6ece10",
+        "af74e0657604c6c343671db7c579e33cd07c2f11f378f071de4d261f0d2a9e5f",
+        "a5734ef7f39175e622e642b412072ec6e041ce43daef1aa7eb235b75656b8649"
+      ]
+    },
+    {
+      "source_file": "RootSE/openhands/qwen3-coder-480B-A35B-instruct/AzureAD__microsoft-authentication-library-for-python-530.json",
+      "n_refs": 10,
+      "passing_refs": 1,
+      "ref_steps": 676,
+      "refs_hashes": [
+        "bc0e4eea75dfe21805459170ff833296896c3e8798a9ad97a7ff49333e5e2090",
+        "a9bf634e33bddc86afd2e192cf64b7f111c06df0cc731df4c1fc7c33510e1d3a",
+        "01d86a462f2d6386599ab2fe6c855cc0d997376db3b0c6cfac5ff8c82b945eb8",
+        "0458de1e71727a649598091b531ce43e08efff807f5c114ba1860ca81902e713",
+        "b58d1d04a420462e60917b2129a6734d766ca0b0f1160513bf45461f2d98ae40",
+        "738eb530f1208b5220de666bee267bfb91505803c7fdcd96b694cfe8e0368f40",
+        "9d07071d532d433b6cc4ffc15f3f1c484fb9a0dbd3ee42e85cf332c732b6730c",
+        "786c034d7faddf0db658f9f401cb607e1d05daff075ad0ddf5933c77e66dcb5d",
+        "ea545abb91072d42fe984d2ba51ce7d543f993748106baba014c4dec37d31133",
+        "01f86a93189ec74bf20c51496dd5fa226d5d1d15267eba43a8a20a7f483643e7"
+      ]
+    },
+    {
+      "source_file": "RootSE/openhands/qwen3-coder-480B-A35B-instruct/Azure__azure-cli-1876.json",
+      "n_refs": 10,
+      "passing_refs": 9,
+      "ref_steps": 595,
+      "refs_hashes": [
+        "ffcb6fc8ad246e40aea7cfc4bb7ee1a79c7ae86141ea469f85aa765b3614022d",
+        "63783049712d6deb834fc35b014b1837b396da3fcb1d9f88c1c41e097e25a293",
+        "8605e9b5e8ee3bc4116c24131f509825f2fd67bad9c6de86abf6b484f9493b33",
+        "888142f27d5ea37c0223b020a2903aba9788b2ac425fbc21aafe59955ff658ac",
+        "ae143cde59b0e45f2bc088617341f2ce339738c4d30a777b2e1c9a06a7fd3188",
+        "c0c65667bb5d85cd4f3a415b3942bfa9c0034c00b74dacac66eb54335a512e1d",
+        "f2dc2fac774fa7083357bfe71a3c7d9e1d90cbc0dbfbb3c0670a7a7ec36f7f3a",
+        "efcdb67bc9ff67febe67f2a596447d200c60763b6ca9766fa8c0aec36eb87a38",
+        "9c33c07a16c6d7190713909f9991987e82383d9e40d7534e624c3effd562a164",
+        "7ef0fc82382826d1698f11577086ab432de75a0e2f3179cc7a5d9ec28f152f69"
+      ]
+    },
+    {
+      "source_file": "RootSE/openhands/qwen3-coder-480B-A35B-instruct/BAMWelDX__weldx-384.json",
+      "n_refs": 10,
+      "passing_refs": 0,
+      "ref_steps": 586,
+      "refs_hashes": [
+        "39427dc645a161558ee532b20210747b9ff188c4cb8ee4b6ac8681d9f2f5ceb0",
+        "312c4082862da986584e53a125a3149d2ff4de08f264f415bc8735d29636de01",
+        "54df3133d9faec24aa96429d1f24f73ccf162f626076e99e0b69bf21a7cb6c08",
+        "e07ad9334e2534d17aa5e33ae2ea43ea40392b0eadcfc354e44f7b736e1cbae2",
+        "aa59a827ddf098c20543394197766f24f2f7d9770c824b79a804dc2c4d7886d8",
+        "5d6429d1ab6ed2b5874fba887c7edaf9b0a25a6b17546626ab529631b8badee9",
+        "dbb66fe60f1237b4d573254f4c59a82b756c5fb26b821009cb96a045808f6e9c",
+        "a373e9bb819d68aa748d22297ec4df8107d6ede059910868ad997e8596cf2c5e",
+        "f95de9c9c622a798c673e51d8983e7e17394ae66f1a3415e927530d71bd947ce",
+        "ddecb54ded117213e3343dec24378107c5daa25b97188a35a307d58d26122eb3"
+      ]
+    },
+    {
+      "source_file": "RootSE/openhands/qwen3-coder-480B-A35B-instruct/Bachmann1234__diff_cover-413.json",
+      "n_refs": 10,
+      "passing_refs": 0,
+      "ref_steps": 560,
+      "refs_hashes": [
+        "fc2727caa1e3a8e26082c444bf2e73eca625556e0cb1ad13a92e123088de3694",
+        "4cb6a597031d953bb367d23212b998881f5a3f0d61e8c534e0a1dc7e199f8d09",
+        "11f59a70b55f68b70ea48caf40bb2d3947b815acf7864666a01fad9f77a6dd91",
+        "a41d966dc5bbf7ed3ae357e4b432dd5c49938826bcaba89fde9229b709669ea4",
+        "63f2f291869d9bfc6203e9b323efc14036c13c0ba6f87cb2beb9e8ae99a871b3",
+        "ed22089937e5e9f4493cb4427dcd05b75ed863c314312dd6d4f23e442a4a7437",
+        "8ceea4941ef2c5f5515228ab361ccda48ed73607437c79ca08b0d61e027a6ad5",
+        "3918b3d7b6ed56f148b47d09e26e92586f6653dbb9076b9f94ef2d05acdfa594",
+        "4737879e125a00a2da9778c525ccb8410cd6977642b69a87a92ae5c65a75a50b",
+        "23fcc01de4125616f3891702544780add1e1fd38247d335c1fdd6a924207f66c"
+      ]
+    },
+    {
+      "source_file": "RootSE/openhands/qwen3-coder-480B-A35B-instruct/BoboTiG__ebook-reader-dict-2101.json",
+      "n_refs": 6,
+      "passing_refs": 3,
+      "ref_steps": 407,
+      "refs_hashes": [
+        "b5a862f04fc83d340a1419916ad057addd4040180a60a023b1b46c01729855df",
+        "d264dc99176ec9bb7d8ee8cb30531937783331dffc0b93af111ea73527f4e1ca",
+        "a455e74462b0b1add3a66349daa9ce925522a4223b448515ff8cff7956fd99fd",
+        "fb35c7f55fd508831010e4c65ed00147b154074b3ce28ae2edb8948907e117a5",
+        "e5a307e02a4a09d62afdbb771210f8397e66af771168c7887e91ee72bd083609",
+        "48cb63c93f7f499ce312039b372921d51691b9270590c9fdc9f2a33df7e0d4cc"
+      ]
+    },
+    {
+      "source_file": "RootSE/openhands/qwen3-coder-480B-A35B-instruct/BoboTiG__ebook-reader-dict-2133.json",
+      "n_refs": 8,
+      "passing_refs": 0,
+      "ref_steps": 437,
+      "refs_hashes": [
+        "1e9294f3e75811463214b0c4240b09daf1eedd450ff5198c5728abb5328965a4",
+        "6715e29691fcce6acbace59303ef46808949fd98acdf3a2aa5fd6d2aff4ee8ff",
+        "5f179ffb3dcc4aedc05febec5d00d28d4b68ce9bfd656d327af73af169cada3f",
+        "c23a7543ce1036c0341296e9220946bd339991524a47a40789cf6112458b1840",
+        "cc1fd23e7ec5226277d8b08bce63b93689cc080d581d92768d7edf6aff330367",
+        "ad62bedccf0078c548c7478fc88f4c33289a12496c8866d53f5153ce598c791c",
+        "ed932ea7e4487d3dc37fc4d6708931cd39ca04e8969fb7154bd4c0d2c9b063fd",
+        "0a07dadcc876a5f5e053418626167aaeee81b0bb5b3c8f42b986ce3df9cbcfe9"
+      ]
+    },
+    {
+      "source_file": "RootSE/openhands/qwen3-coder-480B-A35B-instruct/BoboTiG__ebook-reader-dict-2145.json",
+      "n_refs": 7,
+      "passing_refs": 1,
+      "ref_steps": 619,
+      "refs_hashes": [
+        "f7ad6f615b77492c8990c2b719bb5deeb84e4d91f7a075ee7dd2c9f1ccb6b8a4",
+        "233cd8177fed4db4c92c81830aa9c9b703a4f4096ebdd555dbf94b124f6db89d",
+        "be6c49d111dcad5effe25a8151314b6a032a2bd4803f3568545b37bee320a728",
+        "480c1c1f04e1a052ecfbce85fbecd8a0adcb0ef0fe8c11adf0a502f7408cf1a7",
+        "72f4f1535167d8a2d6f0a4a734489d5d532f30da34a28d412c2c3f3614d1a40c",
+        "e30d3215cba964ee537b39e5d15c82a4d9c9a6cb8917171717eb90b1befb6ecf",
+        "a4774ad873257c9a2f4b47317a8cfd9afe1d3122c9bb6181c9d50e7dfcbd70af"
+      ]
+    },
+    {
+      "source_file": "RootSE/openhands/qwen3-coder-480B-A35B-instruct/BoboTiG__ebook-reader-dict-2149.json",
+      "n_refs": 9,
+      "passing_refs": 0,
+      "ref_steps": 661,
+      "refs_hashes": [
+        "001c9ab05602b1b36578f5eda7f2f1e80426169a1c4a37c0603e774fbddde6b7",
+        "137891db7d3c7477fac8e5cc7294ca38fda271739b191a10175eeeda6cce6b5b",
+        "b35689a07cb6e27194cabe21a3c2558f8e28890ce8200f08b0d47465e974b166",
+        "cfc7fc796b415d04529ad8e08a2414e1416c9c317fe0c9ddc40d3a37b5edfb63",
+        "c2a97738b98b30e49bfc4fb2b6536ec1f7776209794459634bb898ccaf1d3a6b",
+        "e1e9476ede3deef46639d7cd1cd2443d82a5bb619898a088d0269a07c468e134",
+        "fe1df3e25ee95c27e04f786c003149753acd0cb841288ac061d12c416d98063a",
+        "b3beff4fb34ef26418e558a109bbe9d8ba093f7d90f7e422a44677e74d268067",
+        "b8dd5d74060e59bfc16f9de666761780326ae87bf48b1facc92434aa6185867f"
+      ]
+    },
+    {
+      "source_file": "RootSE/openhands/qwen3-coder-480B-A35B-instruct/CODAIT__exchange-metadata-converter-25.json",
+      "n_refs": 10,
+      "passing_refs": 0,
+      "ref_steps": 848,
+      "refs_hashes": [
+        "cb4d39f94df58403f6057234e43c6a7011df8ab923ea9b0729321fe88a4e7fb9",
+        "7f59f0fb1d9ab5f2664501072813785acca84ff5ab7f0e3d9da4fa1cda19985f",
+        "637a322c911ac92db5b9a84fa8f9e03bf9f78de29318cca1f1d857d11b99ef92",
+        "7ecc27232a6b5febb3bee16b9e8c73cded8a006f17b273ff396f70472bc75257",
+        "59fda34c6eb7b28d6beebdea100c54af34c7c448d33fd97c49e3e5d7d68d9010",
+        "f8ae516ce9d908b6f1e2a9139b8a69f119d5e115abc29154bf59d44b02535f2d",
+        "97e2558479e709da2854105d4dd3582f93177e849061d66205b0ec17db1bfe74",
+        "0bf2893e1644f9d4529054294f4981785889f9ddbe953ee473b4a92d207e1bd3",
+        "b61b3bf13491d96dcd87fdf3a19d57afb43d28008fcacd55414e64578ca6e9d9",
+        "dc83c835197569354653556b334ca3763be89aa996c8de2abcb243a2222df49f"
+      ]
+    },
+    {
+      "source_file": "RootSE/openhands/qwen3-coder-480B-A35B-instruct/CODAIT__exchange-metadata-converter-38.json",
+      "n_refs": 10,
+      "passing_refs": 2,
+      "ref_steps": 751,
+      "refs_hashes": [
+        "b75a8fb02cf3ca3678fda1afcefeeaa150950d61bf720b75d0029d8644a2b5be",
+        "d85158909d7368b5556233e72715fcecf33e1295c2d0d97d11ad3a836a5efdf3",
+        "136a641c3791e63012573c12242a20e533ce56dffd1c8f66dcfa70ca85a8131e",
+        "ed98074b8bd5cc75ec09472115c0babe926da9e0eccd8712d33b04a1a280c9c2",
+        "c1df055b920b2e0de598b00caf7d4b4adc2945ceb6b9060311d5256ffca5356a",
+        "af94d63aeb5a51261defb617413bba17f8715bc7dc4eb917c805d25c2f0d13dd",
+        "14d4ea352519a1a3b3d5ecad81a6713ff537c7af7584f8371e7bd515c5708718",
+        "460cda4bb1c50cafe4452aba3a7234b4bfc191e11a27de54255a6f5fe6f91258",
+        "b400fddfd0a4241ddc1304adb2f9c6582361947b617a141a5c7bfca1bfe1a67a",
+        "bc792a96839366f71d697c9ae5631e841a6d126ab8e311a1ef1722a22df5b28b"
+      ]
+    },
+    {
+      "source_file": "RootSE/openhands/qwen3-coder-480B-A35B-instruct/CORE-GATECH-GROUP__serpent-tools-377.json",
+      "n_refs": 9,
+      "passing_refs": 7,
+      "ref_steps": 699,
+      "refs_hashes": [
+        "b9551018cf0870b604b850a7b70818b6fe0d8d6ac6dac8275fed996f8d133aa7",
+        "07450c00b5a403dd2e477097fde7ba81a3158aa28b0396d8d169afa9036e3557",
+        "ed7a735fe21f56ab71226053cd366c5895007c584e30a8cc21635ae7af1bdce7",
+        "f1dd350ec4d1c2546afcfd543dff65138ae38a4e99b8ff3ae82c4a31d32d399d",
+        "583792b4fb2f2406814c97858b98e62dabb63aae07cbe57f0781b08c28c200b3",
+        "6a8c697e9b7c71af3df60738db953b3225ccfc316757f10ba43e2655be469a37",
+        "36d8a3a41a3e3259a023b764919d99fbc0d0e750abdfec487a3201a8aa1ed53a",
+        "d3fda6b7c4eebd42947bc479b0a3fdd9675b40d0ee94c3dee6cc40e3dc819831",
+        "902638984e1defc2048a5c84191873f061aa91102dff163bf48041f900daf633"
+      ]
+    },
+    {
+      "source_file": "RootSE/openhands/qwen3-coder-480B-A35B-instruct/CS-SI__eodag-634.json",
+      "n_refs": 10,
+      "passing_refs": 9,
+      "ref_steps": 505,
+      "refs_hashes": [
+        "b338a4454cc1cb7becb1c773a9210c5cbaa1298d94613054e518418bcd409112",
+        "035c70ef7d998d0e1e321312470c91c421bc479d5faa00cc419b61e24f29a17f",
+        "8a13621712a98fcfd4a5add52c7a915a5c3c7074f807fe643ed9aabf4aca501e",
+        "d17a2a052be702ea2db4f3e64895b85ba525c4e8ad794cc76d2167ef5f1552c5",
+        "a123a056c6454612bb9936243c36c5ee3e16081a770ead74bc7e83e81634c5d9",
+        "6607d2b9030f4f5e7a8effbd8636151f82df0241043c50e54fb0fde1fc46e7c8",
+        "7e87a61db24bf118b75f931bd661a2da9cc3cd06939aa46f3d2fb69019e992a9",
+        "ab25b9e9523f8a38de72639808b22893eb8fcbf114b55e67db48aa8f5b48a5c2",
+        "df8cdaca7053561d8edd7f47b7fee218d69ca69832993d6ed67baff5569b2e3b",
+        "81e1187c5567b0aea819b8ea0e834a0581cd8cacd772d5747039e75f74d8a2c0"
+      ]
+    },
+    {
+      "source_file": "RootSE/openhands/qwen3-coder-480B-A35B-instruct/David-Wobrock__sqlvalidator-43.json",
+      "n_refs": 10,
+      "passing_refs": 7,
+      "ref_steps": 789,
+      "refs_hashes": [
+        "f9e1e26852a54cbb5d074094fe5f9edc07bfc1f588b849f64822b136c6d22f08",
+        "7c646c31af1d52a1144d51643f427d8d3f928d3b143ef65868a8e58613e0d833",
+        "eeb6dd0721eb13167f19feda8c1f81a9d15888dc8a375484157691ac897cba38",
+        "b35d5bae3c1e98e222424ace822ce7e832e2aff3d086dbc6ad0bb49ba3bf3f77",
+        "e3b9e10582cc5182364fa6d14fb076e4982e163e21eddf77bb9b0267088b720f",
+        "76ecaafe21ab597a39866052c55e40e58fe6ff67002998ed4a838d2f1e703035",
+        "a933088dbc22918b777c2d76ff693b95d892dadb85d203e7f8d15a6975f26d5c",
+        "048b6096f6ecda94a5d76483c34f5d0ae4ead43ce4223b5bc4d40018f024699f",
+        "97e5e48d5292e2803ebe03cfbdf21082450c0097efe7ddbc3c4f92bb666440ba",
+        "0a6646df061fd6cac365f3e572e1308e4b28b5f330fd881e695090e35120341e"
+      ]
+    },
+    {
+      "source_file": "RootSE/openhands/qwen3-coder-480B-A35B-instruct/Delgan__loguru-1236.json",
+      "n_refs": 9,
+      "passing_refs": 0,
+      "ref_steps": 811,
+      "refs_hashes": [
+        "7ed6074df2d84ae373e13182de209aa3381d1b42fed61bed0f55c8fe3202477d",
+        "602dd34b72d7ef497525d30f9477f3d828441b0b991ac6f11edb35ba7ec72938",
+        "98dbd32ca1f8027f2228b7d63386d2ded4d52ecf1434cb5e696065979dd37870",
+        "08334c8d5a6a796f09e1efe8a2f4aa2afb4b385411dd72a173d5b8fcc34fd103",
+        "b7169cf22925bac808892aa322991302e9665029e5b068c16304074f0b0b2045",
+        "12a8b71f50cb3417319a43089a02613492fa252bf7f5b0ef94989e8b8ec6a4b3",
+        "038c3c733d2755a24c042df60ccb3b672418fcd63537b6e622de61decd2eaa93",
+        "75507ea7e7963cf67e0af6e3cb58f8d586c730d8685cd0d9f9c098441a719e14",
+        "8c2352f3b60785dfd724f084e076370b0e0cacd19192bdfd8f895dd503fa7516"
+      ]
+    },
+    {
+      "source_file": "RootSE/openhands/qwen3-coder-480B-A35B-instruct/Delgan__loguru-1299.json",
+      "n_refs": 10,
+      "passing_refs": 5,
+      "ref_steps": 656,
+      "refs_hashes": [
+        "ac244076c0c50859fa3e87a1f559d33ff495367e7e522f22e85ede7c1839eef0",
+        "6cebae43fc29b9b02f2992701bd634ba84edebc2b9577bae610d3fb6fdf86411",
+        "f4592ea33017a400a707e634d6559a857d6a10db1529680be5cf66ae6ab23e31",
+        "ca031a4939c64f68d69a3d6055265eaeceb7d9b82bb9bc4d9c0ef74c56120a7b",
+        "20167f1f7357065973377cdd5cc10e5e8b8396e88906d7111a3f0916533db917",
+        "be2eb6f3970adcb5fe93a094c0c3aa1ff726b78fe86a9864acbe70af436f3343",
+        "3690099f5ea6ff415d7e704161f0dfa41039bb78159a9b73254d8a0fd0bad430",
+        "9b17ab94a3f1e1ee245ca81b270393a7c1a66b330d1f50410ad39a39d2f6bca1",
+        "22bf8eb1ebcbba14a133b765758698584f641f2dbce945db4bf1643ce48cd6c1",
+        "c621a9d584ef4ac3e6a0343ea929f5d4320797c7c331f5194ac23c79cb1be907"
+      ]
+    },
+    {
+      "source_file": "RootSE/openhands/qwen3-coder-480B-A35B-instruct/Dorthu__openapi3-57.json",
+      "n_refs": 10,
+      "passing_refs": 0,
+      "ref_steps": 512,
+      "refs_hashes": [
+        "b7222663fa89fb4bbbb337a2b1981d6b3601d72782524d8e04dfd19756c94113",
+        "b479f52efd68db62a5c914ddc87fdfca8bc7546a63b04b57159e32450f7fe61b",
+        "a3305efddae121a781601366aa5172e038650e53463ea705f2de5dbdda4fedbc",
+        "685bed9abd277c3a8b516d63fa0a89608b7547f8f22b5f56035e0d0b108ecf7d",
+        "4a2bc591c754511ac35492d8f283c5924257da803117dd0a0e3fc48fa6f62ca9",
+        "03dc394ad373a893722605ccc0400794cd6fdef78be68ba4f3469d66e9395ec5",
+        "abef6387e585b4f4e7bddbfbbded905bfa0ca06411d4bdd0780e11c4c4990507",
+        "6e24ac18dabc3d6ac352cc57ac28baa7d3b8943f968797589e33f9bc15b805cc",
+        "ae7034113c25b37c54f16985ca8db3c26cbb3783a6733d65fdca99db21c9d976",
+        "52409cc2a57f8a4a656228cc841ce2eed166f87cf4f05771790a101c317efabf"
+      ]
+    },
+    {
+      "source_file": "RootSE/openhands/qwen3-coder-480B-A35B-instruct/Duke-GCB__lando-169.json",
+      "n_refs": 7,
+      "passing_refs": 0,
+      "ref_steps": 405,
+      "refs_hashes": [
+        "cf0bf83896460010666de6b91fed777b694d2d234e13ad0e4e63cadf5000a229",
+        "66952cbc16b8a63e95c72985b1b6d8efa8644d0eb69b639d603850105d7bda78",
+        "9da2b8a7a397cdf0bb7498d410679e23e36e53dc5df3442df9475b6adc370d22",
+        "b115ef3314d4d9f310a320a2f388c73ad6244cecc52d8dba99e3ded040f4393f",
+        "21d403ccb1912916fa8b022650f4a584c9e273e42be6ff5af483f2dae3912beb",
+        "cba835ea4217f349adea7a37ad34ae5dd9bd41896727a41c85cde56380350708",
+        "665b041be08b72216abea61915f0b0c64ae56c698afb6d2863d559f275d88f7b"
+      ]
+    },
+    {
+      "source_file": "RootSE/openhands/qwen3-coder-480B-A35B-instruct/Duke-GCB__lando-173.json",
+      "n_refs": 10,
+      "passing_refs": 0,
+      "ref_steps": 695,
+      "refs_hashes": [
+        "6c423ff70709e79bec39b25e1a921cd5426bbb17337704790bd0c2ec39073d50",
+        "58a191750ac8d3ba6f9e2f3d12e225913f1d235f87d4a928051defd3bcfb25b0",
+        "501fd960d2352496fa2284d167710a85183b57788b5d1010618a1b5969b6053b",
+        "f007fa09cae560bb55724c6adeb1b61557e5129cee1c9782112c34f196241fed",
+        "223089886b8c3c8926320b25fe9dcf1a22beaa9aca52cbd5fa69bb010e26a387",
+        "91fe67a6ce15a821089e16fabfd18b4df46bc04d45aea2eee7a74e9ed0464443",
+        "da39f1732e0b1ad332a62fd45f601aeb7a466745565f227da514cc3c385e9061",
+        "dc85320ac6932e480a7f92123cd4b71144f3980e2ccd91ccae37442a0c2b25b2",
+        "c2fadf5617e0f10c2a9306f79ea91b99a768c41b2141a3c3ba40628dc0cef717",
+        "8636d48656038838417ad0ad8ca6396770487aa77e373e305b1c7a176b045b9d"
+      ]
+    },
+    {
+      "source_file": "RootSE/openhands/qwen3-coder-480B-A35B-instruct/ESSS__conda-devenv-51.json",
+      "n_refs": 10,
+      "passing_refs": 0,
+      "ref_steps": 563,
+      "refs_hashes": [
+        "a8ed9909b0d9d1b9e6cf1d3afa2ac85054e19c4bc880b8895c929b05ab448d88",
+        "700f4353d915634599b19a314bb6e9436f470782d59f4aac28b89db046a42bfa",
+        "90016c9a63a4b11b7f6720a06a734efc8cd8a3f82b0ed735f1c7e8e2dda66a6f",
+        "39e67282f98c27b4d5eab8c9befa598e581425070659154c912abe4be702b480",
+        "6726562c03796e28da7cbc37cf41e24fcc9687530022249f6f0285394a05656d",
+        "74fba9ca4d96a194aff1d189efcc123fddb2141ec4afa9cad357083e1c5e570a",
+        "1e70831848466b225c926fa57624c6a4d28f4c8ebf2d91685cb91ee750cb7675",
+        "4327fbe28a02edc223595cfa49b59e586c37fa03a6cf69761c5f929d033ec234",
+        "eb1df02ad1860a1618df3c1f383fc05b2b7141a34e4fc864fed97439efdd1fc8",
+        "06b4b0aa23190ad359fbfe8154cbea692236945ec2083e351145c3ee9ca7600e"
+      ]
+    },
+    {
+      "source_file": "RootSE/openhands/qwen3-coder-480B-A35B-instruct/ESSS__oop-ext-21.json",
+      "n_refs": 9,
+      "passing_refs": 1,
+      "ref_steps": 821,
+      "refs_hashes": [
+        "10a49b4d9491af9dbde58a05555b9715ffae355719531243b1000c83d007a451",
+        "d7823c74278dae7e278190109ea8c2e79f79afb37b9f4912af22cbcd80bf80ef",
+        "8c600eb551e64d473618fd2f920802101d68bdde4170984563da57b64bbdc11e",
+        "6ed3745d6ea18f8ab2c29a1452a1022b3fef2ad73ede43d1b288348782b95af8",
+        "67f132dda958e6c0549671e25f1487c4ea10b8840373be4d836d7750a0e043bc",
+        "26d310eb7a48c8ce3874a6d07a795892ba2b44d640568797b3de41f9de1cab99",
+        "3f9f831aabda9220f93601cbb0112464eb4c007af66602f71ff0718f6da8164b",
+        "fdf890763c3e2bb25cb8237588d6ecf1c10bd9f65c639406905dd29f9363d459",
+        "974b3de78843b2d7710e58f1628fc05eb15f8751e9c307c8a2eb27b8f97cff61"
+      ]
+    },
+    {
+      "source_file": "RootSE/openhands/qwen3-coder-480B-A35B-instruct/Erotemic__ubelt-64.json",
+      "n_refs": 8,
+      "passing_refs": 6,
+      "ref_steps": 334,
+      "refs_hashes": [
+        "af07ff595c8217d9bace0c892a8eb82d81dd826aeee60c97b2b69d3e64d5bb2a",
+        "89c24a63e37e7718252b6bacc984cb9a666f0b866b26895d95b046acfad73a7f",
+        "dbd74f4b0f310fd214c6cb2fd478c6ebf2ecc7c69540ccbd019e7f49546cd143",
+        "847d35586a08672b4ae2b69be9fd1788738e5a6955e6ca43095b41f3fe054ba4",
+        "7d86d3b3fd294eca876e021ff861c6efcd19ffa33493b340834934d62b718430",
+        "306c86ed11086304fc99a5324766bd93f98f8c43185c25f3f24b313ee081edf8",
+        "56b330973a6a226d141f4b66dec240781a78abccf37d5274a1732cf8614a1625",
+        "fc23e0db806ba182e8d5865d98f9a42ba4d5759e8d9ee62bb290c7002ae6c058"
+      ]
+    },
+    {
+      "source_file": "RootSE/openhands/qwen3-coder-480B-A35B-instruct/Fatal1ty__mashumaro-116.json",
+      "n_refs": 10,
+      "passing_refs": 5,
+      "ref_steps": 968,
+      "refs_hashes": [
+        "bde9c25c3498d1ef89a6ac3d8abcfcead20835255165f1125d87d2a42b6dd1e9",
+        "aa5bc2edd544838befce4e4c5cf20dc9e98055abe74e45877bc2076041282987",
+        "fafaf6402989457c3eeb64b86040a3dde969aca721a1c96d906910781cdcddcc",
+        "24793edcd143acef339251feff8d301df39144b44606b0355e8edf987ba4414f",
+        "6b240e00b8bffdea7b7ed86770f48cbc38070422a2653ee3985d7f29468d18de",
+        "c21ad5629d5268aebd83bb99d5528eeee3611aae6b38a208f1d93dacffef92e1",
+        "5ac9f37f51b2b8f1c8453517d0e366efccdf31737555b585f5556a7b8cf83bea",
+        "42e2cbe55d3f7932fe6cc6d0405b9d958c9e1d3fb668fa935ad68edbdc8b6d4c",
+        "7c50ebfd12348f8b56f49389a5ae19b0314c13305fce3c95603ce5916455bca8",
+        "6138dfe8396f5a89a380af3a02d8f716f0b79f6bec3866d776b49b3e09a88bdf"
+      ]
+    },
+    {
+      "source_file": "RootSE/openhands/qwen3-coder-480B-A35B-instruct/Fatal1ty__mashumaro-130.json",
+      "n_refs": 10,
+      "passing_refs": 5,
+      "ref_steps": 805,
+      "refs_hashes": [
+        "7c8d450e8c0b88fd4a790244ba41d88d2186551b637de2391bbecffe4c87ecce",
+        "d1f798e5690e4065d248e2669442ebe4af38c8c84758642853b809bdb8fd2950",
+        "f1ad62f51680523fc20dbdb24ae3aba877942b13767103df42bd51d3c76e0642",
+        "8833f7edbde07f05e8bbaf3cb4680758e4b72d1f09f99d01d038c82cdfd17df2",
+        "b97da8f08ea95b7bbd2412eb06ea0169846369b17c2cda332f471589931d800a",
+        "7a48f5d2b3a7c1291b3704177fc4b0e5492a37816a772a8bca32b2bdc1384d16",
+        "0335d61f20722666ae2da5325e588099ffdb76b35916c354e0f3aad487f8b50d",
+        "b7c53c4e64127ab3b06b5f680cef239c81784eef21224456cfe07c7d312a154b",
+        "18af306124e6b7b377feae52f4ccd176db4235179edfc670e7e4098b6b0cbccd",
+        "776f4cc94844dcb5971cb01c717dec4b58efbb6ba353c7e4d303aa905a3b019f"
+      ]
+    },
+    {
+      "source_file": "RootSE/openhands/qwen3-coder-480B-A35B-instruct/FirefighterBlu3__python-pam-32.json",
+      "n_refs": 10,
+      "passing_refs": 3,
+      "ref_steps": 663,
+      "refs_hashes": [
+        "c694efcbd26d204f4bc6a8cfdbfbf2d0a9af76fe6ed9224bb7367d8088786f9c",
+        "ebf8980e14da4bb48aff23900d126756acb5d9ff8b3c2ba07ade18893af73ad2",
+        "296a6bdc282da164f997fd81c233b2d9243d986673295fcfe10ef70983419f89",
+        "8bc6660a48ed6a9e37e4482b3ca5a0d57e87752337fc572f574bd7a5d7bb2bfb",
+        "8e69952dcac65c5219fcd6d3de4516144b367d7311854ba24eabf9b6cc56cb49",
+        "4ea6093f7eea179c959d8b45a97fd1ee1da1ba53123d72635fd0fea7aaa8d256",
+        "2c7bd9490f832181935dd6fadafda591265646d4be9643c74d5babe1d1159d1c",
+        "733d1c1af8a1881ab4676b4e97c4c60501d85e1ffd2496d5f8158d01e843f4e0",
+        "05ab84fee090425b96f430bed8211c8aa0d704e6d82adf5cc52f35a003fd185a",
+        "4b858f282456a3c60efa2dce5e1f82b2a045d7a58c60ae95fabbfd81aaa45290"
+      ]
+    },
+    {
+      "source_file": "RootSE/openhands/qwen3-coder-480B-A35B-instruct/GjjvdBurg__paper2remarkable-43.json",
+      "n_refs": 10,
+      "passing_refs": 9,
+      "ref_steps": 692,
+      "refs_hashes": [
+        "72ee32f8155fdefeefd36f628faaeeec5aa83bd62a7864ff84d50fc3470f0623",
+        "42cda39d147e283af738b87dc8fab2d1295267def198991be70b1e72d9a846b0",
+        "40aa0fec90239f8c64d2ca7cfe829e489d643c643b8ace0ee9f03c6e03508049",
+        "e20b2263a0a1190342997c914f4e141478c6319f6d381b283235beb37a090c86",
+        "f7dce9323cfa164a7c1e528940ba261bd42d73f07a3da2ccac8eb88f7e989e7b",
+        "8c14327957b9458013869e0c4ca3288a7ab9c7f77d49db29a118846d125498d8",
+        "b2206ddceac31f46f9648c51e08abdd58a9c4f4f002cae42004087bfeaf0b295",
+        "b584a4870c0f9a88660e572577571af030c9e2f0469713186f456ee40ee11677",
+        "b9ed07cd8e885e3ef934b9207443e6ff3d35a39b7dc7a436a9c955486cff798f",
+        "f077a4f8d1848d8fb7c560fc558f0dd96fe75a4a17cfea7f845b700e180e4a2d"
+      ]
+    },
+    {
+      "source_file": "RootSE/openhands/qwen3-coder-480B-A35B-instruct/ansible__ansible-builder-336.json",
+      "n_refs": 10,
+      "passing_refs": 4,
+      "ref_steps": 571,
+      "refs_hashes": [
+        "48ac800fc9cbdccd94520157d185c2818420ff7d661388d7940e61661c15354e",
+        "61da910d27c1448b3a26d2220f7259ec4908f3c4293714dd543bf1acb017d1cb",
+        "e26810df90b18844bc068ecd6936cf048da8d712a6a6a9a3da419997633d3a1e",
+        "1809c587d01cfe2a303c738b1c72695b9c683f572816f597551f81640de6aa7c",
+        "8d8920ec1e6315f7ea2bb441170c6bd90afa9b2e2234d87fd5ba2e29181c253f",
+        "7ae6141100d75d3c9cb4681a223ab3d2372dbcc6ebed7b0014f87b5d2b31258b",
+        "0f11c9cf42a8fecef720ea0c2c1b4a4c86cb2048de13bf55c411c1a6033595c9",
+        "61323ad923e7ca17fc3bb934f4c7fc6d0d86d03da12759652e656247dc9d940b",
+        "38f7f1351d88af674c5f158667a3999cc004420dd7b132e85e04c51d5f511b00",
+        "05534de0102cffffd6233d71264ba10b5528dda1c3a347558d1950bdbfbf2947"
+      ]
+    },
+    {
+      "source_file": "RootSE/swe-agent/claude45/instance_NodeBB__NodeBB-70b4a0e2aebebe8f2f559de6680093d96a697b2f-vnan.json",
+      "n_refs": 6,
+      "passing_refs": 3,
+      "ref_steps": 420,
+      "refs_hashes": [
+        "abd6c466ba8950116b5d67f20a8399d3f74b25c1b14806e1b0f201f9ae1eea36",
+        "a3bc7ebbbd2bd78391ed0debb120fb42b43d22b53a9e4d5e2af12378750f2323",
+        "5716a8f18681b42df5a7c8a1ba0431b25f4e8031513e55a46e95f2080ca02905",
+        "a633934a9210df1f4eac1718772edac33a64c9b7f997288f406585dbed87452c",
+        "db177d53c57dc62cbdf727c9a2b0e1bce5bf56775a620c72fbb0066a4b01dc16",
+        "018991547fb8a3ca26d34aa8204dbfc182e3702ecb5a000a7fa615623e4246f7"
+      ]
+    },
+    {
+      "source_file": "RootSE/swe-agent/claude45/instance_NodeBB__NodeBB-84dfda59e6a0e8a77240f939a7cb8757e6eaf945-v2c59007b1005cd5cd14cbb523ca5229db1fd2dd8.json",
+      "n_refs": 6,
+      "passing_refs": 0,
+      "ref_steps": 493,
+      "refs_hashes": [
+        "06476b643f10f03c8b675768f38bed9676b2d25eef56db45a9e5e0d4d6bb0201",
+        "a63900d916ec3e102d3fb36545785fbb8e1a785454768b7bc2359bc3452ec9a4",
+        "a4192b3469efd50ca6d46dae6ee899bda86b3bd25987d1c89ab324d83d2a5074",
+        "1ad3fdf5307a443dda39350e30acff3b42b216a0551a305a95b0d95d6233aac8",
+        "573e9cc4d86fc92d0965a804a3e388721c9f73aab9e855420c3279c58aa865e4",
+        "0ea883f6e5ccb914d420a69bc8505a08a2b6c19818ae07b8151fe203c44a7a53"
+      ]
+    },
+    {
+      "source_file": "RootSE/swe-agent/claude45/instance_NodeBB__NodeBB-f1a80d48cc45877fcbadf34c2345dd9709722c7f-v4fbcfae8b15e4ce5d132c408bca69ebb9cf146ed.json",
+      "n_refs": 6,
+      "passing_refs": 0,
+      "ref_steps": 330,
+      "refs_hashes": [
+        "0092124d75d49b00450c07d7b2208636d3eb501d2e9c7d3d4b0d259102139619",
+        "64e4e32de8d4317ec205b51acec9e0f339f8bf01caf63780dd02217d9c27b603",
+        "dcb6b67a19edff5f68ed3a36e7f9fd5eb0c321a4f7ed960c814fb8f45a4c2ff0",
+        "a57c04245a3c0a92bf9f694b44ef21a7ad6851d8b7b09096069eae59f0fc8de0",
+        "42953997fb6fd35bee7e904be391eb71c59a8d9055b7e0c5bcac75e7b264176b",
+        "78348f480be24beb7078c626dc84613d5e751f9e631a9126df7bbbbb2ca403f0"
+      ]
+    },
+    {
+      "source_file": "RootSE/swe-agent/claude45/instance_NodeBB__NodeBB-f48ed3658aab7be0f1165d4c1f89af48d7865189-v0495b863a912fbff5749c67e860612b91825407c.json",
+      "n_refs": 6,
+      "passing_refs": 3,
+      "ref_steps": 486,
+      "refs_hashes": [
+        "3a50ad54714cb5f410b2b9fe68ac715739aa8d6f448cfb5d92101be01b28dcaf",
+        "64daf6d56cb0151748a1d433051b85e48d2ddb78381bc6e9d68e77b8d4384bb6",
+        "9a5de693e8b6186b8001e1fe3c99365b449e2c0ff1df5bb1dc760277c1f89a3d",
+        "d7e9381992e9ea42df3db2d0e60419e7af62bb9092dce404d7ff908632c35fda",
+        "963a81ab635d9b3376df15b7a11e256bae32b4b4929ee8bd7883c494046a285d",
+        "fa778e192bc1bc80275a90bdc07f042ebb585c09b7dc93349e0bd9a4e753cba4"
+      ]
+    },
+    {
+      "source_file": "RootSE/swe-agent/claude45/instance_ansible__ansible-6cc97447aac5816745278f3735af128afb255c81-v0f01c69f1e2528b935359cfe578530722bca2c59.json",
+      "n_refs": 6,
+      "passing_refs": 0,
+      "ref_steps": 801,
+      "refs_hashes": [
+        "19be8af355a579273d0728be480b85f4e53c6580aacf713f8ba75ddf061ba0c9",
+        "1cd3f2748eec84ee99c4f8e7433d27f17b622b8c15fdd39df47eb8543d0cb487",
+        "8ab4485fbd8fd8170b265d3643f6778c9543c3fbaf2d80534e9513b324ee9d22",
+        "81ef3d942dc6dc1f8d33b10295844bc20e8a0eb722a43aa814df202be316b316",
+        "32841f8b780721b136b744618cff04beb60b99d3027b2a92504d463b3b40fc1f",
+        "b2208daca960b3011c0d16633994fb81fe706ef2ecf8e02f91eb4bf04fa51273"
+      ]
+    },
+    {
+      "source_file": "RootSE/swe-agent/claude45/instance_ansible__ansible-77658704217d5f166404fc67997203c25381cb6e-v390e508d27db7a51eece36bb6d9698b63a5b638a.json",
+      "n_refs": 6,
+      "passing_refs": 4,
+      "ref_steps": 265,
+      "refs_hashes": [
+        "7d5571473e3c24aa21d558fe3f80cde53f1470788b0f0a3caec760fec44e7614",
+        "4b48e9e10360814e20fabe4af50ef8d3308ab2c90eb240da63a0a227b95feca8",
+        "3928683fca867f54f763f5bb0e5a5b663e6298b2e57e41198c8a18d84448b937",
+        "a6f84bc3794841f925be22d5ddaba699f00d7296de4a15eea96fd0fb3e3d71a2",
+        "09a57176716c067d4516bca01ef33dd0b91198e3ab2e3cfa1617ce148239a51d",
+        "0d9b43a1eb6caf523a86b3847fde7b0080407535a73295b3a19d02ee1a36d121"
+      ]
+    },
+    {
+      "source_file": "RootSE/swe-agent/claude45/instance_ansible__ansible-f86c58e2d235d8b96029d102c71ee2dfafd57997-v0f01c69f1e2528b935359cfe578530722bca2c59.json",
+      "n_refs": 6,
+      "passing_refs": 0,
+      "ref_steps": 379,
+      "refs_hashes": [
+        "10b19e1160a5c13715796ae9f141c601439f3c1543eff579b103a2f5e551aca6",
+        "7c8f2df53eda67803a54cf6c4ad94ecadf334a25b4b0d85a8d5a8a7f110841f9",
+        "4b3dcd7aea23274c75ceeeaa5ba3041020d25f96fc68ad5f3e45cc41854c6a70",
+        "4fde2ad5b32daa6c0e99ea88e7483c2798b140e432755392e70720d6735a982a",
+        "cc0eb143f689d605d0e7e9da9f9ce0aa29539c2d7873bed605802cd57da3b631",
+        "db45b299bd0b7659c2e169c5acea681951f55f2db60d8d8599073df0745a8e5e"
+      ]
+    },
+    {
+      "source_file": "RootSE/swe-agent/claude45/instance_future-architect__vuls-e4728e388120b311c4ed469e4f942e0347a2689b-v264a82e2f4818e30f5a25e4da53b27ba119f62b5.json",
+      "n_refs": 6,
+      "passing_refs": 3,
+      "ref_steps": 279,
+      "refs_hashes": [
+        "6927558d211975ff7c565f75e60d68436ab92a8eeb408158f387f952ea3e9814",
+        "0067f01e9660b77731d6207cfbfa0d4d05b3c522707de94e79ffbbb335fd948b",
+        "d0b97034d7bf7a7b8b8a239012df0d01f6b7ee946dcc7658eb3b16cdd25fd20c",
+        "1e346120b499e4cd126413caa73c67765a0d505ea488f13c2279ee9c98fd678e",
+        "dcbf97672e5b426313afd00a67efaf1a5081bb4b56b3256c772f8e52cea69db7",
+        "5c500383eb49ebe3f7b309e9ee5ea07717531fe80974d3c299b6900841d98054"
+      ]
+    },
+    {
+      "source_file": "RootSE/swe-agent/claude45/instance_future-architect__vuls-f6509a537660ea2bce0e57958db762edd3a36702.json",
+      "n_refs": 6,
+      "passing_refs": 1,
+      "ref_steps": 222,
+      "refs_hashes": [
+        "033033df3ba74364ad6bcc5986d45b5e7406dda86f473b8cefab933e2fd0c3ee",
+        "8433d0df830f8396922e31bf4eb9a776dcc5916661dfb806359d756ec2142397",
+        "3772ee1458159a9fbfb7aa0823fb55f12b7abd81c5298ec1a4fa3bbecc762058",
+        "6e31f9a80f890cc1d76e8e21bbce40efb4bf486ecc88932a9e9a6348b908e164",
+        "34fa0628f7bcaa7dd19f724f7d0ab36ed99f35b60c3775ecc140127b8c33928d",
+        "5120013b12974e055d1687f02e088ce784678c3ea3cea61346b8529b3986f975"
+      ]
+    },
+    {
+      "source_file": "RootSE/swe-agent/claude45/instance_future-architect__vuls-fe8d252c51114e922e6836055ef86a15f79ad042.json",
+      "n_refs": 6,
+      "passing_refs": 4,
+      "ref_steps": 516,
+      "refs_hashes": [
+        "87943b5328cf546608fa141f06fb2ac82eaa80815cc3d5252aa3ca466606203d",
+        "794730400064058ddeee16dbf23af018138e135f3349f08d519ed80a06caa141",
+        "a6722f3502bb1ffd858f58675b49a559d6374ffcce1b761217c9bc14f5b57920",
+        "b604580ce8a410777073d723b784f270a113328031750425afc3efb2748b1637",
+        "f339dfcf8045e9a91ff7ac61a816a3d49c724a4625d8c9957ebc6d12614ce2d5",
+        "147689bef3be9c7b161868b7aa0215946786f2743d193656780e0d760f3df378"
+      ]
+    },
+    {
+      "source_file": "RootSE/swe-agent/claude45/instance_gravitational__teleport-007235446f85b1cbaef92664c3b3867517250f21.json",
+      "n_refs": 6,
+      "passing_refs": 0,
+      "ref_steps": 394,
+      "refs_hashes": [
+        "63a11ab5a119100d97db39c17dbbc4559992045d1f57d817b23c2c76d6df1037",
+        "4eca2483c72ef3f42c40a90aaa9b85ad61eba2187587a580d82601ac9739cae1",
+        "75bd6fa9e6e45885175e97f93346d37bdeb46a11bc17381c20619c7e37de73c3",
+        "1f5b1d8d40b2e545203527c7b46b0e59c211bd0be1d458cde14fb38f69a329b9",
+        "f8c0c79aba2380973d8e932113cbb0defdacbbb60591019b8c2caa3481b869b7",
+        "5156868520fca1e190b2fc0dd1833cc4b0730686185e8112ae4de81d8384a8f6"
+      ]
+    },
+    {
+      "source_file": "RootSE/swe-agent/claude45/instance_gravitational__teleport-46aa81b1ce96ebb4ebed2ae53fd78cd44a05da6c-vee9b09fb20c43af7e520f57e9239bbcf46b7113d.json",
+      "n_refs": 6,
+      "passing_refs": 0,
+      "ref_steps": 429,
+      "refs_hashes": [
+        "b4ebd4e4a17ca77aaa34976441a23f770a0a799b7d6ed70efb136d933d7c8051",
+        "7ac4802ff9f66739696566811341269471615d97d3b10091f10a4d0a1a9f9764",
+        "816e5d9403dc0b092adb2d4f849a96d5c32cb274cc13bbe14864d6cedfb246c5",
+        "09f775da30bdc3ac0ae9a268a3f047bd2d5ab8ebe1c5b72b556be80f0745a197",
+        "4e979fb54cb1aafcace58549d3efaf980924e53fb677914992f8af277bf3c4c0",
+        "81f9e1033c02cfdbc33874a25fecb48e35a60fcde69ec5960cfe90a14c25766f"
+      ]
+    },
+    {
+      "source_file": "RootSE/swe-agent/claude45/instance_gravitational__teleport-59d39dee5a8a66e5b8a18a9085a199d369b1fba8-v626ec2a48416b10a88641359a169d99e935ff037.json",
+      "n_refs": 5,
+      "passing_refs": 1,
+      "ref_steps": 367,
+      "refs_hashes": [
+        "a40da4b624a970b2654acdd4a7143223bd50d02ebf9e66067b2cc7f9b6be9d88",
+        "9a6ab816ac554cb3159c19a833c7d797f3e61405bc8ef6727932395370ca822d",
+        "263de9fbddb117458a1e6341bd1f4359295f0d9f35e85459c532dafbb1b2a1fb",
+        "6af606d78f3b09b7e53660758f0d57b7694819ea7a0636a6dc2f2f78a56442a8",
+        "59643ffb0ebf78e41a2ac71b65d789b508d5efb39e6c8db1a57407c27a27462f"
+      ]
+    },
+    {
+      "source_file": "RootSE/swe-agent/claude45/instance_gravitational__teleport-89f0432ad5dc70f1f6a30ec3a8363d548371a718.json",
+      "n_refs": 6,
+      "passing_refs": 1,
+      "ref_steps": 257,
+      "refs_hashes": [
+        "2b6dd6692fae77c7407dfa793f8bc0fbb9464fd4d55f67d5bf65499b9142f08a",
+        "db695b19401f0cc939b9b99df2746d86233e14e4986e118d0f6ada7c670b1d7d",
+        "89e8d0497c897579b092a365b94f6975e7a34524125280aa2837ca030cdf3f5b",
+        "1cf0b7b3955deec5c116e7b6e2c5c95e8581d52063c8a29b764a5e1f68a5eb3c",
+        "29f696fb3580ef132b3e1b754058a5af8d4867b7d2f91b6703c0d3ea504f9eba",
+        "e0cc9951602b58621a6675727b6e3e3238af276a5b9d1e2f395fd2a8d1c1caf6"
+      ]
+    },
+    {
+      "source_file": "RootSE/swe-agent/claude45/instance_internetarchive__openlibrary-2fe532a33635aab7a9bfea5d977f6a72b280a30c-v0f5aece3601a5b4419f7ccec1dbda2071be28ee4.json",
+      "n_refs": 6,
+      "passing_refs": 0,
+      "ref_steps": 339,
+      "refs_hashes": [
+        "a572227501d838dc33f087348a4003e539c13a8e6bf11911e4d54c04b317cfa3",
+        "ff89f8e0a01de8ffa87d131fe9445caa531712d15962cbf79d9e10e189d55600",
+        "a294a3d8b1d2b4f10151ab32490451de526b49d6ac9878a128c345def166fc12",
+        "ef8e973096a46cdcadcd440861fc157533003ec1bc8630e7cd5c7d4bd81b0f4a",
+        "82e0e616792f9c19fac380e9fe358874a688e5f90d20ee5a513dc275ec76671f",
+        "4f08eb23c7b18cbbecb38a021b22e69aa9353c065a975f2c662cc8c3f5817e28"
+      ]
+    },
+    {
+      "source_file": "RootSE/swe-agent/claude45/instance_internetarchive__openlibrary-3f7db6bbbcc7c418b3db72d157c6aed1d45b2ccf-v430f20c722405e462d9ef44dee7d34c41e76fe7a.json",
+      "n_refs": 6,
+      "passing_refs": 1,
+      "ref_steps": 418,
+      "refs_hashes": [
+        "093d7ed0a60994a0ee33891dbbc23301d69c932130acf75f20cfc0cf334345c5",
+        "07f5a96e70f1ee9975cba3e2e82629c81d02cc6a4e98de4a8c6a387e0d35e36b",
+        "346ca8e2c082ce456ad9261c3a777fb05c340898212236659f96e37f538cf872",
+        "f63fa9c079a7584ec06438cab167c6d86409940dbfba41e0771405855e8ade4e",
+        "8c74ab3700c6c03d51858843589c232776909c48969ee0394307028394d398b4",
+        "215e25ce99bde99d2115f5a74fb306f8f86a4ab5d8236fc1cf913f1942bd8062"
+      ]
+    },
+    {
+      "source_file": "RootSE/swe-agent/claude45/instance_internetarchive__openlibrary-4b7ea2977be2747496ba792a678940baa985f7ea-v0f5aece3601a5b4419f7ccec1dbda2071be28ee4.json",
+      "n_refs": 6,
+      "passing_refs": 0,
+      "ref_steps": 405,
+      "refs_hashes": [
+        "034c94a7bf2912bc03c6d19a2ea2257ed8df422609b8c0db53f1a5cab83453c2",
+        "fad9d994a14ce51767ab6c5dbed4e1dc40c472fb7b6321596186673fba0f54dc",
+        "dc84d40c938ef90b3792e4d174f12a77a0ae9476fdc4e1245434c0fbebea2801",
+        "77498d519c6f9345c6ee0e98b32344cbf130a2a46e59d7c6adbadeb1c5040a3d",
+        "1ae9656335a3799ea71c40f29b59c8758ca036fd61f1445f048bb54c3bdfcca7",
+        "e7988fe345e087e46fcb61ccbb99859f4f19604fb88362187f1f09073d9e96a2"
+      ]
+    },
+    {
+      "source_file": "RootSE/swe-agent/claude45/instance_internetarchive__openlibrary-798055d1a19b8fa0983153b709f460be97e33064-v13642507b4fc1f8d234172bf8129942da2c2ca26.json",
+      "n_refs": 6,
+      "passing_refs": 0,
+      "ref_steps": 243,
+      "refs_hashes": [
+        "2f0d5314804bd5aba9c9b92b6c43aeb4b804f6f69e061cbea38f2c981ca31a5c",
+        "0e1738066ff667dab58add753099f69c703dbe9845528c648a461f50fac9082f",
+        "a10cda0d893cfab328ca38d61b4fd82428fb33823054e0896008b5c740289293",
+        "890b00c6a67e9b26e3332417f05121c8605603dff0bf15d1386ef72617345fe9",
+        "2b3b67665bf55c77949aca8bc79c965cd0aa14057c25c7a1a9d7cb69d1c75f15",
+        "7e5293eca7e9d0f969c0755cb29c990de6f7f077cf1b7a9a1f1f4573d314e41f"
+      ]
+    },
+    {
+      "source_file": "RootSE/swe-agent/claude45/instance_internetarchive__openlibrary-e1e502986a3b003899a8347ac8a7ff7b08cbfc39-v08d8e8889ec945ab821fb156c04c7d2e2810debb.json",
+      "n_refs": 6,
+      "passing_refs": 0,
+      "ref_steps": 197,
+      "refs_hashes": [
+        "1c5d52fd1b2352039b3675bea9ee5919e3f6602165e2b22d7fde0400db340b56",
+        "faa5308eabe7d0b3af69e05485fd5c75b16dfb8435f9692c78c5d8a55e7c3aae",
+        "303ca54c333c638eb373e31638f7274553f0441b0301ad9fadebddb6b547cb78",
+        "6e211838b4b166760739196feace329b142bad18d4fd7221f7a0137664fe03e7",
+        "06b61c669a9c2c8440bc06a34b549b634f72aece523c3c430314a92123eac252",
+        "b30d856139263da66393aa2c4b3585bc102e207a1c7bc1d3079f25459785c5ba"
+      ]
+    },
+    {
+      "source_file": "RootSE/swe-agent/claude45/instance_navidrome__navidrome-0130c6dc13438b48cf0fdfab08a89e357b5517c9.json",
+      "n_refs": 6,
+      "passing_refs": 0,
+      "ref_steps": 450,
+      "refs_hashes": [
+        "63dea77ff8f634a93b4c6a168a231424dd9dc37bf96830f80394eccaa6b7e623",
+        "9d7cd73bc8b7e9a65f8317aff4f2cb78b04eb9643a50fb395d7035924ffc485c",
+        "1c0195d42a3192d465671dbf2be2f31cf3bf8cc2638179f42575b42c54321289",
+        "b00d508cd100abe84c3d165ec5f3c04f03ff3dc7907d3157f96a2c7f47774624",
+        "21b471829e4e081493ee78cb2954942701872c671352354ca73fb77a95d40ae0",
+        "2659cbfd3df15cc0dba5c88f0630ef722322c8628dfcf36bfce1e0be95a417c2"
+      ]
+    },
+    {
+      "source_file": "RootSE/swe-agent/claude45/instance_navidrome__navidrome-0488fb92cb02a82924fb1181bf1642f2e87096db.json",
+      "n_refs": 6,
+      "passing_refs": 0,
+      "ref_steps": 505,
+      "refs_hashes": [
+        "c32fcfcc64d4b86eb9cfdb05159b6bacb8b890649fd98435b5073d5a19a54470",
+        "ae9c427faf5ccebcb11ab479bbb1802362c2dd2d58463dcb6ac9955e82a0ce78",
+        "e995887c8e0220768d1965f6132ee2c72927106ecec224cca146bdcde54df5c1",
+        "5f70eadea05601ae8872abef79a42fc84c72c017048c587e29a693c10d975a17",
+        "caa9891247395534116bdae8c1d595ba43440c4a0f14eacaaba3ad290047fb47",
+        "5bee92f1a1bd7ab2f784822bc9cf4c949968bdc35a4f2519498559ad0b97dab6"
+      ]
+    },
+    {
+      "source_file": "RootSE/swe-agent/claude45/instance_navidrome__navidrome-23bebe4e06124becf1000e88472ae71a6ca7de4c.json",
+      "n_refs": 6,
+      "passing_refs": 1,
+      "ref_steps": 274,
+      "refs_hashes": [
+        "cbe9ae2d0584ce950f9efbaf3cc404d6eaa7c148196ee8f679e1729f57c65b0f",
+        "ef5641b5c4e0f4a807a68eb555145c6e71ee26fcb9f295b736e0e502deb3b906",
+        "f9aa4d4dc8bad96f8f03cbc6fc40b3a23808e5f47403e644da81ebb8111a06cb",
+        "8e444eeaf66238770ccb133f5b87b4a773cfb46ac56c1eb5f15805eb1fe57d55",
+        "1af5c035a155fcdceed6716e97d21b51342052f4199e1a8c48d437a1ba275eb0",
+        "c942c47c20d7dfc896c28501443d73b4472b02bfecec8cbd377aab822387e93a"
+      ]
+    },
+    {
+      "source_file": "RootSE/swe-agent/claude45/instance_navidrome__navidrome-56303cde23a4122d2447cbb266f942601a78d7e4.json",
+      "n_refs": 6,
+      "passing_refs": 1,
+      "ref_steps": 442,
+      "refs_hashes": [
+        "e39624a54503f66fc5ec4bea825641817413d748ecdea4130bc4771073695095",
+        "cbac3573d7d4532bace0b00f1edb88d55990a4b5775b44c6b99d8922f0ec3da5",
+        "102b7ed98c5381fb8d292de54937ff2fb6e1c7ad34fb1cf1f1a9a0b3e96190ae",
+        "df71cb3d75a170969d3e618d904599dc5cfe1d41aa80d8c1232a975602f6cfc1",
+        "553c1eb94f80ed99cf12cf068e99b26374c982a7db2a4c94418aa61cdec2fd78",
+        "3a1bc33c16d9285390fea02519d50816612b6675c56d5ccf611c336f51065733"
+      ]
+    },
+    {
+      "source_file": "RootSE/swe-agent/claude45/instance_navidrome__navidrome-89b12b34bea5687c70e4de2109fd1e7330bb2ba2.json",
+      "n_refs": 6,
+      "passing_refs": 0,
+      "ref_steps": 404,
+      "refs_hashes": [
+        "2f89c339f62698122f8cc7edf7bcda80ff0f745b44b5f46043695b80d5bd8125",
+        "5b237923dad614b303d1d644907c6040fe2ab268fc3ac95c192a2d9f820d248e",
+        "1cef45890b668524a34ac867d4d56eb776d844fbf799dd3e31cc097f4f10de99",
+        "9513a46699d8a13f6a69ebe13d8ce437b26d33d5974c26d69a468f13b1619f42",
+        "c10da6a3c03754846386eb4ee3b63c2d13d8923363c5f80c19b35d2cdc4b8895",
+        "65afce3e0e7519ceb80f72ecf2f33cab391ec97dfce8021a9c5ad150da1204a5"
+      ]
+    },
+    {
+      "source_file": "RootSE/swe-agent/claude45/instance_navidrome__navidrome-9c3b4561652a15846993d477003e111f0df0c585.json",
+      "n_refs": 6,
+      "passing_refs": 0,
+      "ref_steps": 321,
+      "refs_hashes": [
+        "9de5cad8bc27099eee0a0a7d4e7b50e2b9918cd4f442f0a97a55deef3c476ab2",
+        "aa48f2d07ecb1ac1c038ba1c5782b5e9c5bfaa32e843aa01bfb878ed8da8d135",
+        "532e7ee10817ed152cf164f0fe719a708e7138822e831e3d93ff9f901030dda6",
+        "1ebac6f770107b35a256aaa62c564bf3b9745e9fe4137e4cb14df3913f8a3c18",
+        "e356281a5c90162dcf58a8b94455a57842f77cfad0d2dd5e989214faaae2cb1d",
+        "d2b7da6735791588e6679c94aa251ff23000bf4d5a0a50ee6747023400375067"
+      ]
+    },
+    {
+      "source_file": "RootSE/swe-agent/claude45/instance_navidrome__navidrome-dfa453cc4ab772928686838dc73d0130740f054e.json",
+      "n_refs": 6,
+      "passing_refs": 0,
+      "ref_steps": 305,
+      "refs_hashes": [
+        "de703d0175c333c027f4ad705393c5d35647df76d961c4d3356113671be75ca8",
+        "8b42cc142163e03bf5c7196e070e1a01f9af31d7f0bdd3e7daa8940e7bb57454",
+        "3befe2f35fd6d33b51f34f35698d68856e2838e34ae88bb77404efbbb2a2907d",
+        "d6fa12dff5a8b9d049ab804feca508a2dabf3306da021df8583a21a222ab0469",
+        "27d061fd507781c4ab65a4679f0b29584bd2829446344070ba193b161e3a9297",
+        "f2bca2ed0dd585b58c61277a8a5ac6c84fc0e68a66febd69b45ef4c43e080de1"
+      ]
+    },
+    {
+      "source_file": "RootSE/swe-agent/claude45/instance_navidrome__navidrome-e12a14a87d392ac70ee4cc8079e3c3e0103dbcb2.json",
+      "n_refs": 6,
+      "passing_refs": 1,
+      "ref_steps": 388,
+      "refs_hashes": [
+        "8de55e13da15ac03510cdc56da797ee3c0a189bf6329117c7eb2dc07a11a013f",
+        "9fe972cd812457efa9caaf8c0f94c71167bbba9af9bfe345d0c45e36cea7164c",
+        "a59d4d804b4a673b8a022377dae547ad18d61b8f2ca805327c6ce141e362d8c6",
+        "4c04519c2204badd67c49bd99ce3667b908b1441c5d3f2822ffec5905ed2e7c2",
+        "8ab66105610f7620c854d98c9985ac143c30e4c8404bd808d47f0aaedb2261f9",
+        "c2479a4a3141b64f5d906257998cc84ba291823053cad6ed648cace4367c602e"
+      ]
+    },
+    {
+      "source_file": "RootSE/swe-agent/claude45/instance_qutebrowser__qutebrowser-305e7c96d5e2fdb3b248b27dfb21042fb2b7e0b8-v2ef375ac784985212b1805e1d0431dc8f1b3c171.json",
+      "n_refs": 6,
+      "passing_refs": 0,
+      "ref_steps": 419,
+      "refs_hashes": [
+        "159581810c8bdfdc8553821264eddcdc0439a9cfc05d2f61bccad8d10b23c30f",
+        "2114af0d5878f89fa5299dd536ed53e8cccf0bfec559eef734076ed637af7b74",
+        "b370842f168151050f92d7c4f67af9cabe106044cd0363dfc30553d325f08057",
+        "280afd0be9e7fbce827f4ecbb9b75bd8cf1c288927cfe118afcc8cb609c0c7a1",
+        "e6b099b84e341eb374ce7536df6dca233584b792a05ad82bc84da9fc503bb915",
+        "0380ffd66c5b8f811344ffbf5d7e4239ebbd2aa045a0ac7f592d05563d1f5a19"
+      ]
+    },
+    {
+      "source_file": "RootSE/swe-agent/claude45/instance_qutebrowser__qutebrowser-6dd402c0d0f7665d32a74c43c5b4cf5dc8aff28d-v5fc38aaf22415ab0b70567368332beee7955b367.json",
+      "n_refs": 6,
+      "passing_refs": 2,
+      "ref_steps": 380,
+      "refs_hashes": [
+        "9f830019c0f105181397fc2a4a3e3f3ba4a7435bec006f3117637605f6d8bafc",
+        "2e95cc1cdd660ada236533c7daa59825acca702e6cdb848563018ba3b3137abb",
+        "43a91a4b4ccd25f09d4e2bb0955bae9fd87b73b4908684f51ac2ffd648855f6d",
+        "b244a89c96deec9a54989ff55c768e4be23885d7545a7c2c15101ab7d696ff28",
+        "4f25caf405652d11917b743c4cbe5e133b50f7cda3d5ee21fd4231fe35c3d970",
+        "2d1c02ba9638df4d2ac922ed6c8dc8a6d77262f7db971ae8916a92ec498e34b7"
+      ]
+    },
+    {
+      "source_file": "RootSE/swe-agent/claude45/instance_qutebrowser__qutebrowser-e15d26630934d0b6415ed2295ac42fd570a57620-va0fd88aac89cde702ec1ba84877234da33adce8a.json",
+      "n_refs": 6,
+      "passing_refs": 4,
+      "ref_steps": 453,
+      "refs_hashes": [
+        "8c8666bbe07282ec1ddc961d7bbb52403add2a1418c3780ac52b69450e34c279",
+        "ad97ba8a774f095747664b401e0ba0f2c88121f8b21778dabf24433de7b9ec77",
+        "0a86da074b599a835aca78cea071cfcf2ea0d974b7eaf00a14bec97827491a2b",
+        "1442b600a0887a609b4bdae22555a39be7e50f68f25706b66dea7eb245cfadf4",
+        "1b708cd1e9b1de04dc5ccb1d93093d3e699e9c2b818cb413f6e64de73986e271",
+        "556f6c2744351f03ec9cd6bd998e9aeca710e9ea998546e5e9480eb94ee285ae"
+      ]
+    },
+    {
+      "source_file": "RootSE/swe-agent/gemini2/instance_NodeBB__NodeBB-82562bec444940608052f3e4149e0c61ec80bf3f-vd59a5728dfc977f44533186ace531248c2917516.json",
+      "n_refs": 6,
+      "passing_refs": 4,
+      "ref_steps": 340,
+      "refs_hashes": [
+        "d528959aab37a46d55eea0472e2b4b60add132566d93ee2b0403f09c74b156df",
+        "5e19bc01b198780ef7044640244949df274b77c9eca89ccb1f8f4e06b8ca727c",
+        "7c15d0f01c9d22f2928b371b275936d8b37744a083d0d988bd117734838488f5",
+        "7498a7e7d915afcf1da4324f25556f3d3049868fdc9dd693e2851b51a5cf688c",
+        "beeb973e98d68755f647eaf3ebeef47d3afd9d3e56618b230b50cbf8ccba3d63",
+        "448fa165f1213d7329c60fbf44c2718769eccedb1beb49f0f206949fc208f2f4"
+      ]
+    },
+    {
+      "source_file": "RootSE/swe-agent/gemini2/instance_ansible__ansible-5e369604e1930b1a2e071fecd7ec5276ebd12cb1-v0f01c69f1e2528b935359cfe578530722bca2c59.json",
+      "n_refs": 5,
+      "passing_refs": 3,
+      "ref_steps": 377,
+      "refs_hashes": [
+        "ac0235cb3f65bd47106f86cb18a4383982eb8af03b479c9b8bfdac7f32180210",
+        "f9c8c8c61c5f7b7ddf885a619155583822d6cd9d9ddfea90f8a3264153783ee3",
+        "b98260a36f2a4a38b38f19167ae78fb99b70fd5717384f58740b23c4f05ae64c",
+        "89ed394d1c78bd3222d421fdc502be8977a29315668155fee8cda1d6de33062d",
+        "e001a20da5a110663800e5f92f736d58aa2c8aa2b20e62db88a8d0019a9b9c1e"
+      ]
+    },
+    {
+      "source_file": "RootSE/swe-agent/gemini2/instance_future-architect__vuls-407407d306e9431d6aa0ab566baa6e44e5ba2904.json",
+      "n_refs": 6,
+      "passing_refs": 1,
+      "ref_steps": 414,
+      "refs_hashes": [
+        "08d7be2b9698be80c2393eadec08c7b73f566c8d454503806c286e9815701470",
+        "94763f350ff03feb202821f0e3db7a369fa58b701380541234763ba662cdd625",
+        "282fabfc4190ce4c458067649462580d8f0aee5af04cedd484a52af72e4e9761",
+        "2be05387208eb3db66f31456d8ff1f0999a473c78c923b1d9306d0de8b161f41",
+        "e907a627b0afcfd90f9387d6bc96542900fc0eeb9dd73644fb64e5e3c74808a5",
+        "5e97e97f659e769656a402cf0d9e3896c05c72a9565b88e2cef993bb1bae4cfb"
+      ]
+    },
+    {
+      "source_file": "RootSE/swe-agent/gemini2/instance_future-architect__vuls-4b680b996061044e93ef5977a081661665d3360a.json",
+      "n_refs": 6,
+      "passing_refs": 5,
+      "ref_steps": 484,
+      "refs_hashes": [
+        "04d5b4e6507c987d65630517257ada6eebe5eeccb5cdcf1bc3aa34aae5412c05",
+        "adb607523e6fec3440a7edc55d0b00d4aac2deee6a6e274bd8871ca257941fec",
+        "30af94ef81d8e213d9859197bb4c88eaa97a956bfc6326f7ce7501521f8fc1c1",
+        "812c37cf291cc764c7c33fef22bc99dd60486191c8a28cd3709ca1c778848cec",
+        "bcf774657104c31ddd63cb44a12ba46896ed081017e96987fc141c1b2050f169",
+        "529a9a53696428d0c7298edfdf6aa1e82bdd279c7251bd5ff0eca7742bacdd82"
+      ]
+    },
+    {
+      "source_file": "RootSE/swe-agent/gemini2/instance_future-architect__vuls-be7b9114cc9545e68fb0ee7bc63d7ec53d1a00ad.json",
+      "n_refs": 6,
+      "passing_refs": 3,
+      "ref_steps": 467,
+      "refs_hashes": [
+        "e8cfeb43ddf055f92301a64cc049eaace9c499f466be2bb3a703194f2c969fc3",
+        "ee51bf5b2f785c9ce2f82291765a88c6310d120ed19ca6512cdaf78ca919a773",
+        "c57289f707fb407a1eae7dd051c274767f6373219628511795f0d029dd8d01a0",
+        "d4310f88f18c2761348fd90f65483dc001051cc79b19e7ac2a6c1b148a300418",
+        "e7a9c6fae03a7116294f7467570ed08c71c6b14396cd6e1cca952e7d136bf218",
+        "a3c289c14eb4fd3c7ffffd186f6277f7dd5306385e7236bba2e3ffd68d6b91b5"
+      ]
+    },
+    {
+      "source_file": "RootSE/swe-agent/gemini2/instance_internetarchive__openlibrary-1894cb48d6e7fb498295a5d3ed0596f6f603b784-v0f5aece3601a5b4419f7ccec1dbda2071be28ee4.json",
+      "n_refs": 6,
+      "passing_refs": 0,
+      "ref_steps": 423,
+      "refs_hashes": [
+        "8f37995cfe8da2cf76d833e02b59d8d0c69245811a7930a4bf1f9cc874250432",
+        "f50c235505eba78c28e0d0c52275f5b67080ef91eca5c3f50035301bb580a916",
+        "52b45e296b7059f98c23e301efbeaed3ff99a0ebaf5a96233f9370dd848d2de4",
+        "f518eeada58a926c1fa5d85e2efdc4d59d0977b2ebba4c605bbd60dc877daa19",
+        "4083747490d1782a5187890075d8e905a97e1ac99770fc05e586761e87ef83da",
+        "de68d5872319202812c1f102d3df7629141d12b41b5dee6bd1d51261ad9c8ad2"
+      ]
+    },
+    {
+      "source_file": "RootSE/swe-agent/gemini2/instance_internetarchive__openlibrary-5069b09e5f64428dce59b33455c8bb17fe577070-v8717e18970bcdc4e0d2cea3b1527752b21e74866.json",
+      "n_refs": 6,
+      "passing_refs": 0,
+      "ref_steps": 330,
+      "refs_hashes": [
+        "d591be0a9bbf1de16a84898d359477f7606f42cc0093ed4886cb5925ee93e8e1",
+        "539306dd288d1b9c8f44057e34e845429e077138f0eaa57ee7f0f2417d35386c",
+        "96eefef0bfb5173dcdc9add75ef71bd962fa0c24867ef5cd2110d3a521d73296",
+        "6fe959c3a3ba91e0dadd7582952af73f8dfee710a60a1d9af2358156c21b8db2",
+        "1d6dd9514d655feb36aea59108aae796444c5d3a576aaea500363f3024fd7e13",
+        "27900ad65baca3011f5e84fb898e3673c9d453496817fd52d231daf8b131f233"
+      ]
+    },
+    {
+      "source_file": "RootSE/swe-agent/gemini2/instance_navidrome__navidrome-09ae41a2da66264c60ef307882362d2e2d8d8b89.json",
+      "n_refs": 6,
+      "passing_refs": 3,
+      "ref_steps": 305,
+      "refs_hashes": [
+        "586f1f708b4904c572ba97093d23890766d11149151373c5d8bbf54d79303c49",
+        "af1a08a4df77defdae0c2007e863eb1b77a6251d14f77bcb6a38f65f7e2fb126",
+        "b85ff91e155b43ffa39e3448057318a2b50d98eb7e7c3d705f14eb0bc8dc1bf9",
+        "83efa8656b0eb1beebc3bc38e10fe9d4ac778be329d2f9cd1a8072421699d15f",
+        "24e0f1c2ee30ff4d41b3ed3a2de20a49b7233dddefb3a8f96f4a4d05a6b26431",
+        "27e55cb27a672b7c56c36d8ce435278d6bbe1c3a89563887a29d04e8cc4e5ebc"
+      ]
+    },
+    {
+      "source_file": "RootSE/swe-agent/gemini2/instance_navidrome__navidrome-97434c1789a6444b30aae5ff5aa124a96a88f504.json",
+      "n_refs": 6,
+      "passing_refs": 0,
+      "ref_steps": 414,
+      "refs_hashes": [
+        "34573357699305c143ffbc0a3511baa8c869169093e114eb2d21fb12a53273ad",
+        "6802ab4772811451c16ff87e2c07d08fc4c23b69021c11a70bc67bf633b49e42",
+        "ce0b73a3085df224390259c11738c39c6359581b823cde21650d87bb099f9080",
+        "19d325afeaa647ccaceb48b5ee24ca8bea3ad7f7982a5c78daacf46259449408",
+        "19d0c5aa2f6f3d26ceddbc1f9b2bac4571ce38006c1f9c9a9672bde874b557b3",
+        "fd1b394e2e73bf6ed03604d5c9dc6f13721dab5338ec20c3687d948edf72fbf9"
+      ]
+    },
+    {
+      "source_file": "RootSE/swe-agent/gemini2/instance_navidrome__navidrome-9c3b4561652a15846993d477003e111f0df0c585.json",
+      "n_refs": 6,
+      "passing_refs": 0,
+      "ref_steps": 321,
+      "refs_hashes": [
+        "9de5cad8bc27099eee0a0a7d4e7b50e2b9918cd4f442f0a97a55deef3c476ab2",
+        "aa48f2d07ecb1ac1c038ba1c5782b5e9c5bfaa32e843aa01bfb878ed8da8d135",
+        "532e7ee10817ed152cf164f0fe719a708e7138822e831e3d93ff9f901030dda6",
+        "1ebac6f770107b35a256aaa62c564bf3b9745e9fe4137e4cb14df3913f8a3c18",
+        "e356281a5c90162dcf58a8b94455a57842f77cfad0d2dd5e989214faaae2cb1d",
+        "d2b7da6735791588e6679c94aa251ff23000bf4d5a0a50ee6747023400375067"
+      ]
+    },
+    {
+      "source_file": "RootSE/swe-agent/gemini2/instance_qutebrowser__qutebrowser-0b621cb0ce2b54d3f93d8d41d8ff4257888a87e5-v2ef375ac784985212b1805e1d0431dc8f1b3c171.json",
+      "n_refs": 6,
+      "passing_refs": 4,
+      "ref_steps": 392,
+      "refs_hashes": [
+        "2cc70e44cbed254e61cbd07fec45cab0b04de11a0dab34a720ab3828d160f7b2",
+        "9556cdddef48dfaa5e8e8852eb848f722d50566a1a959e42c805e6f52f8973bb",
+        "7fcc64d137ae1c20423bfc25eab8f210ed0f8d09a2cd56a8b721750b9d293e75",
+        "e145d453426d18fddb4729c39ddd365fdb1d882463258861494e76cf31000e3d",
+        "1e746b44fe2e76930509c2ec6b205978053ba1968732b97cd1bb71bba1230a1c",
+        "309871e15c69a5d8373c1d0d5a5f34983afe4a34fb2807da95f25194ee01e22d"
+      ]
+    },
+    {
+      "source_file": "RootSE/swe-agent/gemini2/instance_qutebrowser__qutebrowser-6dd402c0d0f7665d32a74c43c5b4cf5dc8aff28d-v5fc38aaf22415ab0b70567368332beee7955b367.json",
+      "n_refs": 6,
+      "passing_refs": 2,
+      "ref_steps": 380,
+      "refs_hashes": [
+        "9f830019c0f105181397fc2a4a3e3f3ba4a7435bec006f3117637605f6d8bafc",
+        "2e95cc1cdd660ada236533c7daa59825acca702e6cdb848563018ba3b3137abb",
+        "43a91a4b4ccd25f09d4e2bb0955bae9fd87b73b4908684f51ac2ffd648855f6d",
+        "b244a89c96deec9a54989ff55c768e4be23885d7545a7c2c15101ab7d696ff28",
+        "4f25caf405652d11917b743c4cbe5e133b50f7cda3d5ee21fd4231fe35c3d970",
+        "2d1c02ba9638df4d2ac922ed6c8dc8a6d77262f7db971ae8916a92ec498e34b7"
+      ]
+    },
+    {
+      "source_file": "RootSE/swe-agent/gpt5/instance_ansible__ansible-83fb24b923064d3576d473747ebbe62e4535c9e3-vba6da65a0f3baefda7a058ebbd0a8dcafb8512f5.json",
+      "n_refs": 6,
+      "passing_refs": 0,
+      "ref_steps": 386,
+      "refs_hashes": [
+        "1bccb2a19dec33dc12924cd97ac4a127cd6578f715aa4c2ce0bf90f3f069040d",
+        "ecc567cc2d382a7864d10fb6322d8ae181d54a32988052edb8ecca6d6ddabf52",
+        "fa23ab466b0fcf37d686eeda8185345fb8d550947acfd907f0ded481e9139043",
+        "7e4dd9ff6e6e1cf01683e866434c169613f8d809f2eceb5c89687af21c022b36",
+        "0fa15120d1596782b8b8cb2c1e8182c87aab28f40173a05a07dece19e557b393",
+        "fcb6b42bb87a12bc869e508bd4fea1853c32712f0ff39631f164b084eb0bb66e"
+      ]
+    },
+    {
+      "source_file": "RootSE/swe-agent/gpt5/instance_ansible__ansible-b5e0293645570f3f404ad1dbbe5f006956ada0df-v0f01c69f1e2528b935359cfe578530722bca2c59.json",
+      "n_refs": 6,
+      "passing_refs": 2,
+      "ref_steps": 288,
+      "refs_hashes": [
+        "2a6421a83b3eb1538fc5b8b91a8004f22db30017574b23a2d3ddf14892ed38d0",
+        "540177a5c00bb1f6653662fbc31eb280be7bf45f9d20f1675976fea08273355c",
+        "7de76cabead74506f752955531d9179470f8b3fc430f9b99a05cdd16699ab86a",
+        "0d99746b59db1acb0f03a8007d778a17c5c3ee9d27e1b4e4d9973332cba1d857",
+        "65037f30550cacf035f1d1fe9ac8f766a86fe588d42d471075f6a29147443486",
+        "e771f3ccb8893fb26e5012c312e4b18dad394609868c45b3765d59968029efd5"
+      ]
+    },
+    {
+      "source_file": "RootSE/swe-agent/gpt5/instance_ansible__ansible-b748edea457a4576847a10275678127895d2f02f-v1055803c3a812189a1133297f7f5468579283f86.json",
+      "n_refs": 5,
+      "passing_refs": 0,
+      "ref_steps": 297,
+      "refs_hashes": [
+        "abcfe7bb0369da86a143a72512fa403e19e182f2796d9dc5874f6c5b32aea888",
+        "0202d7735afb7eb05e68990ba0bd33017fdeb02927b7d96bb3ff66d6eda6b883",
+        "e3c250129b6b0f5afb79c87fa3a12196b98ede5fcc2ad6946bb151b22a2d50cf",
+        "2ab58d985e60801457b2c3550814bb17830d8b03f6c6e7691d33654753418d06",
+        "baaaac04b44b3986edf9cf15e9a8bb58ffcc194197ce71f985b8eecc9fafd76d"
+      ]
+    },
+    {
+      "source_file": "RootSE/swe-agent/gpt5/instance_future-architect__vuls-7e91f5ef7e5712b1a3d7d5066ad6607e9debc21c.json",
+      "n_refs": 6,
+      "passing_refs": 0,
+      "ref_steps": 306,
+      "refs_hashes": [
+        "1b28c77a68ac61b6c91f791fda46cdc60a92c2d6c4f62b831dbe83ee6e28e183",
+        "525bcb9f2bff6f2bb975eb84c1e5fb04e6082ce5cb584aaba6fbbb17b06130cb",
+        "0102908ea3cf13ab3ca945e1a0ecd966585c235aac7db52e3314e5099adde821",
+        "49c8f282a6199e16522a5e4dbfccf2287320a6410bae8aa473778a8f1432e4f1",
+        "d9e936e3784517e06cfa8c563e0725a27cf1cbe5e5c31d5f80fb43cae98a3847",
+        "db65230521b3cbe82b3995dd5d487b7d0f36472d0606001ea775b95218cfc9e7"
+      ]
+    },
+    {
+      "source_file": "RootSE/swe-agent/gpt5/instance_internetarchive__openlibrary-0a90f9f0256e4f933523e9842799e39f95ae29ce-v76304ecdb3a5954fcf13feb710e8c40fcf24b73c.json",
+      "n_refs": 6,
+      "passing_refs": 0,
+      "ref_steps": 406,
+      "refs_hashes": [
+        "26e9b7e43508edc0c6b071bbdc0ea508ebcba4ff030b5cb4d1d372acc96e0bd7",
+        "ece631bf55970015fab1a4f271065f2da3f0fe99b8caab7dd55a64251f913173",
+        "287c667173a6c9c39fd31c48e0b4363152d8abf63a75d666a774f941315fb87d",
+        "fc051135bbbd0b0751ccc27c129a191c1e8eab1afb23eee07bd41c94bdb2c8ce",
+        "15590e557fab4add907d54b32577c01c634ce7d1d5e2805261d31e137a2bad30",
+        "dc05795550d967f0fbdcc98afe168034a925dae99be61b5a23c6e2fbf5ff1317"
+      ]
+    },
+    {
+      "source_file": "RootSE/swe-agent/gpt5/instance_internetarchive__openlibrary-431442c92887a3aece3f8aa771dd029738a80eb1-v76304ecdb3a5954fcf13feb710e8c40fcf24b73c.json",
+      "n_refs": 6,
+      "passing_refs": 5,
+      "ref_steps": 217,
+      "refs_hashes": [
+        "0d1a8bbc1fd6a54713c468ae8282c37417e771eb97565fef552a8595b66ed073",
+        "ed6f3d4151a0b4aa935800d6cebf877921fda97e2a4a5dd3d0f5743cebab6f2d",
+        "86a51bbfcf3c92006057fdaa32ec2c34be48a4b9da83795aed4096152678e8b7",
+        "5fb1ebb553fb7f3d7eb093235e3f93f2599b28f9ac813f13623f0fa96e4c9372",
+        "2fce6efa267f2039bb7600cba788f528c1da06497b0c7c35ad04eb28972e9a77",
+        "a44bd8d348d6b9743928ddf7be9a73a9b517d1c5118003bde322314dd68d2b47"
+      ]
+    },
+    {
+      "source_file": "RootSE/swe-agent/gpt5/instance_internetarchive__openlibrary-e1e502986a3b003899a8347ac8a7ff7b08cbfc39-v08d8e8889ec945ab821fb156c04c7d2e2810debb.json",
+      "n_refs": 6,
+      "passing_refs": 0,
+      "ref_steps": 197,
+      "refs_hashes": [
+        "1c5d52fd1b2352039b3675bea9ee5919e3f6602165e2b22d7fde0400db340b56",
+        "faa5308eabe7d0b3af69e05485fd5c75b16dfb8435f9692c78c5d8a55e7c3aae",
+        "303ca54c333c638eb373e31638f7274553f0441b0301ad9fadebddb6b547cb78",
+        "6e211838b4b166760739196feace329b142bad18d4fd7221f7a0137664fe03e7",
+        "06b61c669a9c2c8440bc06a34b549b634f72aece523c3c430314a92123eac252",
+        "b30d856139263da66393aa2c4b3585bc102e207a1c7bc1d3079f25459785c5ba"
+      ]
+    },
+    {
+      "source_file": "RootSE/swe-agent/gpt5/instance_internetarchive__openlibrary-e8084193a895d8ee81200f49093389a3887479ce-ve8c8d62a2b60610a3c4631f5f23ed866bada9818.json",
+      "n_refs": 6,
+      "passing_refs": 3,
+      "ref_steps": 393,
+      "refs_hashes": [
+        "82ad53407111c60d3dc9b3f33afc549e4212fc77bcf471d45849b5ae924024c3",
+        "8fcb048daf03ffbad7a3be7b02ae84e2bdc5ef26ae1bd8a76dfa6e73c2ebd510",
+        "bdf19605c0abf2b3a9501ee375378b63266481f8d19fa87448c7064ab763700c",
+        "ba68f56843cfab5ae2670d71d5334818b65b954b80e44720a940458db677727f",
+        "7c001fcdd6a9e0cfdac17ffa5c1140d3613d8c68b17eae14165f8785025dfb6f",
+        "5b9123df4ab89ac2520acf84082df44db0fd13cf65f861f42236c4e8c3cc17a7"
+      ]
+    },
+    {
+      "source_file": "RootSE/swe-agent/gpt5/instance_navidrome__navidrome-6c6223f2f9db2c8c253e0d40a192e3519c9037d1.json",
+      "n_refs": 6,
+      "passing_refs": 1,
+      "ref_steps": 268,
+      "refs_hashes": [
+        "0dcf4a183fe5fd66f060ebe7c3dec8b1be1e32cddf03af0a81b6c7f52e9a9fae",
+        "c6cb522f024474d7f9f83245c9efad34f17917d0ffada0780f259b4a5d2e242a",
+        "c1814c00d1948987b7c268d7ee5bb22e8366ea055aeb8ae5d3288665a1ebf931",
+        "857cf42062a389836fff8412a85656288166a92c1cd7dad6342b4f4a73c6d852",
+        "15144a6b0249211e229fb51c568984d65a78814d1ee01867e4a56f35c75b364d",
+        "c316fd810e1e544d0e0a34c728898cb603c57fe7952856cf81fbd001c078da7c"
+      ]
+    },
+    {
+      "source_file": "RootSE/swe-agent/gpt5/instance_navidrome__navidrome-89b12b34bea5687c70e4de2109fd1e7330bb2ba2.json",
+      "n_refs": 6,
+      "passing_refs": 0,
+      "ref_steps": 404,
+      "refs_hashes": [
+        "2f89c339f62698122f8cc7edf7bcda80ff0f745b44b5f46043695b80d5bd8125",
+        "5b237923dad614b303d1d644907c6040fe2ab268fc3ac95c192a2d9f820d248e",
+        "1cef45890b668524a34ac867d4d56eb776d844fbf799dd3e31cc097f4f10de99",
+        "9513a46699d8a13f6a69ebe13d8ce437b26d33d5974c26d69a468f13b1619f42",
+        "c10da6a3c03754846386eb4ee3b63c2d13d8923363c5f80c19b35d2cdc4b8895",
+        "65afce3e0e7519ceb80f72ecf2f33cab391ec97dfce8021a9c5ad150da1204a5"
+      ]
+    },
+    {
+      "source_file": "RootSE/swe-agent/gpt5/instance_qutebrowser__qutebrowser-77c3557995704a683cdb67e2a3055f7547fa22c3-v363c8a7e5ccdf6968fc7ab84a2053ac78036691d.json",
+      "n_refs": 6,
+      "passing_refs": 0,
+      "ref_steps": 468,
+      "refs_hashes": [
+        "b2735ac0784dc530f7db98a0b9c7c2f7310db0258a2d9f81056ad5e5ea942fbd",
+        "ed0ab9c1850bff3d9dd39c331e6359b307d3cf67ec303dd8b550f3430a4e1557",
+        "9907dc4b2691520e61ce8465aebcbe6a6c7179e49e7b08552041034ee7eae57b",
+        "ebc3a14292e80d38495024ff3fbed81f2257b8298d25ccb9041b6cc1ca4b3a13",
+        "f55e4f224c0cd62a097cd47c5f6aed2474cb0466a59003d0d7f15d768e4da681",
+        "362c647ad3fd27e672dbd50b17980e15293170edaf83a1c3e9260b72a4fb7415"
+      ]
+    },
+    {
+      "source_file": "RootSE/swe-agent-live/claude-sonnet-4-5/instance_django__django-15022.json",
+      "n_refs": 5,
+      "passing_refs": 4,
+      "ref_steps": 194,
+      "refs_hashes": [
+        "b938607c708cae9e0dbdc3bcb9b4e586588484f697bfadb11480d413b54befc2",
+        "4783bebe4b46d7a8474d7a0735e5e85f10094e1e0815aa51e860da0d2d4618fb",
+        "8c79bdb10cc719acbcfaf931146287d1a170cdb60be1da7a56613591d0e5e770",
+        "dedd2f7dd7724360ea8fefd7778b92787d166ccfbf3a54504c94b8ef58aeba0b",
+        "46b3480971587c4b3c1a5344df25963e2351319d00a58ad19af5e8ae6c80584e"
+      ]
+    },
+    {
+      "source_file": "RootSE/swe-agent-live/claude-sonnet-4-5/instance_django__django-15128.json",
+      "n_refs": 5,
+      "passing_refs": 4,
+      "ref_steps": 185,
+      "refs_hashes": [
+        "f83be2d084db400b114cc6a607debc29215d61786a045c16297b9473018637b2",
+        "bf89f31f23125de42d8ab6e63195ad85a6c16397f2444dfa265aab7854736582",
+        "f4e31c0dad14bd2b94149f46c8a7562f36dfb9f77be8c47bda004004ca66fd17",
+        "1be49423c42fc01e3698eab22bdaf553e98c7124aa1c19540c8bc2211d35a1f8",
+        "c01328102709ecd853efaa88d3d0bbfb25b27c81b3b0683deb750950a2315179"
+      ]
+    },
+    {
+      "source_file": "RootSE/swe-agent-live/claude-sonnet-4-5/instance_matplotlib__matplotlib-25775.json",
+      "n_refs": 5,
+      "passing_refs": 3,
+      "ref_steps": 416,
+      "refs_hashes": [
+        "00f8aa26d5376289e60d53bf8bc679949c284013def41abc074e05ad26c17c2f",
+        "7b61e74baef29f97c4fad6bf6f5bb3f99d38ba6cac2949666cfc45bbdd712df0",
+        "240c15f0c1e9a4c3efb34a1d511a688f4ff1ea2051aa9c3ea071f2a4265962f3",
+        "36931313000c6bce3a95319dfa74d1a75855a29281e64345aaf273db308e99e6",
+        "b844eb16797417e63776396810cfcbaf77f12aff9866f2e414540299282581eb"
+      ]
+    },
+    {
+      "source_file": "RootSE/swe-agent-live/claude-sonnet-4-5/instance_sympy__sympy-13031.json",
+      "n_refs": 5,
+      "passing_refs": 3,
+      "ref_steps": 225,
+      "refs_hashes": [
+        "0f1fc9ba9bc54ac5907cde4f9d60b15e1104b29375131027997f9db4e9ac50f3",
+        "a8270463eeb3983c078cb8dd1c33f59385a080985f83fcd962208a3570bd76ed",
+        "a33b0e28bc2493c84f93c1c857e951c19ad5779df7df2394bc03bb1407fa9bc6",
+        "f6a3ccdf47f8ed3fb2b69566b5739999a9df5c0326eba64d09b9df2bc8587b08",
+        "59c6b6e7f2373d8033c61da4fe93b0deb310328fd9f747e7eee11dfb8ada5937"
+      ]
+    },
+    {
+      "source_file": "RootSE/swe-agent-live/claude-sonnet-4-5/instance_sympy__sympy-13878.json",
+      "n_refs": 5,
+      "passing_refs": 3,
+      "ref_steps": 260,
+      "refs_hashes": [
+        "a96c51a66ac8efc3cbc4c433085412d5a7d7cc5c5fb9df696c00388e79303919",
+        "6740fe9bd2135959a7fdf10cda3d2d6b2d302bc0402593450dcc906684c15559",
+        "6418620d614aa369b9ac02049a4d1c775e12e915d64f2f79cd55b630696a3964",
+        "5658c62e649aee07e7cc95111849318d4bed0c74764a26517badfc5ee4cd59e1",
+        "971ed7606faa2dc8a06820c488ba6be0245ee8db4b055cfa286be0087350bcd0"
+      ]
+    },
+    {
+      "source_file": "RootSE/swe-agent-live/gpt5/instance_matplotlib__matplotlib-20826.json",
+      "n_refs": 5,
+      "passing_refs": 3,
+      "ref_steps": 259,
+      "refs_hashes": [
+        "573c63a2d13e4d128d7547e7a07c89014ca845288101805b57c4fd72be36f6c8",
+        "dfd172a9d09d2f5b1b61d00475f7e7e50f9baaaa4280a56caa93d137419705b2",
+        "6a97c7b08d80590d6d247354f695549758542620fe877c9ab4837aa2479f4ea2",
+        "ee87180633f235d98408f8af71471ffa1bba4ff98e96ff7f9a9429696cb39fc7",
+        "ce6a8f2e7b4863e75c7e10af9bcceb0f3b3968d9e2f5d3b9d3bbc7949fb24656"
+      ]
+    },
+    {
+      "source_file": "RootSE/swe-agent-live/gpt5/instance_pytest-dev__pytest-5787.json",
+      "n_refs": 5,
+      "passing_refs": 3,
+      "ref_steps": 168,
+      "refs_hashes": [
+        "84132df2fa03b60538d7fd06da090ea9e53b52a46f5a4d46ff3f6c10e0444c50",
+        "9f339cf1e52bf70a0ed929ee153fb2a9c9610d8afb4e044a130fc107853ca8d7",
+        "954a5488e7445ae1459f52ae5e5c330708526b511148538e10fda2fd707fe9f8",
+        "9542b4e900bf68ce69b1fe8d399d355d5e842dfb72700c4fb68f472e150b6e1f",
+        "de5e410243e6b3e43946cc8f0a9e3d186d3a9dec533cf955b9542d7645210696"
+      ]
+    },
+    {
+      "source_file": "RootSE/swe-agent-live/gpt5mini/instance_django__django-15280.json",
+      "n_refs": 5,
+      "passing_refs": 3,
+      "ref_steps": 257,
+      "refs_hashes": [
+        "7e33a26905ce4e5d766fcdc349a8cb7e503e0e523150d7ecf55f6a7ffd732af8",
+        "bf8a36fc987d82641c1be85cdec49954dd6ce28cf8675fffa45dd8380e8306b4",
+        "b548209084ee67a26adb699217bad7669f10725d3b1532d375ffa0190592a22b",
+        "0fefbd8cd0826f202933129588e6f114eab668df6ec1dfb3718cc567081fb90d",
+        "7609cca936ee2781a52fac814f7ab862026c2caffdc09cd5152efa4aeaae85f3"
+      ]
+    },
+    {
+      "source_file": "RootSE/swe-agent-live/gpt5mini/instance_sphinx-doc__sphinx-10435.json",
+      "n_refs": 5,
+      "passing_refs": 1,
+      "ref_steps": 177,
+      "refs_hashes": [
+        "bc4ae7a73b681f830973024dc0bf2ed0731757313e6b3dacce5c30a37e31e4cd",
+        "8ff40d1fbee7229aac2f70ab854ff7b3ad2f6a10ab4d5a1915b1e7447caf0612",
+        "e99ceb4c3365810db4e99d4a6f20cd07ac8745c89be899cdbf6d06c9942a732b",
+        "947b134b9559532bc287f5fe54d6c16284712779d00cf3a511dab47246953983",
+        "611fff7098b0a101735bb25cbea760c29dace637bfbd8d7112b0f58656ac4367"
+      ]
+    }
+  ]
+}

@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import re
+import math
 from dataclasses import dataclass
 
 from loghound_agent_debug.schema import TrajectoryInput
@@ -97,13 +98,15 @@ def pagerank(
     alpha: float = 0.85,
     tolerance: float = 1e-6,
     max_iterations: int = 1000,
+    personalization: list[float] | None = None,
 ) -> tuple[list[float], bool, int]:
     """Run ordinary weighted PageRank on the reversed dependency graph.
 
     ``Graph.edges`` point from an influence source to its later consequence.
     PageRank runs on the reverse of every non-temporal edge so a consequence
-    votes for the prerequisite it depends on.  The teleport vector is always
-    uniform and never depends on evidence, labels, or suspicious steps.
+    votes for the prerequisite it depends on. With no personalization, preserve
+    the original uniform baseline. Personalized dangling mass returns to the
+    same seed distribution, so disconnected nodes do not receive failure mass.
     """
     nodes = graph.nodes
     if nodes == 0:
@@ -122,13 +125,19 @@ def pagerank(
 
     uniform = 1.0 / nodes
     teleport = [uniform] * nodes
+    if personalization is not None:
+        if len(personalization) != nodes or any(not math.isfinite(v) or v < 0 for v in personalization):
+            raise ValueError("personalization must contain one finite nonnegative value per node")
+        total = sum(personalization)
+        if total <= 0 or not math.isfinite(total):
+            raise ValueError("personalization must have positive finite mass")
+        teleport = [value / total for value in personalization]
     ranks = teleport[:]
     for iteration in range(1, max_iterations + 1):
         next_ranks = [(1.0 - alpha) * value for value in teleport]
         dangling_mass = sum(ranks[node] for node, links in enumerate(outgoing) if not links)
         if dangling_mass:
-            contribution = alpha * dangling_mass * uniform
-            next_ranks = [value + contribution for value in next_ranks]
+            next_ranks = [value + alpha * dangling_mass * teleport[i] for i, value in enumerate(next_ranks)]
         for node, links in enumerate(outgoing):
             if not links:
                 continue

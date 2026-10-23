@@ -1,0 +1,28 @@
+{
+  "experiment": "rootse-six-methods-deepseek-v41-flash-32k-v1",
+  "source_repository": "https://github.com/LogAnalysisTech/TrajAudit.git",
+  "source_commit": "664e211b011bb0730816b06800bb841950fe0b38",
+  "model": "deepseek-v4.1-flash",
+  "endpoint": "https://zhenze-huhehaote.cmecloud.cn/v1/chat/completions",
+  "temperature": 0,
+  "max_tokens": 32768,
+  "timeout_seconds": 900,
+  "workers": 16,
+  "transport_attempts": 3,
+  "max_calls_per_case": 1024,
+  "methods": [
+    "step_by_step",
+    "FAMAS",
+    "agent_locate",
+    "binary_search",
+    "TRAIL",
+    "all_at_once"
+  ],
+  "reference_patch": false,
+  "reasoning_policy": "service_default_uniform_ignore_upstream_extra_body",
+  "parsing_policy": "preserve_upstream_parser_and_algorithm_fallbacks; reject unfinished API responses before parsing",
+  "transport_policy": "retry network/429/5xx at most 3; terminal API failure aborts the case",
+  "trajaudit_variant": "generic, diagnosis=True, context_aware_truncation=True, max_steps=5",
+  "famas_references": "official deterministic <=10 pass/fail trajectory selection; original abstraction/snippets/clustering preserved",
+  "output_budget_note": "32768 for every call, overriding upstream explicit limits; All-at-Once rerun for same-budget comparison; 8192 results retained separately"
+}

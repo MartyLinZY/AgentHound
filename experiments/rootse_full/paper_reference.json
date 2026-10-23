@@ -1,0 +1,53 @@
+{
+  "paper": "TrajAudit: Automated Failure Diagnosis for Agentic Coding Systems",
+  "version": "2605.26563v3",
+  "url": "https://arxiv.org/abs/2605.26563v3",
+  "source_repository": "https://github.com/LogAnalysisTech/TrajAudit",
+  "source_commit": "664e211b011bb0730816b06800bb841950fe0b38",
+  "setting": "without_reference",
+  "diagnosis_model": "claude-sonnet-4-5-20250929",
+  "n": 102,
+  "tolerance_percent": {
+    "all_at_once": [
+      24.5,
+      41.2,
+      50.0,
+      52.0
+    ],
+    "step_by_step": [
+      22.6,
+      34.3,
+      41.2,
+      44.1
+    ],
+    "binary_search": [
+      11.8,
+      27.5,
+      34.3,
+      39.2
+    ],
+    "TRAIL": [
+      30.4,
+      42.2,
+      49.0,
+      50.0
+    ],
+    "FAMAS": [
+      30.4,
+      44.1,
+      51.0,
+      52.0
+    ],
+    "agent_locate": [
+      52.0,
+      58.8,
+      62.8,
+      65.7
+    ]
+  },
+  "notes": [
+    "Context overflow is a diagnosis failure included in denominator.",
+    "Paper Qwen3-235B 40.2% is TrajAudit, not All-at-Once.",
+    "Published Step-by-Step CSV has 106 rows for 102 IDs; audit duplicates before using."
+  ]
+}

@@ -1,0 +1,33 @@
+{
+  "experiment": "rootse-influence-qwen38-nothinking-v3",
+  "model": "qwen3.8-flash",
+  "endpoint": "https://llm-qyefq7nc90xr3msm.cn-beijing.maas.aliyuncs.com/compatible-mode/v1/chat/completions",
+  "temperature": 0,
+  "max_tokens": 32768,
+  "timeout_seconds": 900,
+  "transport_attempts": 3,
+  "max_calls_per_case": 1,
+  "workers": 16,
+  "stream": true,
+  "enable_thinking": false,
+  "max_input_chars": 4000000,
+  "graph_policy": "reuse all 102 frozen Qwen graphs and 4467 merged edge pairs; no topology changes",
+  "weight_policy": "local batches of up to 8 target decisions with all fixed candidate parents and full fields; task but no final failure tests or labels; continuous [0,1] proxy strength; all requested edges exactly once, existing field references",
+  "node_policy": "full trajectory and supplied tests; continuous [0,1] local error evidence; integer step IDs losslessly canonicalized to existing string IDs",
+  "failure_policy": "validate each row independently; all duplicate/unknown/invalid rows rejected; missing weight=.5, missing node q=1 (neutral gate); whole invalid JSON keeps same fallbacks; every incomplete case flagged; all102 retained",
+  "parse_policy": "strict JSON/fence then per-row ID/number/reference validation; no JSON repair or invented scores; integer node IDs losslessly normalize; unknown refs and all duplicate IDs rejected",
+  "propagation_policy": "DAG gamma=1; Pij=wij/max(1,sum incoming weights at j); reuse normalized structured anchor seeds; no fusion or final model judge",
+  "equal_policy": "primary equal control uses per-case mean estimated weight on every edge, preserving total strength; fixed .1 is additional diagnostic",
+  "q_policy": "q=score only for introduced and not recovered, else 0; use same q for q-only/q-equal/q-weighted/q-shuffled",
+  "pilot_policy": "three preselected cases, all14 payloads must parse; each phase >=95% row coverage; replay identical recorded v2 pilot API responses under v3 row validation, no new pilot model requests",
+  "primary_contrast": "weighted versus equal",
+  "secondary_contrasts": [
+    "q-weighted versus q-equal",
+    "q-weighted versus q-only"
+  ],
+  "permutation_policy": "100 within-case global edge-weight shuffles, seeds 20261013..20261112; topology and weight multiset fixed; not 100 independent model runs",
+  "evaluation_policy": "strict Top1 primary; temporal tolerance and MRR descriptive; repository bootstrap 5000 seed20261013; exact McNemar exploratory with Holm across three predeclared contrasts; all 102, single model run, development dataset",
+  "external_baselines": "frozen and not rerun; no causal-effect or novel-method claim",
+  "technical_revision": "v1 six pilot calls rejected due five-level/ID output issues. v2 fourteen pilot calls showed two missing edge entries and invalid node refs. Before gold evaluation, v3 retains strictly validated individual rows and records neutral fallbacks for missing rows. Original pilots retained; no formal inference in v1/v2.",
+  "pilot_import": "rootse-influence-qwen38-nothinking-v2/pilot: copies of calls only, no outer decisions; RecordedClient verifies identical raw request hash before reuse"
+}

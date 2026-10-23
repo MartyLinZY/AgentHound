@@ -1,0 +1,30 @@
+{
+  "selected_model": "deepseek-v4.1-flash",
+  "selection_date": "2026-10-05",
+  "sources": [
+    {
+      "url": "https://api-docs.deepseek.com/quick_start/pricing/",
+      "claim": "DeepSeek-V4.1-Flash context length 1M"
+    },
+    {
+      "url": "https://arxiv.org/abs/2609.19969",
+      "claim": "552B backbone; up to one million tokens"
+    },
+    {
+      "url": "https://huggingface.co/Qwen/Qwen3.5-397B-A17B/blob/main/README.md",
+      "claim": "Qwen native 262144, extensible to 1010000; MoMA extension not verified"
+    }
+  ],
+  "deployment_evidence": "outputs/probes/deepseek-v41-flash-longest.json and deepseek-v41-flash-million.json",
+  "selection_independent_of_gold": true,
+  "budget_note": "All full runs keep max_tokens=8192. An output length stop is not evidence of input context overflow. Capacity probes max_tokens=1 are not diagnostic predictions.",
+  "deployment_verification": {
+    "model": "deepseek-v4.1-flash",
+    "http_status": 200,
+    "prompt_tokens": 999030,
+    "completion_tokens": 1,
+    "elapsed_seconds": 15.527879332890734,
+    "first_attempt_http_status": 502,
+    "interpretation": "Near-one-million input acceptance only; not a retrieval or diagnostic accuracy benchmark. First attempt usage unknown."
+  }
+}

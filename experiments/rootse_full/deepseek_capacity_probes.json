@@ -1,0 +1,47 @@
+[
+  {
+    "status": "returned",
+    "model": "deepseek-v4.1-flash",
+    "endpoint": "https://zhenze-huhehaote.cmecloud.cn/v1/chat/completions",
+    "file": "RootSE/swe-agent/gemini2/instance_future-architect__vuls-be7b9114cc9545e68fb0ee7bc63d7ec53d1a00ad.json",
+    "input_chars": 840125,
+    "max_tokens": 1,
+    "input_sha256": "abac9c1d534371d0b5ce4b12a928abc16c4b95a4896a664131cc6f90d4873144",
+    "api_requests": 1,
+    "purpose": "context_acceptance_only_not_diagnosis",
+    "http_status": 200,
+    "response": "{\"id\":\"chatcmpl-5fc63140-685a-4de5-b731-455ebb405080\",\"object\":\"chat.completion\",\"created\":1791212275,\"model\":\"deepseek-v4.1-flash\",\"choices\":[{\"index\":0,\"message\":{\"role\":\"assistant\",\"content\":null,\"refusal\":null,\"annotations\":null,\"audio\":null,\"function_call\":null,\"reasoning\":\"We\"},\"logprobs\":null,\"finish_reason\":\"length\",\"stop_reason\":null,\"token_ids\":null,\"routed_experts\":null}],\"service_tier\":null,\"system_fingerprint\":null,\"usage\":{\"prompt_tokens\":193317,\"total_tokens\":193318,\"completion_tokens\":1,\"prompt_tokens_details\":{\"cached_tokens\":0,\"created_cache_tokens\":0,\"multimodal_tokens\":null},\"completion_tokens_details\":{\"reasoning_tokens\":1}},\"prompt_logprobs\":null,\"prompt_token_ids\":null,\"prompt_text\":null,\"kv_transfer_params\":null,\"ec_transfer_params\":null,\"metrics\":null}",
+    "elapsed_seconds": 6.03204824985005,
+    "artifact_path": "outputs/probes/deepseek-v41-flash-longest.json"
+  },
+  {
+    "status": "returned",
+    "model": "deepseek-v4.1-flash",
+    "endpoint": "https://zhenze-huhehaote.cmecloud.cn/v1/chat/completions",
+    "file": "synthetic_hello_999000",
+    "input_chars": 5994000,
+    "max_tokens": 1,
+    "input_sha256": "2e4c838026c948605772d76089a45b044aa956e6d0e71780735d9a777c1f96a6",
+    "api_requests": 1,
+    "purpose": "context_acceptance_only_not_diagnosis",
+    "http_status": 200,
+    "response": "{\"id\":\"chatcmpl-8af596dd-5e18-4730-adc3-727b2204919b\",\"object\":\"chat.completion\",\"created\":1791212402,\"model\":\"deepseek-v4.1-flash\",\"choices\":[{\"index\":0,\"message\":{\"role\":\"assistant\",\"content\":null,\"refusal\":null,\"annotations\":null,\"audio\":null,\"function_call\":null,\"reasoning\":\"We\"},\"logprobs\":null,\"finish_reason\":\"length\",\"stop_reason\":null,\"token_ids\":null,\"routed_experts\":null}],\"service_tier\":null,\"system_fingerprint\":null,\"usage\":{\"prompt_tokens\":999030,\"total_tokens\":999031,\"completion_tokens\":1,\"prompt_tokens_details\":{\"cached_tokens\":917376,\"created_cache_tokens\":0,\"multimodal_tokens\":null},\"completion_tokens_details\":{\"reasoning_tokens\":1}},\"prompt_logprobs\":null,\"prompt_token_ids\":null,\"prompt_text\":null,\"kv_transfer_params\":null,\"ec_transfer_params\":null,\"metrics\":null}",
+    "elapsed_seconds": 15.527879332890734,
+    "artifact_path": "outputs/probes/deepseek-v41-flash-million-retry.json"
+  },
+  {
+    "status": "returned",
+    "model": "deepseek-v4.1-flash",
+    "endpoint": "https://zhenze-huhehaote.cmecloud.cn/v1/chat/completions",
+    "file": "synthetic_hello_999000",
+    "input_chars": 5994000,
+    "max_tokens": 1,
+    "input_sha256": "2e4c838026c948605772d76089a45b044aa956e6d0e71780735d9a777c1f96a6",
+    "api_requests": 1,
+    "purpose": "context_acceptance_only_not_diagnosis",
+    "http_status": 502,
+    "response": "<html>\r\n<head><title>502 Bad Gateway</title></head>\r\n<body>\r\n<center><h1>502 Bad Gateway</h1></center>\r\n<hr><center>nginx</center>\r\n</body>\r\n</html>\r\n",
+    "elapsed_seconds": 42.48108729207888,
+    "artifact_path": "outputs/probes/deepseek-v41-flash-million.json"
+  }
+]

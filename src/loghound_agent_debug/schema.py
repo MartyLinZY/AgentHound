@@ -21,6 +21,16 @@ class FailureObservation:
 
 
 @dataclass(frozen=True)
+class DiagnosticTest:
+    """Post-run test evidence, never an observation of a historical step."""
+    test_id: str
+    code: str
+    error_description: str
+    provenance: str = "rootse.failed_tests"
+    available_at: str = "postmortem"
+
+
+@dataclass(frozen=True)
 class Step:
     """Canonical candidate unit: one agent decision and its attached effects.
     轨迹内序号（0,1,2,…）、规范化轨迹在主流程中的主键、
@@ -58,6 +68,17 @@ class TrajectoryInput:
     outcome: str
     failure_observations: list[FailureObservation]
     steps: list[Step]
+    protocol: str = "trace-only"
+    diagnostic_tests: list[DiagnosticTest] = field(default_factory=list)
+    task_id: str = ""
+    repository: str = ""
+    base_commit: str = ""
+
+    def __post_init__(self) -> None:
+        if self.protocol not in {"trace-only", "postmortem"}:
+            raise ValueError(f"unknown diagnosis protocol: {self.protocol}")
+        if self.protocol == "trace-only" and self.diagnostic_tests:
+            raise ValueError("trace-only inputs must not contain postmortem tests")
 
 
 @dataclass(frozen=True)
@@ -107,6 +128,11 @@ def input_from_dict(data: dict[str, Any]) -> TrajectoryInput:
         outcome=data.get("outcome", "failure"),
         failure_observations=observations,
         steps=steps,
+        protocol=data.get("protocol", "trace-only"),
+        diagnostic_tests=[DiagnosticTest(**x) for x in data.get("diagnostic_tests", [])],
+        task_id=data.get("task_id", ""),
+        repository=data.get("repository", ""),
+        base_commit=data.get("base_commit", ""),
     )
 
 

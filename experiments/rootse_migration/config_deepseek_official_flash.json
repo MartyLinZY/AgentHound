@@ -1,0 +1,43 @@
+{
+  "experiment": "rootse-migration-state-v2-deepseek-official-flash-thinking-32k-v1",
+  "model": "deepseek-flash",
+  "endpoint": "https://api.deepseek.com/chat/completions",
+  "temperature": 0,
+  "max_tokens": 32768,
+  "timeout_seconds": 900,
+  "transport_attempts": 3,
+  "max_calls_per_case": 1,
+  "workers": 16,
+  "candidate_policy": "unchanged select_candidates: 3 recent then entity and TF-IDF, at most 8 earlier steps",
+  "field_policy": "full fields for selected candidates and target decision/action; no target observation or final tests",
+  "max_input_chars": 4000000,
+  "reasoning_policy": "DeepSeek official thinking.type=enabled, reasoning_effort=high; SSE reasoning stored separately",
+  "parse_policy": "JSON or one fenced JSON object, then existing quote repair; no format-retry or reasoning salvage",
+  "failure_policy": "one terminal result per target; missing edges on failed targets; retain validated edges and rule edges; all 102 ranked; report partial graphs and strict complete-graph sensitivity",
+  "pilot_policy": "one longest-request target from median-length trajectory in each agent/model group, plus globally longest request; no gold-based selection",
+  "primary_protocol": "postmortem",
+  "secondary_protocol": "trace-only",
+  "variants": [
+    "baseline",
+    "anchors-global",
+    "legacy-backtrace",
+    "anchors-backtrace"
+  ],
+  "graph_quality_review": "deterministic hash sample without gold: 24 accepted relations, 12 rejected relations, 12 unselected-or-no-edge candidate pairs; assistant review not independent human annotation",
+  "pilot_gate": {
+    "minimum_complete_fraction": 0.5,
+    "minimum_validated_edges": 1,
+    "forbidden_statuses": [
+      "context_overflow",
+      "service_error",
+      "transport_error",
+      "response_error"
+    ]
+  },
+  "state_tracker": "explicit_operations_v2; conservative invalidation on unsupported shell execution",
+  "stream": true,
+  "thinking": {
+    "type": "enabled"
+  },
+  "reasoning_effort": "high"
+}

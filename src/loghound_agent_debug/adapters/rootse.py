@@ -7,7 +7,7 @@ import re
 from pathlib import Path
 from typing import Any
 
-from loghound_agent_debug.schema import FailureObservation, Label, Step, TrajectoryInput
+from loghound_agent_debug.schema import DiagnosticTest, FailureObservation, Label, Step, TrajectoryInput
 
 
 def _text(value: Any) -> str:
@@ -21,12 +21,19 @@ def _text(value: Any) -> str:
 
 
 def _trajectory_id(raw: dict[str, Any], path: Path) -> str:
+    # Both official layouts must address the same run/cache key: HF data/ and
+    # TrajAudit RootSE/. Do not include the download directory in the identity.
+    for parent in path.parents:
+        if parent.name in {"data", "RootSE"}:
+            return f"rootse/{path.relative_to(parent).as_posix()}".removesuffix(".json")
     rel = path.relative_to(path.parents[3]).as_posix() if len(path.parents) > 3 else path.as_posix()
     return f"rootse/{rel.removeprefix('data/')}".removesuffix(".json")
 
 
-def load_rootse_file(path: str | Path) -> tuple[TrajectoryInput, Label]:
+def load_rootse_file(path: str | Path, protocol: str = "trace-only") -> tuple[TrajectoryInput, Label]:
     """Read one raw instance, keeping annotations out of the model input."""
+    if protocol not in {"trace-only", "postmortem"}:
+        raise ValueError(f"unknown diagnosis protocol: {protocol}")
     path = Path(path)
     raw = json.loads(path.read_text(encoding="utf-8"))
     raw_steps = raw.get("original_traj")
@@ -69,10 +76,30 @@ def load_rootse_file(path: str | Path) -> tuple[TrajectoryInput, Label]:
         ))
         if re.search(r"Traceback|AssertionError|FAILED|Error:|No such file|command not found", observation, re.I):
             observations.append(FailureObservation(source_id, "trace_failure", observation, "trace"))
+    source_ids = [step.source_step_id for step in steps]
+    if len(set(source_ids)) != len(source_ids):
+        raise ValueError(f"{path}: duplicate original step IDs")
+    diagnostic_tests = []
+    if protocol == "postmortem":
+        # Match TrajAudit's first-test policy. Explicit allow-list: gold_patch,
+        # failure_id/reason and other annotation fields never enter the input.
+        tests = raw.get("failed_tests")
+        if not isinstance(tests, dict) or not tests:
+            raise ValueError(f"{path}: postmortem protocol requires failed_tests")
+        test_id, test = next(iter(tests.items()))
+        if not isinstance(test, dict):
+            raise ValueError(f"{path}: failed_tests entry must be an object")
+        diagnostic_tests.append(DiagnosticTest(
+            test_id=str(test_id), code=_text(test.get("code")),
+            error_description=_text(test.get("error_description")),
+        ))
     item = TrajectoryInput(
         schema_version="0.1.0", dataset="rootse", trajectory_id=trajectory_id,
         task=_text(raw.get("original_mission_prompt")), domain="coding", outcome="failure",
         failure_observations=observations, steps=steps,
+        protocol=protocol, diagnostic_tests=diagnostic_tests,
+        task_id=_text(raw.get("instance_id")), repository=_text(raw.get("repo")),
+        base_commit=_text(raw.get("base_commit")),
     )
     # Read the annotation only after constructing the label-free input.
     label = Label(
@@ -85,12 +112,14 @@ def load_rootse_file(path: str | Path) -> tuple[TrajectoryInput, Label]:
     return item, label
 
 
-def load_rootse(root: str | Path) -> tuple[list[TrajectoryInput], list[Label]]:
+def load_rootse(root: str | Path, protocol: str = "trace-only") -> tuple[list[TrajectoryInput], list[Label]]:
     root = Path(root)
     files = sorted((root / "data").rglob("*.json"))
+    if not files and root.name == "RootSE":
+        files = sorted(root.rglob("*.json"))
     if not files:
         raise FileNotFoundError(f"no RootSE instance JSON files below {root / 'data'}")
-    pairs = [load_rootse_file(path) for path in files]
+    pairs = [load_rootse_file(path, protocol=protocol) for path in files]
     ids = [item.trajectory_id for item, _ in pairs]
     if len(ids) != len(set(ids)):
         raise ValueError("RootSE adapter produced duplicate trajectory IDs")
