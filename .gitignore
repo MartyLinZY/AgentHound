@@ -31,19 +31,11 @@ coverage.xml
 htmlcov/
 *.cover
 
-# Generated experiment outputs and intermediate datasets
+# Generated experiment outputs and caches
 outputs/
-data/interim/*
-data/processed/*
-data/splits/*
 
-# Locally downloaded source datasets (large and subject to their own licenses)
+# Locally downloaded source dataset (large, subject to its own license)
 data/raw/*
-
-# Keep directory placeholders versionable when they are added later.
-!data/interim/.gitkeep
-!data/processed/.gitkeep
-!data/splits/.gitkeep
 !data/raw/.gitkeep
 
 # Local editor and tooling settings

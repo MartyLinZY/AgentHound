@@ -2,7 +2,7 @@
 
 The dataclasses deliberately keep labels out of :class:`TrajectoryInput`.  A
 ranker receives only this object and therefore cannot accidentally consume the
-ground-truth fields from the source parquet row.
+ground-truth fields from the source RootSE JSON.
 """
 
 from __future__ import annotations

@@ -1,53 +1,44 @@
 # 数据目录说明
 
-本目录保存实验数据说明、元信息，以及本机准备的原始和处理后数据。当前项目数据流程使用 **AgenTracer** 和 **RootSE**。
+本目录只保存 **RootSE** 一个数据集的说明与本地原始数据。原始数据、标签和运行产物不纳入 Git。
 
 ## 目录结构
 
 ```text
 data/
-├── raw/          # 原始数据，只读；不纳入 Git
-│   ├── agentracer/tracertraj-code-test.parquet
-│   └── rootse/    # RootSE 发布文件、README 和 manifest.json
-├── processed/    # AgenTracer 适配后的 inputs.jsonl / labels.jsonl；不纳入 Git
-├── splits/       # 本地证据分层和样本清单；不纳入 Git
-└── metadata/     # 数据来源、版本、规模、许可及审计信息
+└── raw/
+    └── rootse/          # RootSE 发布文件：data/、README.md、manifest.json
 ```
 
-原始数据、标签和运行产物不随仓库共享。仓库只保留数据使用说明和 `metadata/datasets.json`。运行代码使用上述仓库相对路径，不依赖个人机器上的绝对路径。
+`outputs/` 下的产物（`baseline/`、`cache/`）同样被 `.gitignore` 排除。
 
-## 当前数据集
+## 数据集
 
-| 数据集 | 本地路径 | 样本规模 | 当前用途 |
-|---|---|---:|---|
-| AgenTracer coding test | `data/raw/agentracer/tracertraj-code-test.parquet` | 127 条 | 按 A/B/C 证据强度分层的可行性评估；test 子集，不用于训练或调参 |
-| RootSE | `data/raw/rootse/data/` | 102 条、5,268 步 | 人工标注的最早决定性错误步骤评估，支持依赖图与第三通道实验 |
+RootSE 是公开发布的 repository-level coding-agent 轨迹集：102 条人工标注轨迹，合计 5,268 步。原始文件按 `agent/model/instance_*.json` 组织，每条轨迹包含 `original_traj`（步骤序列）、`failure_id`（最早决定性错误步骤）、`failure_reason`（诊断说明）、`failed_tests` 和 `gold_patch`。
 
-详细来源、版本、校验信息和许可记录见 [`metadata/datasets.json`](metadata/datasets.json)。
+| 项 | 值 |
+|---|---|
+| 轨迹数 | 102 |
+| 步骤数 | 5,268 |
+| 轨迹长度 | 中位 52 步（p25=37, p75=69, max=155） |
+| 根因绝对步序号 | 中位 19（p25=6, p75=28） |
+| agent 族 | swe-agent 53、openhands 30、auto-code-rover 10、swe-agent-live 9 |
 
-### AgenTracer
+## 标签隔离
 
-当前文件来自 AgenTracer coding test 子集，字段包含任务、轨迹历史和根因标签。轨迹证据审计分层为：
+- 排序输入 `TrajectoryInput` 不含任何标注字段。
+- `failure_anchors` 只从 `failed_tests.error_description` 抽取，不读 `failure_id` / `failure_reason` / `gold_patch`；`tests/test_semantic_anchor_rrf.py` 与 `tests/test_no_label_leakage.py` 对此有断言。
+- 评估阶段才读取 `failure_id` 作为根因步骤。
 
-| 分层 | 数量 | 说明 |
-|---|---:|---|
-| A | 9 | 存在明确的硬失败回传 |
-| B | 31 | 有 agent 对失败的文字陈述，作为弱证据单独报告 |
-| C | 87 | 没有可用的负向观察，作为 trace-only 对照 |
+## 依赖图数据
 
-由于它是 test 子集，不能用标签选择权重、规则阈值或角色先验。排序器只接收适配后的 `inputs.jsonl`；根因步骤、agent 和原因写入独立的 `labels.jsonl`，只由评估阶段读取。运行 `scripts/run_experiment.py` 会从原始 parquet 生成输入和标签、审计证据、运行排名并生成指标和案例报告。
+依赖图由两部分合成：
 
-### RootSE
+1. `rootse_operations.track_state_dependencies`：从 action/observation 机械抽取文件状态依赖，确定性、无网络；
+2. `rootse_dependencies.DependencyExtractor`：LLM 提议的跨步依赖，必须通过引文校验才成为图边，结果缓存在 `outputs/cache/dependency_cache/`。
 
-RootSE 是公开发布的 repository-level coding-agent 轨迹集，包含 102 条人工标注轨迹，合计 5,268 步。原始数据由 agent、模型和实例目录下的 JSON 文件组成，另有数据集 README 与 `manifest.json`。适配器从 `original_traj` 读取步骤，并将 `failure_id`、`failure_reason` 保存在标签对象中，与排序输入隔离。
+完整重跑需要 `API_KEY` 与 `MODEL_NAME`；只复现基线时用 `--cache-only`，零 HTTP 请求。
 
-RootSE 的依赖图包含确定性的文件状态依赖和受约束的 LLM 依赖提议；提议须通过证据校验后才能成为图边。完整实验还需配置模型 API。运行入口为 `scripts/run_rootse_experiment.py`，排名、状态和请求缓存写入被忽略的 `outputs/rootse/`。
+## 许可
 
-## 数据隔离与许可
-
-- 原始数据只读保存，不把本地数据副本、处理结果、标签或缓存强制加入版本库。
-- 排序输入和评估标签分开存储。排序阶段不得读取 `ground_truth`、`mistake_step`、`mistake_agent`、`mistake_reason`、RootSE 的 `failure_id` 或 `failure_reason`。
-- 失败观察只能来自轨迹中记录的工具输出、异常、测试结果等负向信息；不得从根因标签反向生成证据。
-- AgenTracer 当前文件名含 `test`，报告时须注明其 test 子集属性。
-- RootSE 上游数据集 README 声明 MIT；引用或分发前仍应核对上游版本及其说明。
-- `.gitignore` 排除原始数据、处理结果和本地运行输出。共享代码仓库不作为数据集分发渠道。
+RootSE 上游数据集 README 声明 MIT；引用或分发前请核对上游版本及说明。共享代码仓库不作为数据集分发渠道。

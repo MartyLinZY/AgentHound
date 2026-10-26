@@ -81,9 +81,9 @@ def evaluate(inputs: list, labels: list, rankings: list[dict]) -> dict:
 def main() -> int:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--root", default="data/raw/rootse")
-    parser.add_argument("--rankings", default="outputs/rootse/rankings.jsonl")
-    parser.add_argument("--run-status", default="outputs/rootse/run_status.json")
-    parser.add_argument("--output", default="outputs/rootse/metrics.json")
+    parser.add_argument("--rankings", default="outputs/baseline/rankings.jsonl")
+    parser.add_argument("--run-status", default="outputs/baseline/run_status.json")
+    parser.add_argument("--output", default="outputs/baseline/metrics.json")
     args = parser.parse_args()
     status = json.loads(Path(args.run_status).read_text(encoding="utf-8"))
     if status.get("status") != "complete":

@@ -96,8 +96,8 @@ def test_input_roundtrip_preserves_failure_anchors():
 
 
 def test_rrf_channel_records_ranks_and_skips_missing_anchor_channel():
-    # No anchors and a flat semantic channel leave only path and clue ordering;
-    # RRF must not invent a signal from a constant channel.
+    # No anchors and a flat path channel leave only semantic ordering; RRF must
+    # not invent a signal from a constant channel.
     steps = [
         Step(0, "0", ["0"], "A", "assistant", "", "read a.py", "", "", None, ["a.py"], []),
         Step(1, "1", ["1"], "A", "assistant", "", "edit a.py", "", "", None, [], ["a.py"]),
@@ -106,10 +106,9 @@ def test_rrf_channel_records_ranks_and_skips_missing_anchor_channel():
     config = {
         "semantic": {"query_task_weight": 0.4},
         "graph": {},
-        "fusion": {"semantic": 0.5, "clue": 0.05, "path": 0.45, "denominator": 1},
-        "fusion_rootse": {"method": "rrf", "k": 60, "semantic": 0.4, "path": 1.0, "anchor": 1.0, "clue": 0.0},
+        "fusion": {"method": "rrf", "k": 60, "semantic": 1.0, "path": 0.5, "anchor": 0.5},
     }
-    ranked = rank_trajectory(item, config, {"rules": []}, [])
+    ranked = rank_trajectory(item, config, [])
     weights = ranked["graph_stats"]["fusion_weights"]
     assert weights["method"] == "rrf"
     assert "anchor" not in weights["active_channels"]

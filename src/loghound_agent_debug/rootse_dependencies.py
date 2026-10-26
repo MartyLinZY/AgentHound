@@ -264,14 +264,18 @@ class DependencyExtractor:
     def __init__(self, repo_root: str | Path, cache_dir: str | Path, cache_only: bool = False, max_requests: int = 300, request_params: dict[str, Any] | None = None, output_token_overrides: dict[str, int] | None = None):
         self.repo_root = Path(repo_root)
         self.cache_dir = Path(cache_dir)
-        self.cache_dir.mkdir(parents=True, exist_ok=True)
+        # mkdir(exist_ok=True) still raises under sandboxed runtimes that map
+        # EEXIST to PermissionError, so guard on existence first.
+        if not self.cache_dir.exists():
+            self.cache_dir.mkdir(parents=True, exist_ok=True)
         self.cache_only = cache_only
         self.max_requests = max_requests
         self.request_params = request_params or {}
         self.output_token_overrides = output_token_overrides or {}
         self._budget_lock = threading.Lock()
         self.ledger_dir = self.cache_dir / "request_counts"
-        self.ledger_dir.mkdir(exist_ok=True)
+        if not self.ledger_dir.exists():
+            self.ledger_dir.mkdir(parents=True, exist_ok=True)
         self.requests_made: dict[str, int] = Counter()
         for record_path in self.cache_dir.glob("*.json*"):
             if record_path.name.endswith(".tmp"):

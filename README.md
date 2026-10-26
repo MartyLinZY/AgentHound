@@ -1,83 +1,70 @@
 # LogHound-Agent-Debug
 
-LogHound-Agent-Debug 对 coding-agent 的失败执行轨迹进行步骤级根因排序：给定任务和一条已保存的轨迹，为每个执行步骤计算可疑度并输出排名。项目关注离线分析和可审计证据，不在排序时读取根因标签。
+对 RootSE 的 coding-agent 失败轨迹做步骤级根因排序：给定任务和一条已保存的轨迹，为每个步骤计算可疑度并输出排名。排序阶段只读轨迹本身，**不读** `failure_id`、`failure_reason`、`gold_patch` 等标注字段。
 
-## 当前实现
+本仓库只处理 RootSE 一个数据集（102 条轨迹 / 5,268 步），不再包含其他数据集的适配器、脚本或产物。
 
-- **三路静态排序**：RootSE 使用语义相关性、决策时点错误（misstep）和依赖图结构分数；AgenTracer 保留原线索分数。RootSE misstep 通过决策时点引文校验后替换 clue 槽位。
-- **AgenTracer**：适配本地 127 条 coding test 轨迹，并按证据强度分为 A 硬失败（9 条）、B 弱失败陈述（31 条）和 C 无失败证据（87 条）。这是 test 子集；不能据此训练参数或规则。
-- **RootSE**：适配 102 条、共 5,268 个步骤的 repository-level 轨迹。第三通道依赖缓存已重建并覆盖全量轨迹，且与第二通道 misstep 缓存分开保存。第二通道在每条轨迹最多 100 次请求后，91/102 条完成排名；另 11 条触及预算上限。在三路结果共有的 91 条轨迹上，misstep 融合 Top-1/Top-3/MRR 为 `7/91`、`29/91`、`0.2459`，旧线索融合为 `12/91`、`25/91`、`0.2581`。这是未完成全量的探索性比较，不代表跨数据集性能保证。
+## 方法
 
-## 环境与安装
+三路无标签通道，加权 Reciprocal Rank Fusion（k=60）：
 
-项目要求 Python 3.11 或更高版本。仓库使用 `pyproject.toml` 声明核心依赖；`requirements.txt` 另列数据集读取和测试所需依赖。按项目约定，以下命令在 Conda `mybook` 环境中运行：
+| 通道 | 度量 | 权重 |
+|---|---|---:|
+| `semantic` | 步文本（decision + action，不含 observation）与任务/失败文本的 TF-IDF 余弦 | 1.0 |
+| `path` | 依赖图反向图上的普通 PageRank（均匀 teleport） | 0.5 |
+| `anchor` | 步文本与失败测试报错符号的重合 | 0.5 |
+
+常量通道会被 RRF 跳过（不制造伪信号）；同分按 ordinal 升序，这个并列规则隐含"越早越可疑"的先验，不要改成平均名次。
+
+## 目录
+
+```
+configs/default.yaml                 # 三通道/RRF/LLM 请求参数
+data/raw/rootse/                     # RootSE 原始轨迹与标签（本地，不提交）
+outputs/baseline/                    # 唯一基准产物
+outputs/cache/dependency_cache/      # 依赖抽取缓存（离线复跑用）
+scripts/run_rootse_experiment.py     # 跑全量：依赖 → 排序 → 指标
+scripts/evaluate_rootse.py           # 单独复算指标
+scripts/probe_channel_gap.py         # 只读探测：通道消融/池内误差归因
+src/loghound_agent_debug/
+  adapters/rootse.py                 # 无标签适配器（anchor 只从 failed_tests 抽取）
+  features/{semantic,anchor}.py      # 两路静态特征
+  graph.py                           # 依赖图 + PageRank
+  rootse_dependencies.py             # LLM 依赖抽取（带缓存/预算/引文校验）
+  rootse_operations.py               # 从 action/observation 抽状态依赖
+  rankers/loghound_static.py         # 三通道 RRF 排序器
+```
+
+## 运行
+
+数据放在 `data/raw/rootse/`。完整跑一遍需要 `API_KEY`、`MODEL_NAME`（可选 `API_ENDPOINT`），放在本地 `.env`，不要提交。
 
 ```bash
-conda run -n mybook python -m pip install -r requirements.txt
+# 全量（首次需要依赖抽取请求）
+python scripts/run_rootse_experiment.py --workers 1 --out-dir outputs/baseline
+
+# 只复用缓存、零网络请求（复现基线）
+python scripts/run_rootse_experiment.py --workers 1 --cache-only --out-dir outputs/baseline
 ```
 
-## 数据
+中断后用 `--resume` 只补缺失轨迹。
 
-数据文件不随仓库提交。请按 [`data/README.md`](data/README.md) 放置数据，并在使用前核对各数据集的来源与许可。
+## 基准结果
 
-默认路径：
+`outputs/baseline/metrics.json`（102 条，零 HTTP 请求复现）：
 
-```text
-data/raw/agentracer/tracertraj-code-test.parquet
-data/raw/rootse/                      # RootSE 原始轨迹与标签
-```
+| Top-1 | Top-3 | Top-5 | Top-10 | MRR |
+|---:|---:|---:|---:|---:|
+| 28 (27.5%) | 50 (49.0%) | 60 (58.8%) | 78 (76.5%) | 0.435 |
 
-处理结果写入 `data/processed/`；实验产物写入 `outputs/`。这些本地数据和产物均由 `.gitignore` 排除。输入和标签分别保存为 `inputs.jsonl` 与 `labels.jsonl`；**排序阶段只读取输入，评估阶段才读取标签**。不要将数据集、标签、实验缓存、`.env` 或服务密钥提交到共享仓库。
+分 agent：swe-agent 30.2 / 49.1 / 56.6 / 73.6；openhands 16.7 / 33.3 / 53.3 / 83.3；auto-code-rover 50 / 100 / 100 / 100；swe-agent-live 22.2 / 44.4 / 44.4 / 44.4。
 
-## 运行 AgenTracer 实验
+**这是唯一基准**。任何改动都要在同一批 102 条上对比，并同时报 Top-K 与 MRR；池内精确率必须和 Recall@K 同表（分母是"根因仍在池内的轨迹数"，单独看会虚高）。
 
-一条命令完成数据转换、证据审计、排序、指标计算和案例报告：
+## 无标签保证
 
-```bash
-conda run -n mybook python scripts/run_experiment.py
-```
+`TrajectoryInput` 不包含标注字段；`failure_anchors` 只从 `failed_tests.error_description` 抽取，且有测试断言 `failure_reason`/`gold_patch` 不进入 anchor 或排序输入。评估阶段才读 `labels.jsonl`。
 
-若要单独检查预处理数据或证据分层，可分别运行：
+## 说明
 
-```bash
-conda run -n mybook python scripts/prepare_data.py
-conda run -n mybook python scripts/audit_data.py
-```
-
-`run_experiment.py` 本身会从原始数据开始完成整套流程；如需在已有排名上单独重算评估或案例报告：
-
-```bash
-conda run -n mybook python scripts/evaluate.py
-conda run -n mybook python scripts/case_report.py
-```
-
-## 运行 RootSE 实验
-
-先将 RootSE 数据放在 `data/raw/rootse/`。完整流程需要设置 `API_KEY` 和 `MODEL_NAME`；可选 `API_ENDPOINT` 用于指定兼容接口。凭据应保存在本地环境或被 Git 忽略的 `.env` 中，不要提交。
-
-```bash
-conda run -n mybook python scripts/run_rootse_experiment.py --workers 1
-```
-
-只使用已有的两通道缓存、不发送 API 请求：
-
-```bash
-conda run -n mybook python scripts/run_rootse_experiment.py --cache-only --misstep-cache-only
-```
-
-第三通道依赖缓存与第二通道 misstep 缓存分别保存在 `outputs/rootse/dependency_cache/` 和 `outputs/rootse/misstep_cache/`。首次运行或缓存被删除后，需配置模型 API 并重新生成缺失缓存；`--skip-misstep` 用于运行原 clue 融合消融。
-
-若运行中断，可添加 `--resume` 复用已有排名并只处理尚无排名的轨迹；`--resume-failures` 仅重试仍有 misstep 请求预算的失败轨迹。
-
-运行状态、排名和缓存默认写入 `outputs/rootse/`。若任务未全部完成，状态文件会标明未完成轨迹；不应把不完整运行当作最终评测结果。
-
-## 项目结构
-
-```text
-configs/                       排序参数与线索规则
-data/                          数据说明、元数据和本地数据目录
-scripts/                       数据准备、实验、评估和报告入口
-src/loghound_agent_debug/      schema、适配器、证据、图与排序器
-tests/                         单元与数据隔离测试
-outputs/                       本地实验结果（不提交）
-```
+`docs/` 被 `.gitignore` 排除，不受版本控制，改写前请先备份。

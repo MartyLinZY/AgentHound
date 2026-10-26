@@ -1,18 +1,15 @@
 """Tests for dependency direction and global PageRank importance."""
 
-from loghound_agent_debug.graph import Graph, Edge, build_graph, pagerank
-from loghound_agent_debug.schema import Step, TrajectoryInput
+from loghound_agent_debug.graph import Graph, Edge, build_rootse_graph, pagerank
 
 
 def test_pagerank_votes_for_upstream_dependency_without_a_seed():
-    # Step b depends on the artifact written by step a. Ordinary PageRank on
-    # the reversed dependency graph therefore ranks a higher, independent of
+    # Step 1 depends on the artifact written by step 0. Ordinary PageRank on
+    # the reversed dependency graph therefore ranks 0 higher, independent of
     # any failure observation.
-    steps = [
-        Step(0, "a", ["a"], "A", "assistant", "", "write", "", "", None, [], ["x.py"]),
-        Step(1, "b", ["b"], "A", "assistant", "", "run", "", "Traceback", None, [], []),
-    ]
-    graph = build_graph(TrajectoryInput("0.1.0", "x", "t", "task", "coding", "failure", [], steps))
+    graph = build_rootse_graph(2, [
+        {"source_ordinal": 0, "target_ordinal": 1, "relation": "artifact", "evidence": []},
+    ])
     ranks, converged, _ = pagerank(graph)
     assert converged
     assert ranks[0] > ranks[1]
