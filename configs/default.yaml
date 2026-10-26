@@ -11,9 +11,20 @@ graph:
   tolerance: 0.000001
   max_iterations: 1000
 
-# Weighted Reciprocal Rank Fusion over the three label-free channels.
-# Weights come from the day2c ablation (n=102):
-#   Top-1/3/5/10 = 27.5/49.0/58.8/76.5, MRR 0.435.
+# Action-type prior: decision steps (edits, pure reasoning) outrank evidence
+# steps (file views, shell runs). Two levels only: no per-agent table, no
+# fitted weights. RRF consumes ranks, so a monotone two-level prior is enough.
+action_type:
+  decision: [edit, reasoning]
+  # Compressed runs (ACR collapses a trajectory into 3-4 stages) have no
+  # meaningful explore/decision split; the channel is undefined there. Any
+  # value in 4-12 gives identical results on RootSE, so this is a structural
+  # cut, not a tuned hyper-parameter.
+  min_steps: 6
+
+# Weighted Reciprocal Rank Fusion.
+# day2c ablation (n=102, three channels): top-1/3/5/10 = 28/50/60/78, MRR 0.435.
+# Adding the binary action channel:            36/59/71/81, MRR 0.509.
 # Semantic must dominate: path at 1.0 amplifies PageRank ties (38.8% of steps
 # share a score), and anchor alone is a precision signal, not a recall one.
 fusion:
@@ -22,6 +33,7 @@ fusion:
   semantic: 1.0
   path: 0.5
   anchor: 0.5
+  action: 1.0
 
 rootse_llm:
   request_params:

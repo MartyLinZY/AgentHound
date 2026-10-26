@@ -39,7 +39,7 @@ class Step:
     artifacts_read: list[str] = field(default_factory=list)
     artifacts_written: list[str] = field(default_factory=list)
     # RootSE keeps the original four fields separate for auditable LLM quotes.
-    rootse_fields: dict[str, str] = field(default_factory=dict)
+    rootse_fields: dict[str, Any] = field(default_factory=dict)
     working_dir: str = ""
 
 

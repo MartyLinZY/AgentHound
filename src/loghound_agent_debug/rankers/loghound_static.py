@@ -20,6 +20,7 @@ from typing import Any
 
 import yaml
 
+from loghound_agent_debug.features import action_type as action_channel
 from loghound_agent_debug.features import anchor as anchor_scores
 from loghound_agent_debug.features.semantic import minmax, scores as semantic_scores
 from loghound_agent_debug.graph import build_rootse_graph, pagerank, pagerank_dangling_nodes, pagerank_edge_count
@@ -98,6 +99,9 @@ def rank_trajectory(input_item: TrajectoryInput, config: dict[str, Any], rootse_
         include_observation=bool(config.get("semantic", {}).get("include_observation", False)),
     )
     anchor = anchor_scores.scores(input_item)
+    action_settings = config.get("action_type") or {}
+    action_kinds = action_channel.kinds(input_item.steps)
+    action_prior = action_channel.scores(action_kinds, action_settings)
     graph = build_rootse_graph(len(input_item.steps), rootse_dependencies)
     pagerank_scores, converged, iterations = pagerank(
         graph,
@@ -111,12 +115,17 @@ def rank_trajectory(input_item: TrajectoryInput, config: dict[str, Any], rootse_
         "semantic": float(fusion.get("semantic", 1.0)),
         "path": float(fusion.get("path", 1.0)),
         "anchor": float(fusion.get("anchor", 1.0)),
+        "action": float(fusion.get("action", 0.0)),
     }
     channels = {
         "semantic": (semantic, weights["semantic"]),
         "path": (pagerank_scores, weights["path"]),
         "anchor": (anchor, weights["anchor"]),
     }
+    # Compressed trajectories have no meaningful explore/decision split, so the
+    # prior is undefined there; leaving it out keeps them on three channels.
+    if len(input_item.steps) >= int(action_settings.get("min_steps", 0)):
+        channels["action"] = (action_prior, weights["action"])
     raw_scores, active = _rrf_fuse(channels, k)
     # The best reachable score puts every active channel at rank 1, so the
     # fused score is reported on 0-1 scale without pretending to be calibrated.
@@ -145,6 +154,8 @@ def rank_trajectory(input_item: TrajectoryInput, config: dict[str, Any], rootse_
                 "path_rank": path_rank[ordinal],
                 "anchor": round(anchor[ordinal], 9),
                 "anchor_rank": anchor_rank[ordinal],
+                "action_type": action_kinds[ordinal],
+                "action_prior": round(action_prior[ordinal], 9),
             },
             "evidence": _step_evidence(ordinal, graph.edges, path_norm),
         })

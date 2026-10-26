@@ -20,7 +20,7 @@ def test_ranker_runs_pagerank_without_failure_evidence():
     assert result["graph_stats"]["pagerank_iterations"] > 0
     assert set(result["ranking"][0]["components"]) == {
         "semantic_normalized", "semantic_rank", "pagerank", "path_normalized",
-        "path_rank", "anchor", "anchor_rank",
+        "path_rank", "anchor", "anchor_rank", "action_type", "action_prior",
     }
 
 

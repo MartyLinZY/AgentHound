@@ -112,9 +112,13 @@ def _field_text(step: dict[str, Any], field: str) -> str:
 def _step_fields(step: Any) -> dict[str, str]:
     # RootSE adapter combines thought+response into decision_text; recover both
     # separately from the original action/observation stored in adapter extras.
+    # Only text fields are returned: `rootse_fields` also carries the raw action
+    # object for the action-type channel, which must never be joined as text.
     fields = getattr(step, "rootse_fields", None)
     if fields:
-        return dict(fields)
+        text_fields = {key: value for key, value in fields.items() if isinstance(value, str)}
+        if text_fields:
+            return text_fields
     decision = step.decision_text
     return {"thought": decision, "response": "", "action": step.action_text, "observation": step.observation_text}
 

@@ -85,6 +85,9 @@ def load_rootse_file(path: str | Path) -> tuple[TrajectoryInput, Label]:
             first = item["action"][0]
             if isinstance(first, dict):
                 tool_name = _text(first.get("func_name") or first.get("name") or first.get("command_name")) or None
+        # Keep the raw action object: `_text` flattens a dict/list into a string
+        # and destroys the tool sub-command, which the action-type channel needs.
+        raw_action = item.get("action")
         steps.append(Step(
             ordinal=ordinal,
             source_step_id=source_id,
@@ -96,7 +99,8 @@ def load_rootse_file(path: str | Path) -> tuple[TrajectoryInput, Label]:
             action_text=action,
             observation_text=observation,
             tool_name=tool_name,
-            rootse_fields={"thought": thought, "response": response, "action": action, "observation": observation},
+            rootse_fields={"thought": thought, "response": response, "action": action,
+                           "raw_action": raw_action, "observation": observation},
             working_dir=cwd,
         ))
         if re.search(r"Traceback|AssertionError|FAILED|Error:|No such file|command not found", observation, re.I):

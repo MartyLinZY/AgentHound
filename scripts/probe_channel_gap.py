@@ -19,7 +19,6 @@ from __future__ import annotations
 
 import argparse
 import json
-import re
 import sys
 from collections import Counter
 from pathlib import Path
@@ -28,62 +27,12 @@ sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "src"))
 
 from loghound_agent_debug.adapters.rootse import load_rootse
 from loghound_agent_debug.features import anchor as anchor_feature
+from loghound_agent_debug.features.action_type import classify as classify_action
 from loghound_agent_debug.features.semantic import scores as semantic_scores
 from loghound_agent_debug.graph import Edge, Graph, pagerank
 
-# One-shot prior used for the probe only.  A production implementation should
-# derive these from per-agent lift instead of hard-coding them.
-PRIOR = {
-    "swe-agent": {"edit": 1.0, "reasoning": 0.9, "shell": 0.25, "explore": 0.15, "other": 0.3},
-    "swe-agent-live": {"edit": 1.0, "reasoning": 0.9, "shell": 0.25, "explore": 0.15, "other": 0.3},
-    "openhands": {"edit": 1.0, "reasoning": 1.0, "shell": 0.4, "explore": 0.3, "other": 0.3},
-    "auto-code-rover": {"edit": 1.0, "reasoning": 0.9, "shell": 0.6, "explore": 0.3, "other": 0.3},
-}
-SHELL_HINT = re.compile(
-    r"^(?:python3?|pytest|pip|npm|npx|yarn|node|git|make|go|mvn|gradle|cd|bash|sh|source|conda|"
-    r"docker|curl|wget|chmod|mkdir|rm|cp|mv|export|sudo|apt|apt-get|gcc|g\+\+|cargo|ruby|perl|"
-    r"tox|coverage|ls\b.*&&|echo)\b", re.I)
-EXPLORE_HINT = re.compile(r"^(?:ls|cat|head|tail|less|more|grep|rg|find|tree|file|wc|sed -n|awk)\b", re.I)
-
-
-def classify_action(raw) -> str:
-    """Map one raw RootSE action (dict for OpenHands, list for ACR, str for swe-agent)."""
-    if isinstance(raw, dict):
-        tool = str(raw.get("tool") or "")
-        payload = raw.get("input")
-        command = str(payload.get("command") or "") if isinstance(payload, dict) else ""
-        if "str_replace_editor" in tool:
-            if command == "view":
-                return "explore"
-            return "edit" if command in ("create", "str_replace", "insert") else "other"
-        if tool in ("bash", "execute_bash", "run", "execute"):
-            return "shell"
-        return "other"
-    if isinstance(raw, list):
-        names = [str(item.get("func_name") or "") for item in raw if isinstance(item, dict)]
-        if any(n.startswith(("write_patch", "create_file", "modify")) for n in names):
-            return "edit"
-        if any(n.startswith(("search_", "get_", "list_", "find_", "read_")) for n in names):
-            return "explore"
-        if any(n.startswith(("run_", "execute", "test")) for n in names):
-            return "shell"
-        return "other"
-    text = (raw if isinstance(raw, str) else "").strip()
-    if not text:
-        return "reasoning"
-    low = text.lower()
-    if "str_replace_editor" in low:
-        if " view" in low:
-            return "explore"
-        return "edit" if (" create" in low or " str_replace" in low or " insert" in low) else "other"
-    if re.search(r"(?:^|\n)\s*(?:cat|tee)\s+[^\n]*<<", low) or "apply_patch" in low or re.search(r"sed\s+-i", low):
-        return "edit"
-    if re.search(r"(?:^|\s)(?:python3?\s+-\s*<<|pytest|go test|npm test|tox)\b", low):
-        return "shell"
-    if EXPLORE_HINT.search(low):
-        # A shell redirect into a source file is a write, not a read.
-        return "edit" if re.search(r">\s*\S+\.\w+$", low) else "explore"
-    return "shell" if SHELL_HINT.search(low) else "other"
+DECISION = {"edit", "reasoning"}
+MIN_STEPS = 6
 
 
 def ranks(values: list[float]) -> list[int]:
@@ -160,8 +109,10 @@ def main() -> int:
     print({k: round(v / total, 3) for k, v in kind_counter.most_common()})
 
     def prior(row):
-        table = PRIOR[row["agent"]]
-        return [table[kind] for kind in row["kinds"]]
+        # Mirror the ranker: compressed trajectories keep three channels.
+        if row["n"] < MIN_STEPS:
+            return [1.0] * row["n"]
+        return [1.0 if kind in DECISION else 0.0 for kind in row["kinds"]]
 
     configs = {
         "sem+path": lambda r: {"sem": (r["semantic"], 1.0), "path": (r["path"], 0.5)},
