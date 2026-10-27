@@ -64,3 +64,4 @@ project/
 
 # Optional local attention experiment runtime
 .venv-attention/
+.venv-attention-semantic/
