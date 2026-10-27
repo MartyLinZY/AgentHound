@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import argparse
+import csv
 import json
 from pathlib import Path
 import sys
@@ -206,8 +207,15 @@ def main() -> None:
                                "repository_and_task_disjoint": True, "matched_parameter_budget": True, **checks}}
     save(dest / "comparison.json", result)
     save(dest / "per_case_metrics.json", measures)
+    with (dest / "metrics.csv").open("w", newline="") as handle:
+        writer = csv.DictWriter(handle, fieldnames=["representation", "method", *METRICS, "zero_root_mean_hits"])
+        writer.writeheader()
+        for name, row in summaries.items():
+            representation, method = name.split("/", 1)
+            writer.writerow({"representation": representation, "method": method,
+                             **{k: row[k] for k in (*METRICS, "zero_root_mean_hits")}})
     names = ["linear", "mlp", "fixed_graph", "dense_unconditioned", "dense", "dense_no_prior"]
-    display = ["线性排序", "MLP", "固定图 attention", "无失败条件", "Attention map", "无图先验"]
+    display = ["线性排序", "MLP", "固定图 attention", "关系不注入失败", "Attention map", "无图先验"]
     dense = summaries["semantic/dense"]
     delta = comparisons["semantic/dense - lexical/dense"]
     lines = ["# 冻结语义表示对照结果", "",
@@ -257,7 +265,8 @@ def main() -> None:
             for i, method in enumerate(names):
                 for row in summaries[f"{representation}/{method}"]["per_seed"]:
                     ax.plot(row[metric] * 100, y[i] + shift, ".", color="#1a2834", markersize=3)
-                ax.text(values[i] + 1, y[i] + shift, f"{values[i]:.1f}", va="center", fontsize=8)
+                label_x = max(row[metric] * 100 for row in summaries[f"{representation}/{method}"]["per_seed"]) + 1
+                ax.text(label_x, y[i] + shift, f"{values[i]:.1f}", va="center", fontsize=8)
         ax.axvline(fixed[metric] * 100, ls="--", lw=1, color="#aa5c37", label="Fixed RRF")
         ax.set_yticks(y, labels_en)
         ax.invert_yaxis()
@@ -270,6 +279,48 @@ def main() -> None:
     for suffix in ("png", "pdf"):
         fig.savefig(dest / f"comparison.{suffix}", dpi=180)
     plt.close(fig)
+    # Reuse the previous round's example, fixed before inspecting new outcomes.
+    example = read(original / "analysis/illustrative_case.json")
+    cid = example["case_id"]
+    case = cases[cid]
+    gold = labels[cid][0]
+    seed = seeds[0]
+    case_result = {"case_id": cid, "trajectory_id": case["trajectory_id"],
+                   "selection": "Same case as v1, fixed before semantic results",
+                   "seed_displayed": seed, "root_step_id": case["step_ids"][gold],
+                   "ranks": {f"{r}/{m}": [measures[r][m][s][cid]["rank"] for s in seeds]
+                             for r in ("lexical", "semantic") for m in names}}
+    save(dest / "fixed_case.json", case_result)
+    fig, axes = plt.subplots(1, 3, figsize=(14, 4.6), layout="constrained")
+    n = case["n_steps"]
+    ticks = np.unique(np.linspace(0, n - 1, min(n, 7)).astype(int))
+    for ax, representation in zip(axes[:2], ("lexical", "semantic")):
+        with np.load(out / representation / "maps/dense" / f"seed-{seed}" / f"{cid}.npz") as z:
+            attention = z["attention"]
+        ax.imshow(attention / attention.max(axis=1, keepdims=True), cmap="viridis", vmin=0, vmax=1)
+        rank = measures[representation]["dense"][seed][cid]["rank"]
+        ax.set_title(f"{representation.capitalize()} attention · root rank {rank}")
+        ax.axvline(gold, color="#e8594e", ls="--", lw=1.2)
+        ax.set_xticks(ticks, [case["step_ids"][i] for i in ticks])
+        ax.set_yticks(ticks, [case["step_ids"][i] for i in ticks])
+        ax.set_xlabel("Earlier source step ID")
+        ax.set_ylabel("Later target step ID")
+    for representation, color in (("lexical", "#8795a1"), ("semantic", "#247b88")):
+        scores = predictions[representation]["dense"][seed][cid]["scores"]
+        probability = torch.softmax(torch.tensor(scores), dim=0).numpy()
+        axes[2].plot(np.arange(n), probability, label=representation.capitalize(), color=color)
+    axes[2].axvline(gold, color="#e8594e", ls="--", label=f"Gold step {case['step_ids'][gold]}")
+    axes[2].set_xticks(ticks, [case["step_ids"][i] for i in ticks])
+    axes[2].set_xlabel("Original step ID")
+    axes[2].set_ylabel("Softmax of final ranking logits")
+    axes[2].set_title("Final score distribution")
+    axes[2].legend(fontsize=8)
+    fig.suptitle(f"{case['task_id'][:70]} · seed {seed}\nSame example as v1; maps normalized by each row maximum", fontsize=11)
+    for suffix in ("png", "pdf"):
+        fig.savefig(dest / f"fixed_case.{suffix}", dpi=180)
+    plt.close(fig)
+    with (dest / "report.md").open("a") as handle:
+        handle.write("\n## 固定案例\n\n沿用上轮案例，展示种子 17；图按每行最大值缩放。各种子与六模型的原始根因排名保存在 fixed_case.json。\n\n![同一案例](fixed_case.png)\n")
     print(json.dumps(result["verification"], indent=2), flush=True)
 
 
