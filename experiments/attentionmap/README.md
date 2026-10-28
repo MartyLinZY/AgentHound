@@ -1,5 +1,7 @@
 # Attention map v1
 
+2026-10-28：attention map 用作调用图的上下文抽象，组织诊断模型观察轨迹时的关注范围。设计见 [CONTEXT_MAP_DESIGN.md](CONTEXT_MAP_DESIGN.md)，端到端协议见 [CONTEXT_PROTOCOL.md](CONTEXT_PROTOCOL.md)，完成结果见 [CONTEXT_RESULTS.md](CONTEXT_RESULTS.md)。本轮 102 条×5 组，由同一个 Qwen 诊断；全文 57/102、map 55/102、原图 55/102、窗口 53/102、同事实平铺 50/102。下文保留 v1 小模型排序实验的复现说明。
+
 把固定步骤依赖改为失败条件下的回看权重，保留单步评分分支。完整定义见[PROTOCOL.md](PROTOCOL.md)。
 
 环境：Python 3.12；安装本项目的attention可选依赖即可训练。完整本机依赖版本见requirements.lock.txt。现有`.venv-attention`已经可用，原`.venv`保留。

@@ -1,0 +1,350 @@
+{
+  "experiment": "948cd17e4627cdbe4d8565e795f4442941aa13d082ad91be40bf4e5ce03d7212",
+  "n": 102,
+  "groups": 35,
+  "runs_per_method": 1,
+  "methods": {
+    "full": {
+      "n": 102,
+      "valid": 101,
+      "hits": 57,
+      "top5_hits": 82,
+      "status_counts": {
+        "valid": 101,
+        "format_error": 1
+      },
+      "metrics": {
+        "top1": {
+          "mean": 0.5588235294117647,
+          "ci95": [
+            0.4716981132075472,
+            0.6379310344827587
+          ]
+        },
+        "top5": {
+          "mean": 0.803921568627451,
+          "ci95": [
+            0.7211538461538461,
+            0.8692391304347825
+          ]
+        },
+        "mrr_at5": {
+          "mean": 0.6612745098039214,
+          "ci95": [
+            0.577834186775159,
+            0.730251610305958
+          ]
+        },
+        "root_expanded": {
+          "mean": 1.0,
+          "ci95": [
+            1.0,
+            1.0
+          ]
+        }
+      },
+      "valid_top1": 0.5643564356435643,
+      "expanded_top1": 0.5588235294117647,
+      "expanded_n": 102,
+      "unexpanded_hits": 0,
+      "root_excerpt_fraction_mean": 1.0,
+      "input_tokens_median": 60222.0,
+      "response_seconds_median": 84.06618293758947,
+      "cost": {
+        "logical_calls": 102,
+        "requests": 102,
+        "prompt_tokens": 6520336,
+        "completion_tokens": 704791,
+        "total_tokens": 7225127
+      }
+    },
+    "window": {
+      "n": 102,
+      "valid": 102,
+      "hits": 53,
+      "top5_hits": 80,
+      "status_counts": {
+        "valid": 102
+      },
+      "metrics": {
+        "top1": {
+          "mean": 0.5196078431372549,
+          "ci95": [
+            0.39472757598220903,
+            0.6180587121212121
+          ]
+        },
+        "top5": {
+          "mean": 0.7843137254901961,
+          "ci95": [
+            0.6727272727272727,
+            0.8672588947083258
+          ]
+        },
+        "mrr_at5": {
+          "mean": 0.6112745098039216,
+          "ci95": [
+            0.49245774943578435,
+            0.700608126721763
+          ]
+        },
+        "root_expanded": {
+          "mean": 0.696078431372549,
+          "ci95": [
+            0.6277334507928518,
+            0.7777777777777778
+          ]
+        }
+      },
+      "valid_top1": 0.5196078431372549,
+      "expanded_top1": 0.5492957746478874,
+      "expanded_n": 71,
+      "unexpanded_hits": 14,
+      "root_excerpt_fraction_mean": 0.5391365478164009,
+      "input_tokens_median": 21482.0,
+      "response_seconds_median": 89.74137035408057,
+      "cost": {
+        "logical_calls": 102,
+        "requests": 102,
+        "prompt_tokens": 2065801,
+        "completion_tokens": 792548,
+        "total_tokens": 2858349
+      }
+    },
+    "graph": {
+      "n": 102,
+      "valid": 102,
+      "hits": 55,
+      "top5_hits": 79,
+      "status_counts": {
+        "valid": 102
+      },
+      "metrics": {
+        "top1": {
+          "mean": 0.5392156862745098,
+          "ci95": [
+            0.408156552094522,
+            0.641669776119403
+          ]
+        },
+        "top5": {
+          "mean": 0.7745098039215687,
+          "ci95": [
+            0.6761776061776062,
+            0.8529479222881812
+          ]
+        },
+        "mrr_at5": {
+          "mean": 0.6258169934640523,
+          "ci95": [
+            0.510386240103982,
+            0.7125742750073478
+          ]
+        },
+        "root_expanded": {
+          "mean": 0.8431372549019608,
+          "ci95": [
+            0.788135593220339,
+            0.9069767441860465
+          ]
+        }
+      },
+      "valid_top1": 0.5392156862745098,
+      "expanded_top1": 0.5697674418604651,
+      "expanded_n": 86,
+      "unexpanded_hits": 6,
+      "root_excerpt_fraction_mean": 0.652328872732105,
+      "input_tokens_median": 21477.5,
+      "response_seconds_median": 91.02978427102789,
+      "cost": {
+        "logical_calls": 102,
+        "requests": 102,
+        "prompt_tokens": 2073619,
+        "completion_tokens": 739672,
+        "total_tokens": 2813291
+      }
+    },
+    "attention": {
+      "n": 102,
+      "valid": 102,
+      "hits": 55,
+      "top5_hits": 79,
+      "status_counts": {
+        "valid": 102
+      },
+      "metrics": {
+        "top1": {
+          "mean": 0.5392156862745098,
+          "ci95": [
+            0.4117647058823529,
+            0.6372575953458306
+          ]
+        },
+        "top5": {
+          "mean": 0.7745098039215687,
+          "ci95": [
+            0.6767602495543672,
+            0.8515094952118158
+          ]
+        },
+        "mrr_at5": {
+          "mean": 0.6300653594771242,
+          "ci95": [
+            0.5207044402356903,
+            0.7151670379537953
+          ]
+        },
+        "root_expanded": {
+          "mean": 0.8529411764705882,
+          "ci95": [
+            0.7913629535931694,
+            0.9065420560747663
+          ]
+        }
+      },
+      "valid_top1": 0.5392156862745098,
+      "expanded_top1": 0.5747126436781609,
+      "expanded_n": 87,
+      "unexpanded_hits": 5,
+      "root_excerpt_fraction_mean": 0.6644582660872299,
+      "input_tokens_median": 21541.0,
+      "response_seconds_median": 92.00220864533912,
+      "cost": {
+        "logical_calls": 102,
+        "requests": 102,
+        "prompt_tokens": 2076653,
+        "completion_tokens": 730118,
+        "total_tokens": 2806771
+      }
+    },
+    "attention_flat": {
+      "n": 102,
+      "valid": 102,
+      "hits": 50,
+      "top5_hits": 79,
+      "status_counts": {
+        "valid": 102
+      },
+      "metrics": {
+        "top1": {
+          "mean": 0.49019607843137253,
+          "ci95": [
+            0.375,
+            0.5849106784423925
+          ]
+        },
+        "top5": {
+          "mean": 0.7745098039215687,
+          "ci95": [
+            0.6588235294117647,
+            0.8585858585858586
+          ]
+        },
+        "mrr_at5": {
+          "mean": 0.6109477124183007,
+          "ci95": [
+            0.49773112467887765,
+            0.6991229977116704
+          ]
+        },
+        "root_expanded": {
+          "mean": 0.8529411764705882,
+          "ci95": [
+            0.7913629535931694,
+            0.9065420560747663
+          ]
+        }
+      },
+      "valid_top1": 0.49019607843137253,
+      "expanded_top1": 0.5287356321839081,
+      "expanded_n": 87,
+      "unexpanded_hits": 4,
+      "root_excerpt_fraction_mean": 0.6644582660872299,
+      "input_tokens_median": 20242.0,
+      "response_seconds_median": 90.70645927055739,
+      "cost": {
+        "logical_calls": 102,
+        "requests": 102,
+        "prompt_tokens": 1950169,
+        "completion_tokens": 792123,
+        "total_tokens": 2742292
+      }
+    }
+  },
+  "contrasts_attention_minus": {
+    "graph": {
+      "mean": 0.0,
+      "ci95": [
+        -0.04425270403146509,
+        0.05405405405405406
+      ],
+      "p": 1.0,
+      "gained": 4,
+      "lost": 4,
+      "p_holm": 1.0
+    },
+    "window": {
+      "mean": 0.0196078431372549,
+      "ci95": [
+        -0.0196078431372549,
+        0.05634467180441128
+      ],
+      "p": 0.6236688165591721,
+      "gained": 3,
+      "lost": 1,
+      "p_holm": 1.0
+    },
+    "attention_flat": {
+      "mean": 0.049019607843137254,
+      "ci95": [
+        -0.008930582368082366,
+        0.10257009345794384
+      ],
+      "p": 0.17934103294835257,
+      "gained": 8,
+      "lost": 3,
+      "p_holm": 0.7173641317934103
+    },
+    "full": {
+      "mean": -0.0196078431372549,
+      "ci95": [
+        -0.10666666666666667,
+        0.04630167958656323
+      ],
+      "p": 0.7928103594820259,
+      "gained": 7,
+      "lost": 9,
+      "p_holm": 1.0
+    }
+  },
+  "prepare_seconds": 149.36857945797965,
+  "historical_graph_cost": {
+    "formal": {
+      "logical_calls": 5166,
+      "requests": 5166,
+      "prompt_tokens": 47660074,
+      "completion_tokens": 1280420,
+      "total_tokens": 48940494,
+      "unknown_usage_requests": 3
+    },
+    "pilot": {
+      "logical_calls": 9,
+      "requests": 9,
+      "prompt_tokens": 240933,
+      "completion_tokens": 3044,
+      "total_tokens": 243977
+    }
+  },
+  "rejected_credential_preflight_cost": {
+    "logical_calls": 10,
+    "requests": 11,
+    "unknown_usage_requests": 11
+  },
+  "credential_probe_cost": {
+    "logical_calls": 1,
+    "requests": 1,
+    "prompt_tokens": 29,
+    "completion_tokens": 1,
+    "total_tokens": 30
+  }
+}

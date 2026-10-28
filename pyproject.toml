@@ -12,6 +12,7 @@ dependencies = ["numpy>=1.24", "pandas>=2.0", "pyarrow>=12.0", "PyYAML>=6.0", "r
 [project.optional-dependencies]
 attention = ["torch>=2.2", "matplotlib>=3.8"]
 attention-semantic = ["torch>=2.2", "matplotlib>=3.8", "transformers>=4.45,<5", "safetensors>=0.4"]
+context-map = ["tiktoken==0.12.0", "matplotlib>=3.8"]
 
 [project.scripts]
 loghound-agent-debug = "loghound_agent_debug.cli:main"
